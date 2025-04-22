@@ -42,3 +42,5 @@ sample.csv
 annual-enterprise-survey-2023-financial-year-provisional.csv
 db.sqlite3
 note.md
+
+/.venv
