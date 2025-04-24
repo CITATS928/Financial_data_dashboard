@@ -70,10 +70,10 @@ CSRF_TRUSTED_ORIGINS = [
 
 # These help during local dev
 CSRF_COOKIE_HTTPONLY = False  # allows JS to read it
-CSRF_COOKIE_SAMESITE = "Lax"
-# CSRF_COOKIE_SECURE = False  # should be True in production
-
-
+CSRF_COOKIE_SAMESITE = None
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = None
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:3000",
 # ]
@@ -182,7 +182,7 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication', 
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',  # optional default

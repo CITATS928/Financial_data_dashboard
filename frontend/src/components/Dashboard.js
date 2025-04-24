@@ -16,45 +16,34 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // 🛡 CSRF token helper
   function getCSRFToken() {
     const matches = document.cookie.match(/csrftoken=([^;]+)/);
     return matches ? matches[1] : null;
   }
 
-  // ✅ On mount, check login and fetch CSRF + data
   useEffect(() => {
-    if (!token) {
-      toast.warning("You must be logged in!");
-      navigate("/");
-      return;
-    }
-
-    axios
-      .get("http://localhost:8000/api/csrf/", { withCredentials: true })
+    // 获取 CSRF cookie
+    axios.get("http://localhost:8000/api/csrf/", { withCredentials: true })
       .then(() => {
-        console.log("✅ CSRF cookie set");
-        loadData();
+        // 然后尝试访问受保护接口判断是否登录
+        axios.get("http://localhost:8000/api/dashboard/table/", { withCredentials: true })
+          .then(() => {
+            loadData(); // 登录了再加载数据
+          })
+          .catch(() => {
+            toast.warning("You must be logged in!");
+            navigate("/");
+          });
       })
-      .catch((err) => {
-        console.error("❌ CSRF fetch failed", err);
+      .catch(() => {
         toast.error("Failed to fetch CSRF token.");
       });
-  }, [navigate, token]);
+  }, [navigate]);
 
-  // ✅ Only warn about missing CSRF *after* mount
-  useEffect(() => {
-    const csrf = getCSRFToken();
-    if (!csrf) {
-      toast.error("CSRF token missing. Please refresh the page.");
-    }
-  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
     toast.success("Logged out successfully!");
     navigate("/");
   };
@@ -74,7 +63,6 @@ export default function Dashboard() {
     try {
       await axios.post("http://localhost:8000/api/dashboard/upload/", formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "X-CSRFToken": csrfToken,
         },
         withCredentials: true,
@@ -92,31 +80,25 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const tableRes = await axios.get("/api/dashboard/table/", {
-        headers: { Authorization: `Bearer ${token}` },
+      const tableRes = await axios.get("http://localhost:8000/api/dashboard/table/", {
+        withCredentials: true,
       });
-      const chartRes = await axios.get("/api/dashboard/chart/", {
-        headers: { Authorization: `Bearer ${token}` },
+      const chartRes = await axios.get("http://localhost:8000/api/dashboard/chart/", {
+        withCredentials: true,
       });
       setTableData(tableRes.data);
       setChartData(chartRes.data);
     } catch (err) {
-      if (err.response?.status === 401) {
-        toast.warning("Your session has expired. Please log in again.");
-        localStorage.removeItem("token");
-        navigate("/");
-      } else {
-        toast.error("Failed to load data. Please try again.");
-        setError("Failed to load data. Please try again.");
-      }
+      toast.error("Failed to load data. Please try again.");
+      setError("Failed to load data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="container py-4">
-    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} />
+      <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="text-primary">📊 Diocese of DE Dashboard</h2>
@@ -124,10 +106,10 @@ export default function Dashboard() {
           Logout
         </button>
       </div>
-  
+
       {loading && <div className="alert alert-info">Loading...</div>}
       {error && <div className="alert alert-danger">{error}</div>}
-  
+
       <div className="card mb-4 shadow-sm">
         <div className="card-body">
           <h5 className="card-title mb-3">Upload Event CSV</h5>
@@ -147,14 +129,14 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-  
+
       <div className="mb-5">
         <TableView data={tableData} />
       </div>
-  
+
       <div>
         <ChartsView data={tableData} />
       </div>
     </div>
   );
-}  
+}
