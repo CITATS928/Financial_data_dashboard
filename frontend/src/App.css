@@ -37,3 +37,8 @@
   }
 }
 
+mark {
+  background-color: #fff59d; /* soft yellow */
+  padding: 0 2px;
+  border-radius: 3px;
+}
