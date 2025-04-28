@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import TableView from "./TableView";
 import ChartsView from "./ChartsView";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 axios.defaults.withCredentials = true;
@@ -15,46 +14,35 @@ export default function Dashboard() {
   const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchColumn, setSearchColumn] = useState("all");
+  const searchInputRef = useRef(null);
 
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // 🛡 CSRF token helper
   function getCSRFToken() {
     const matches = document.cookie.match(/csrftoken=([^;]+)/);
     return matches ? matches[1] : null;
   }
 
-  // ✅ On mount, check login and fetch CSRF + data
   useEffect(() => {
-    if (!token) {
-      toast.warning("You must be logged in!");
-      navigate("/");
-      return;
-    }
-
-    axios
-      .get("http://localhost:8000/api/csrf/", { withCredentials: true })
+    axios.get("http://localhost:8000/api/csrf/", { withCredentials: true })
       .then(() => {
-        console.log("✅ CSRF cookie set");
-        loadData();
+        axios.get("http://localhost:8000/api/dashboard/table/", { withCredentials: true })
+          .then(() => {
+            loadData();
+          })
+          .catch(() => {
+            toast.warning("You must be logged in!");
+            navigate("/");
+          });
       })
-      .catch((err) => {
-        console.error("❌ CSRF fetch failed", err);
+      .catch(() => {
         toast.error("Failed to fetch CSRF token.");
       });
-  }, [navigate, token]);
-
-  // ✅ Only warn about missing CSRF *after* mount
-  useEffect(() => {
-    const csrf = getCSRFToken();
-    if (!csrf) {
-      toast.error("CSRF token missing. Please refresh the page.");
-    }
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
     toast.success("Logged out successfully!");
     navigate("/");
   };
@@ -74,13 +62,15 @@ export default function Dashboard() {
     try {
       await axios.post("http://localhost:8000/api/dashboard/upload/", formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "X-CSRFToken": csrfToken,
         },
         withCredentials: true,
       });
       toast.success("File uploaded successfully!");
       loadData();
+      setTimeout(() => {
+        searchInputRef.current?.focus();  // 👈 Auto-focus the search bar
+      }, 500);
     } catch (err) {
       toast.error("File upload failed. Please try again.");
       setError("File upload failed. Please try again.");
@@ -92,31 +82,43 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const tableRes = await axios.get("/api/dashboard/table/", {
-        headers: { Authorization: `Bearer ${token}` },
+      const tableRes = await axios.get("http://localhost:8000/api/dashboard/table/", {
+        withCredentials: true,
       });
-      const chartRes = await axios.get("/api/dashboard/chart/", {
-        headers: { Authorization: `Bearer ${token}` },
+      const chartRes = await axios.get("http://localhost:8000/api/dashboard/chart/", {
+        withCredentials: true,
       });
       setTableData(tableRes.data);
       setChartData(chartRes.data);
     } catch (err) {
-      if (err.response?.status === 401) {
-        toast.warning("Your session has expired. Please log in again.");
-        localStorage.removeItem("token");
-        navigate("/");
-      } else {
-        toast.error("Failed to load data. Please try again.");
-        setError("Failed to load data. Please try again.");
-      }
+      toast.error("Failed to load data. Please try again.");
+      setError("Failed to load data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const filteredTableData = tableData.filter((row) => {
+    if (!searchQuery) return true;
+
+    if (searchColumn === "all") {
+      return Object.values(row).some(
+        (value) =>
+          value &&
+          value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else {
+      const value = row[searchColumn];
+      return (
+        value &&
+        value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+  });
+
   return (
     <div className="container py-4">
-    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} />
+      <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="text-primary">📊 Diocese of DE Dashboard</h2>
@@ -124,10 +126,10 @@ export default function Dashboard() {
           Logout
         </button>
       </div>
-  
+
       {loading && <div className="alert alert-info">Loading...</div>}
       {error && <div className="alert alert-danger">{error}</div>}
-  
+
       <div className="card mb-4 shadow-sm">
         <div className="card-body">
           <h5 className="card-title mb-3">Upload Event CSV</h5>
@@ -147,14 +149,41 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-  
+
+      {/* Search section */}
+<div className="card mb-4 shadow-sm">
+  <div className="card-body">
+    <h5 className="card-title mb-3">Search Events</h5>
+    <div className="d-flex gap-3">
+      <select
+        className="form-select w-auto"
+        value={searchColumn}
+        onChange={(e) => setSearchColumn(e.target.value)}
+      >
+        <option value="all">All Fields</option>
+        <option value="date">Date</option>
+        <option value="category">Category</option>
+        <option value="amount">Amount</option>
+      </select>
+
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="form-control"
+        placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
+      />
+    </div>
+  </div>
+</div>
+
       <div className="mb-5">
-        <TableView data={tableData} />
+        <TableView data={filteredTableData} searchQuery={searchQuery} searchColumn={searchColumn} />
       </div>
-  
+
       <div>
-        <ChartsView data={tableData} />
+        <ChartsView data={filteredTableData} />
       </div>
     </div>
   );
-}  
+}
