@@ -45,8 +45,8 @@ export default function ChartsView({ data }) {
 
       {/* Bar Chart */}
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 40 }}>
-          <CartesianGrid strokeDasharray="3 3" />
+       <BarChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 40 }}>
+        <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="name"
             angle={-45}
@@ -57,9 +57,14 @@ export default function ChartsView({ data }) {
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip formatter={(value) => `$${value}`} />
           <Legend wrapperStyle={{ fontSize: "12px" }} />
-          <Bar dataKey="value" fill="#4c84ff" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+            {chartData.map((entry, index) => (
+              <Cell key={`bar-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
+
 
       {/* Pie Chart */}
       <h5 className="text-primary mt-5 mb-4 text-center"> Spending Distribution</h5>
