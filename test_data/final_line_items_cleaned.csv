@@ -1,0 +1,33 @@
+entity_name,account_code,description,ytd_actual,annual_budget,category,item_type
+Magnimetrics,AUTO001,Sales,1100,1320,Core,statement
+Magnimetrics,AUTO002,Cost of Sales,-1200,-1440,Core,statement
+Magnimetrics,AUTO003,Administrative expenses,-1300,-1560,Core,statement
+Magnimetrics,AUTO004,Other income,1400,1680,Core,statement
+Magnimetrics,AUTO005,Depreciation and amortization,-1500,-1800,Core,statement
+Magnimetrics,AUTO006,Finance costs,-1600,-1920,Core,statement
+Magnimetrics,AUTO007,Income tax expense,-1700,-2040,Core,statement
+Magnimetrics,AUTO008,Profit / (Loss) Before Income Tax,1800,2160,Core,statement
+FunMetrics,AUTO009,Sales,2100,2520,Core,statement
+FunMetrics,AUTO010,Cost of Sales,-2200,-2640,Core,statement
+FunMetrics,AUTO011,Administrative expenses,-2300,-2760,Core,statement
+FunMetrics,AUTO012,Other income,2400,2880,Core,statement
+FunMetrics,AUTO013,Depreciation and amortization,-2500,-3000,Core,statement
+FunMetrics,AUTO014,Finance costs,-2600,-3120,Core,statement
+FunMetrics,AUTO015,Income tax expense,-2700,-3240,Core,statement
+FunMetrics,AUTO016,Profit / (Loss) Before Income Tax,2800,3360,Core,statement
+MetricMaker,AUTO017,Sales,3100,3720,Core,statement
+MetricMaker,AUTO018,Cost of Sales,-3200,-3840,Core,statement
+MetricMaker,AUTO019,Administrative expenses,-3300,-3960,Core,statement
+MetricMaker,AUTO020,Other income,3400,4080,Core,statement
+MetricMaker,AUTO021,Depreciation and amortization,-3500,-4200,Core,statement
+MetricMaker,AUTO022,Finance costs,-3600,-4320,Core,statement
+MetricMaker,AUTO023,Income tax expense,-3700,-4440,Core,statement
+MetricMaker,AUTO024,Profit / (Loss) Before Income Tax,3800,4560,Core,statement
+Data Science 345,AUTO025,Sales,4100,4920,Core,statement
+Data Science 345,AUTO026,Cost of Sales,-4200,-5040,Core,statement
+Data Science 345,AUTO027,Administrative expenses,-4300,-5160,Core,statement
+Data Science 345,AUTO028,Other income,4400,5280,Core,statement
+Data Science 345,AUTO029,Depreciation and amortization,-4500,-5400,Core,statement
+Data Science 345,AUTO030,Finance costs,-4600,-5520,Core,statement
+Data Science 345,AUTO031,Income tax expense,-4700,-5640,Core,statement
+Data Science 345,AUTO032,Profit / (Loss) Before Income Tax,4800,5760,Core,statement

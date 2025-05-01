@@ -1,3 +1,5 @@
+// ChartsView.js
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -23,37 +25,30 @@ export default function ChartsView({ data }) {
     );
   }
 
-  // 🔁 Group and sum amounts by category
+  // Sum ytd_actual by category
   const grouped = data.reduce((acc, item) => {
-    const category = item.category || "Uncategorized";
-    const amount = parseFloat(item.amount);
-    if (!isNaN(amount)) {
-      acc[category] = (acc[category] || 0) + amount;
+    const group = item.category || item.description || "Uncategorized";
+    const value = parseFloat(item.ytd_actual);
+    if (!isNaN(value)) {
+      acc[group] = (acc[group] || 0) + value;
     }
     return acc;
   }, {});
 
-  // 🔄 Convert to recharts-friendly array
-  const chartData = Object.entries(grouped).map(([category, total]) => ({
-    name: category,
-    value: Number(total.toFixed(2)),
+  const chartData = Object.entries(grouped).map(([label, value]) => ({
+    name: label,
+    value: Number(value.toFixed(2)),
   }));
 
   return (
     <div className="card shadow-sm rounded-3 p-4 mt-4">
-      <h5 className="text-primary mb-4 text-center"> Spending by Category</h5>
-
+      <h5 className="text-primary mb-4 text-center">YTD Actuals by Category</h5>
+      
       {/* Bar Chart */}
       <ResponsiveContainer width="100%" height={300}>
-       <BarChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 40 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="name"
-            angle={-45}
-            textAnchor="end"
-            height={80}
-            tick={{ fontSize: 12 }}
-          />
+        <BarChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 40 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip formatter={(value) => `$${value}`} />
           <Legend wrapperStyle={{ fontSize: "12px" }} />
@@ -65,9 +60,8 @@ export default function ChartsView({ data }) {
         </BarChart>
       </ResponsiveContainer>
 
-
       {/* Pie Chart */}
-      <h5 className="text-primary mt-5 mb-4 text-center"> Spending Distribution</h5>
+      <h5 className="text-primary mt-5 mb-4 text-center">Spending Distribution</h5>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -88,9 +82,9 @@ export default function ChartsView({ data }) {
           <Tooltip formatter={(value) => `$${value}`} />
         </PieChart>
       </ResponsiveContainer>
-      
+
       {/* Donut Chart */}
-      <h5 className="text-primary mt-5 mb-4 text-center"> Spending Distribution (Donut)</h5>
+      <h5 className="text-primary mt-5 mb-4 text-center">Spending Distribution (Donut)</h5>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -115,3 +109,29 @@ export default function ChartsView({ data }) {
     </div>
   );
 }
+
+/*
+  // Original Version (Commented out for reference)
+
+  <h5 className="text-primary mb-4 text-center">Spending by Category</h5>
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 40 }}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis
+        dataKey="name"
+        angle={-45}
+        textAnchor="end"
+        height={80}
+        tick={{ fontSize: 12 }}
+      />
+      <YAxis tick={{ fontSize: 12 }} />
+      <Tooltip formatter={(value) => `$${value}`} />
+      <Legend wrapperStyle={{ fontSize: "12px" }} />
+      <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+        {chartData.map((entry, index) => (
+          <Cell key={`bar-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
+*/

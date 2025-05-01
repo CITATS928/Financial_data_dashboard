@@ -2,14 +2,60 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
-class FinancialData(models.Model):
-    date = models.DateField()
-    category = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+class FinancialLineItem(models.Model):
+    entity_name = models.CharField(max_length=255)
+    account_code = models.CharField(max_length=20)
+    description = models.CharField(max_length=255) 
+
+    ytd_actual = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    annual_budget = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+
+    category = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Optional group like 'Revenue', 'IT', 'Audit'"
+    )
+    item_type = models.CharField(
+        max_length=50,
+        choices=[
+            ("statement", "Income Statement"),
+            ("budget", "Budget Line Item"),
+        ],
+        default="statement",
+        help_text="Label this row as 'statement' or 'budget'"
+    )
+
+    @property
+    def percent_used(self):
+        if self.annual_budget:
+            return (self.ytd_actual / self.annual_budget) * 100
+        return None
+
+    @property
+    def gross_profit(self):
+        return self.ytd_actual - 1000  # Placeholder logic
+
+    @property
+    def ebitda(self):
+        return self.gross_profit - 500  # Placeholder logic
+
+    @property
+    def ebit(self):
+        return self.ebitda - 300  # Placeholder logic
+
+    @property
+    def profit_before_tax(self):
+        return self.ebit - 200  # Placeholder logic
+
+    @property
+    def profit_for_period(self):
+        return self.profit_before_tax - 100  # Placeholder logic
 
     def __str__(self):
-        return f"{self.date} - {self.category} - {self.amount}"
-    
+        return f"{self.account_code} | {self.description} | {self.entity_name}"
+
+
 class UserActivity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=255)
