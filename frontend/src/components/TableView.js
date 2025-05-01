@@ -12,17 +12,17 @@ export default function TableView({ data }) {
   }
 
   // Reserved for future use if highlighting is added
-  const highlightMatch = (text) => {
-    if (!searchQuery) return text;
-    const parts = text.toString().split(new RegExp(`(${searchQuery})`, "gi"));
-    return parts.map((part, index) =>
-      part.toLowerCase() === searchQuery.toLowerCase() ? (
-        <mark key={index}>{part}</mark>
-      ) : (
-        part
-      )
-    );
-  };
+  // const highlightMatch = (text) => {
+  //   if (!searchQuery) return text;
+  //   const parts = text.toString().split(new RegExp(`(${searchQuery})`, "gi"));
+  //   return parts.map((part, index) =>
+  //     part.toLowerCase() === searchQuery.toLowerCase() ? (
+  //       <mark key={index}>{part}</mark>
+  //     ) : (
+  //       part
+  //     )
+  //   );
+  // };
 
   return (
     <div className="table-responsive shadow rounded-3 overflow-hidden">
