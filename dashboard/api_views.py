@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from rest_framework.generics import ListAPIView
 from .models import FinancialLineItem
-from .serializers import FinancialLineItemSerializer
+from .serializers import FinancialLineItemSerializer  # ✅ already present, reused below
 
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
@@ -122,23 +122,11 @@ class UploadFinancialLineItemsView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-# ✅ NEW: Serve FinancialLineItem data to frontend
+# ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        items = FinancialLineItem.objects.all().values(
-            "entity_name",
-            "account_code",
-            "description",
-            "ytd_actual",
-            "annual_budget",
-            "category",
-            "item_type"
-        )
-        for item in items:
-            actual = float(item["ytd_actual"] or 0)
-            budget = float(item["annual_budget"] or 0)
-            item["percent_used"] = round((actual / budget) * 100, 2) if budget else None
-        return JsonResponse(list(items), safe=False)
+        queryset = FinancialLineItem.objects.all()
+        serializer = FinancialLineItemSerializer(queryset, many=True)
+        return Response(serializer.data)

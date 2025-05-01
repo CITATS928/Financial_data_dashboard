@@ -32,13 +32,30 @@ class FinancialLineItem(models.Model):
             return (self.ytd_actual / self.annual_budget) * 100
         return None
 
+    @property
+    def gross_profit(self):
+        return self.ytd_actual - 1000  # Placeholder logic
+
+    @property
+    def ebitda(self):
+        return self.gross_profit - 500  # Placeholder logic
+
+    @property
+    def ebit(self):
+        return self.ebitda - 300  # Placeholder logic
+
+    @property
+    def profit_before_tax(self):
+        return self.ebit - 200  # Placeholder logic
+
+    @property
+    def profit_for_period(self):
+        return self.profit_before_tax - 100  # Placeholder logic
+
     def __str__(self):
         return f"{self.account_code} | {self.description} | {self.entity_name}"
 
 
-    def __str__(self):
-        return f"{self.date} - {self.category} - {self.amount}"
-    
 class UserActivity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=255)
