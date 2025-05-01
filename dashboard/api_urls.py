@@ -1,6 +1,11 @@
 from django.urls import path
-from .api_views import UploadCSVView, FinancialDataView
-from .api_views import SessionLoginView
+from .api_views import (
+    UploadCSVView,
+    FinancialDataView,
+    SessionLoginView,
+    UploadFinancialLineItemsView,       
+    FinancialLineItemsListView          
+)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -13,4 +18,6 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('session-login/', SessionLoginView.as_view(), name='session_login'),
 
+    path("financial-line-items/", FinancialLineItemsListView.as_view(), name="financial-line-items"),
+    path('upload-financial-line-items/', UploadFinancialLineItemsView.as_view(), name='upload-financial-line-items'),
 ]
