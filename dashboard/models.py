@@ -2,10 +2,39 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
-class FinancialData(models.Model):
-    date = models.DateField()
-    category = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+class FinancialLineItem(models.Model):
+    entity_name = models.CharField(max_length=255)
+    account_code = models.CharField(max_length=20)
+    description = models.CharField(max_length=255) 
+
+    ytd_actual = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    annual_budget = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+
+    category = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Optional group like 'Revenue', 'IT', 'Audit'"
+    )
+    item_type = models.CharField(
+        max_length=50,
+        choices=[
+            ("statement", "Income Statement"),
+            ("budget", "Budget Line Item"),
+        ],
+        default="statement",
+        help_text="Label this row as 'statement' or 'budget'"
+    )
+
+    @property
+    def percent_used(self):
+        if self.annual_budget:
+            return (self.ytd_actual / self.annual_budget) * 100
+        return None
+
+    def __str__(self):
+        return f"{self.account_code} | {self.description} | {self.entity_name}"
+
 
     def __str__(self):
         return f"{self.date} - {self.category} - {self.amount}"
