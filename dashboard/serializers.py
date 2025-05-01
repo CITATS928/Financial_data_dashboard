@@ -18,7 +18,6 @@ class FinancialLineItemSerializer(serializers.ModelSerializer):
             "category",
             "ytd_actual",
             "annual_budget",
-            "notes",
             "gross_profit",
             "ebitda",
             "ebit",
