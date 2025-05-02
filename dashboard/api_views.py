@@ -14,6 +14,9 @@ from django.http import JsonResponse
 from rest_framework.generics import ListAPIView
 from .models import FinancialLineItem
 from .serializers import FinancialLineItemSerializer  # ✅ already present, reused below
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import logout
 
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
@@ -130,3 +133,10 @@ class FinancialLineItemsListView(APIView):
         queryset = FinancialLineItem.objects.all()
         serializer = FinancialLineItemSerializer(queryset, many=True)
         return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def LogoutAPIView(request):
+    logout(request)
+    return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
