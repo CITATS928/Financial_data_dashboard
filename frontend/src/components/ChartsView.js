@@ -14,7 +14,10 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#4c84ff", "#29cc97", "#ff5c5c", "#ffc107", "#9c27b0", "#00bcd4", "#e91e63", "#8bc34a"];
+const COLORS = [
+  "#4c84ff", "#29cc97", "#ff5c5c", "#ffc107",
+  "#9c27b0", "#00bcd4", "#e91e63", "#8bc34a"
+];
 
 export default function ChartsView({ data }) {
   if (!Array.isArray(data) || data.length === 0) {
@@ -62,20 +65,19 @@ export default function ChartsView({ data }) {
 
   const chartData = data.map((item) => {
     const ytd_actual = parseFloat(item.ytd_actual);
-    const annual_budget = parseFloat(item.annual_budget);
+    // const annual_budget = parseFloat(item.annual_budget);
 
     return {
       name: item.description || "Unnamed",
-      ytd_actual: isNaN(ytd_actual) ? 0 : ytd_actual,
-      annual_budget: isNaN(annual_budget) ? 0 : annual_budget,
+      value: isNaN(ytd_actual) ? 0 : ytd_actual,
     };
   });
 
   return (
     <div className="card shadow-sm rounded-3 p-4 mt-4">
-      <h5 className="text-primary mb-4 text-center">YTD Actual vs Annual Budget by Description</h5>
+      <h5 className="text-primary mb-4 text-center">YTD Actual by Description</h5>
 
-      {/* Multi-bar Chart */}
+      {/* Bar Chart */}
       <ResponsiveContainer width="100%" height={400}>
         <BarChart
           data={chartData}
@@ -86,8 +88,11 @@ export default function ChartsView({ data }) {
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip formatter={(value) => `$${value}`} />
           <Legend wrapperStyle={{ fontSize: "12px" }} />
-          <Bar dataKey="ytd_actual" name="YTD Actual" fill={COLORS[0]} radius={[6, 6, 0, 0]} />
-          <Bar dataKey="annual_budget" name="Annual Budget" fill={COLORS[1]} radius={[6, 6, 0, 0]} />
+          <Bar dataKey="value" name="YTD Actual" radius={[6, 6, 0, 0]}>
+            {chartData.map((_, index) => (
+              <Cell key={`bar-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
 
