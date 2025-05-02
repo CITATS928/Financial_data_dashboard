@@ -13,6 +13,7 @@ class FinancialLineItemSerializer(serializers.ModelSerializer):
         model = FinancialLineItem
         fields = [
             "entity_name",
+            "account_code",
             "description",
             "item_type",
             "category",
