@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-$sf))by-hd4)b#52)xocr@%cn2u4z^-&ix$8gae&b#1zv8sly5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["financial-data-dashboard.onrender.com", "127.0.0.1", "localhost"]
 
 
 # Application definition
