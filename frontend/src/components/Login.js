@@ -56,8 +56,8 @@ export default function Login() {
 
   return (
     <div className="background">
-      <div className="shape"></div>
-      <div className="shape"></div>
+      {/* <div className="shape"></div>
+      <div className="shape"></div> */}
 
       <form
         onSubmit={(e) => {
@@ -78,7 +78,7 @@ export default function Login() {
         />
 
         <label htmlFor="password">Password</label>
-        <div className="password-container">
+        <div className="password-container" style={{ marginBottom: "20px" }}>
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
