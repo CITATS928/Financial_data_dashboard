@@ -68,7 +68,7 @@ body {
 
 /* Form styles */
 form {
-    height: 520px;
+    height: auto;
     width: 400px;
     background-color: rgba(255, 255, 255, 0.13);
     position: absolute;
@@ -79,7 +79,7 @@ form {
     backdrop-filter: blur(10px);
     border: 2px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
-    padding: 50px 35px;
+    padding: 20px 35px;
     z-index: 1;
 }
 
@@ -97,6 +97,7 @@ form h3 {
     line-height: 42px;
     text-align: center;
     color: #ffffff;
+    margin-bottom: 20px;
 }
 
 /* Input fields */
@@ -125,7 +126,7 @@ input {
 
 /* Button */
 button {
-    margin-top: 50px;
+    margin-top: 30px;
     width: 100%;
     background-color: #ffffff;
     color: #080710;
