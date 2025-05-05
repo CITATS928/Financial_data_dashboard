@@ -17,6 +17,11 @@ from .serializers import FinancialLineItemSerializer  # ✅ already present, reu
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
 
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
@@ -140,3 +145,20 @@ class FinancialLineItemsListView(APIView):
 def LogoutAPIView(request):
     logout(request)
     return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def signup_api_view(request):
+    username = request.data.get("username")
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    if not username or not password:
+        return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
