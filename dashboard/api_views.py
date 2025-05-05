@@ -134,7 +134,7 @@ class FinancialLineItemsListView(APIView):
         serializer = FinancialLineItemSerializer(queryset, many=True)
         return Response(serializer.data)
 
-
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def LogoutAPIView(request):
