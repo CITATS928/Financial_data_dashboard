@@ -11,6 +11,13 @@ export default function TableView({ data, searchQuery, searchColumn }) {
     );
   }
 
+  // Ensure no duplicates in data based on unique fields like account_code and description
+  const uniqueData = data.filter((value, index, self) =>
+    index === self.findIndex((t) => (
+      t.account_code === value.account_code && t.description === value.description
+    ))
+  );
+
   const highlightMatch = (text) => {
     if (!searchQuery || !text) return text;
     const parts = text.toString().split(new RegExp(`(${searchQuery})`, "gi"));
@@ -64,8 +71,8 @@ export default function TableView({ data, searchQuery, searchColumn }) {
           </tr>
         </thead>
         <tbody>
-          {data.map((row, index) => (
-            <tr key={index}>
+          {uniqueData.map((row) => (
+            <tr key={`${row.entity_name}-${row.account_code}`}>
               <td>
                 {(searchColumn === "entity_name" || searchColumn === "all")
                   ? highlightMatch(row.entity_name)
