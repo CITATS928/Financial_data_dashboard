@@ -19,7 +19,7 @@ export default function Login() {
 
   // 🌐 Fetch CSRF token cookie when page loads
   useEffect(() => {
-    axios.get("http://localhost:8000/api/csrf/", {
+    axios.get("https://financial-data-dashboard.onrender.com/api/csrf/", {
       withCredentials: true,
     })
     .then(() => {
@@ -37,7 +37,7 @@ export default function Login() {
     try {
       // Unused variable 'res' removed
       await axios.post(
-        "http://localhost:8000/api/dashboard/session-login/",
+        "https://financial-data-dashboard.onrender.com/api/dashboard/session-login/",
         { username, password },
         {
           headers: {

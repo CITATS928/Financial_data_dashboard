@@ -64,7 +64,7 @@ MIDDLEWARE = [
 # CSRF & CORS
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "https://financial-data-dashboard-frontend.onrender.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
@@ -76,11 +76,6 @@ CSRF_COOKIE_SAMESITE = None
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_SAMESITE = None
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-# ]
-
-# CORS_ALLOW_CREDENTIALS = True
 
 # CORS_ORIGIN_WHITELIST = [
 #   'http://localhost:3000',  # Your React frontend's URL
@@ -88,7 +83,7 @@ SESSION_COOKIE_SAMESITE = None
 
 # CSRF_TRUSTED_ORIGINS = [
 #     "http://localhost:3000",
-#     "http://localhost:8000",
+#     "https://financial-data-dashboard.onrender.com",
 # ]
 
 # CORS_ALLOW_ALL_ORIGINS = True 

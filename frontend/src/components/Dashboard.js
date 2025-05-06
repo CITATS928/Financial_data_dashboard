@@ -28,7 +28,7 @@ export default function Dashboard() {
 
   const getCsrfToken = async () => {
     try {
-      await axios.get("http://localhost:8000/api/csrf/", {
+      await axios.get("https://financial-data-dashboard.onrender.com/api/csrf/", {
         withCredentials: true,
       });
       return Cookies.get("csrftoken");
@@ -52,7 +52,7 @@ export default function Dashboard() {
     formData.append("file", file);
 
     try {
-      await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
+      await axios.post("https://financial-data-dashboard.onrender.com/api/dashboard/upload-financial-line-items/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           "X-CSRFToken": csrfToken,
@@ -71,7 +71,7 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
+      const res = await axios.get("https://financial-data-dashboard.onrender.com/api/dashboard/financial-line-items/");
       setData(res.data);
     } catch {
       toast.error("Failed to load data");
@@ -84,7 +84,7 @@ export default function Dashboard() {
       if (!csrfToken) return;
   
       await axios.post(
-        "http://localhost:8000/api/logout/",
+        "https://financial-data-dashboard.onrender.com/api/logout/",
         {},
         {
           headers: {
@@ -105,7 +105,7 @@ export default function Dashboard() {
   // const handleLogout = async () => {
   //   console.log("Logout clicked");
   //   try {
-  //     await axios.post("http://localhost:8000/api/logout/", {}, { withCredentials: true });
+  //     await axios.post("https://financial-data-dashboard.onrender.com/api/logout/", {}, { withCredentials: true });
   //     toast.success("Logged out successfully!");
   //     navigate("/");
   //   } catch (error) {
@@ -229,9 +229,9 @@ export default function Dashboard() {
 //   const navigate = useNavigate();
 
 //   useEffect(() => {
-//     axios.get("http://localhost:8000/api/csrf/", { withCredentials: true })
+//     axios.get("https://financial-data-dashboard.onrender.com/api/csrf/", { withCredentials: true })
 //       .then(() => {
-//         axios.get("http://localhost:8000/api/dashboard/table/", { withCredentials: true })
+//         axios.get("https://financial-data-dashboard.onrender.com/api/dashboard/table/", { withCredentials: true })
 //           .then(() => {
 //             loadData();
 //           })

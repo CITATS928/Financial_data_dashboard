@@ -42,7 +42,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/signup/', {
+      const response = await fetch('https://financial-data-dashboard.onrender.com/api/signup/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
