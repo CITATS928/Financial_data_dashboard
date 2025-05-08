@@ -52,13 +52,13 @@ export default function TableView({ data, searchQuery, searchColumn }) {
         <thead className="table-primary text-center">
           <tr>
             <th>Entity</th>
-            <th>Code</th>
+            <th>Category</th>
             <th>Description</th>
+            <th>Type</th>
+            <th>Code</th>
             <th>YTD Actual</th>
             <th>Annual Budget</th>
             <th>% Used</th>
-            <th>Type</th>
-            <th>Category</th>
             {showAdvanced && (
               <>
                 <th>Gross Profit</th>
@@ -79,14 +79,24 @@ export default function TableView({ data, searchQuery, searchColumn }) {
                   : row.entity_name}
               </td>
               <td>
-                {(searchColumn === "account_code" || searchColumn === "all")
-                  ? highlightMatch(row.account_code || "-")
-                  : row.account_code || "-"}
+                {(searchColumn === "category" || searchColumn === "all")
+                  ? highlightMatch(row.category || "-")
+                  : row.category || "-"}
               </td>
               <td>
                 {(searchColumn === "description" || searchColumn === "all")
                   ? highlightMatch(row.description)
                   : row.description}
+              </td>
+              <td>
+                {(searchColumn === "item_type" || searchColumn === "all")
+                  ? highlightMatch(row.item_type)
+                  : row.item_type}
+              </td>
+              <td>
+                {(searchColumn === "account_code" || searchColumn === "all")
+                  ? highlightMatch(row.account_code || "-")
+                  : row.account_code || "-"}
               </td>
               <td>
                 {(searchColumn === "ytd_actual" || searchColumn === "all")
@@ -98,17 +108,25 @@ export default function TableView({ data, searchQuery, searchColumn }) {
                   ? highlightMatch(`$${parseFloat(row.annual_budget).toFixed(2)}`)
                   : `$${parseFloat(row.annual_budget).toFixed(2)}`}
               </td>
-              <td>{row.percent_used != null ? `${row.percent_used.toFixed(2)}%` : "-"}</td>
-              <td>
-                {(searchColumn === "item_type" || searchColumn === "all")
-                  ? highlightMatch(row.item_type)
-                  : row.item_type}
+              <td
+                style={{
+                  color:
+                    row.item_type === "expense"
+                      ? row.percent_used >= 100
+                        ? "red"
+                        : row.percent_used > 89
+                        ? "orange"
+                        : "#2e7d32"
+                      : row.item_type === "revenue"
+                      ? "#00b894"
+                      : "inherit"
+
+                }}
+              >
+                {row.percent_used != null ? `${row.percent_used.toFixed(2)}%` : "-"}
               </td>
-              <td>
-                {(searchColumn === "category" || searchColumn === "all")
-                  ? highlightMatch(row.category || "-")
-                  : row.category || "-"}
-              </td>
+            
+            
               {showAdvanced && (
                 <>
                   <td>{row.gross_profit != null ? `$${row.gross_profit.toFixed(2)}` : "-"}</td>

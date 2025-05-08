@@ -14,17 +14,19 @@ class FinancialLineItem(models.Model):
         max_length=100,
         blank=True,
         null=True,
-        help_text="Optional group like 'Revenue', 'IT', 'Audit'"
+        help_text="Optional group like , 'IT', 'Audit'"
     )
     item_type = models.CharField(
-        max_length=50,
-        choices=[
-            ("statement", "Income Statement"),
-            ("budget", "Budget Line Item"),
-        ],
-        default="statement",
-        help_text="Label this row as 'statement' or 'budget'"
-    )
+    max_length=20,
+    choices=[
+        ("revenue", "Revenue"),
+        ("expense", "Expense"),
+        ("cogs", "Cost of Goods Sold"),
+        ("other_income", "Other Income"),
+        ("tax", "Tax"),
+    ],
+    help_text="Classify this line as revenue, expense, COGS, etc."
+)
 
     @property
     def percent_used(self):
