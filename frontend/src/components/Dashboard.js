@@ -132,7 +132,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="container py-4" style={{ position: "relative", minHeight: "100vh" }}>
+    <div className="py-4" style={{minHeight: "100vh" }}>
       <ToastContainer position="top-right" autoClose={3000} />
   
       {/* Logout Button — Fixed Top Right */}
