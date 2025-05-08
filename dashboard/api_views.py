@@ -118,6 +118,7 @@ class UploadFinancialLineItemsView(APIView):
                         annual_budget=float(row.get("annual_budget") or 0),
                         category=row.get("category", ""),
                         item_type=row.get("item_type", "statement"),
+                        expense_nature=row.get("expense_nature") or None,
                     ))
                 except Exception as row_error:
                     print(f"Skipping row due to error: {row_error}, row: {row}")
