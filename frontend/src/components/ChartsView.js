@@ -30,6 +30,8 @@ export default function ChartsView({ data }) {
       </div>
     );
   }
+    
+  
 
   const uniqueData = Array.from(
     new Map(
@@ -49,15 +51,45 @@ export default function ChartsView({ data }) {
     })
     .filter((item) => item.value > 0);
 
-  const utilizationData = uniqueData
-    .map((item) => ({
-      name: `${item.description}`,
-      percent_used: item.percent_used || 0,
-      type: item.item_type
-    }))
-    .filter((item) => item.percent_used > 0)
+    const utilizationData = uniqueData
+    .filter((item) =>
+      item.item_type !== "revenue" &&  
+      item.expense_nature !== "depreciation" &&
+      item.expense_nature !== "amortization" &&
+      item.annual_budget > 0
+    )
+    .map((item) => {
+      const percent_used = (parseFloat(item.ytd_actual) / parseFloat(item.annual_budget)) * 100;
+      return {
+        name: `${item.description}`,
+        percent_used: isNaN(percent_used) ? 0 : percent_used,
+        type: item.item_type
+      };
+    })
     .sort((a, b) => b.percent_used - a.percent_used);
+  
+    const totalRevenue = uniqueData
+  .filter((item) => item.item_type === "revenue")
+  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
 
+const totalExpenses = uniqueData
+  .filter((item) =>
+    item.item_type === "expense" &&
+    item.expense_nature !== "depreciation" &&
+    item.expense_nature !== "amortization"
+  )
+  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
+
+const totalDepreciation = uniqueData
+  .filter((item) => item.expense_nature === "depreciation")
+  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
+
+const totalAmortization = uniqueData
+  .filter((item) => item.expense_nature === "amortization")
+  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
+
+const EBIT = totalRevenue - totalExpenses - totalDepreciation - totalAmortization;
+const EBITDA = EBIT + totalDepreciation + totalAmortization;
   return (
     <div className="card shadow-sm rounded-3 p-4 mt-4">
       <h5 className="text-primary mb-3 text-center">Charts</h5>
@@ -154,20 +186,7 @@ export default function ChartsView({ data }) {
       {activeTab === "Utilization" && (
         <>
           <h5 className="text-primary mt-4 mb-4 text-center">% of Budget Used by Line Item</h5>
-          <div className="d-flex justify-content-center mb-3 flex-wrap gap-3">
-            <span className="badge rounded-pill" style={{ backgroundColor: "red", color: "white" }}>
-              Over Budget (≥ 100%)
-            </span>
-            <span className="badge rounded-pill" style={{ backgroundColor: "orange", color: "black" }}>
-              Near Limit (90–99%)
-            </span>
-            <span className="badge rounded-pill" style={{ backgroundColor: "#2e7d32", color: "white" }}>
-              Under Budget (≤ 89%)
-            </span>
-            <span className="badge rounded-pill" style={{ backgroundColor: "#00b894", color: "white" }}>
-              Revenue Line
-            </span>
-          </div>
+        
           <ResponsiveContainer width="100%" height={700}>
             <BarChart
               data={utilizationData}
@@ -175,7 +194,7 @@ export default function ChartsView({ data }) {
               margin={{ top: 10, right: 30, left: 120, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" domain={[0, 'dataMax + 20']} tickFormatter={(val) => `${val}%`} />
+              <XAxis type="number" domain={[0, 'dataMax + 20']} tickFormatter={(val) => `${val}%`} ticks={[0, 25, 50, 75, 100, 125, 150, 200]}  />
               <YAxis type="category" dataKey="name" width={215} />
               <Tooltip formatter={(val) => `${val.toFixed(2)}%`} />
               <Legend />
@@ -193,8 +212,29 @@ export default function ChartsView({ data }) {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          <div className="d-flex justify-content-center mb-3 flex-wrap gap-3">
+            <span className="badge rounded-pill" style={{ backgroundColor: "red", color: "white" }}>
+              Over Budget (≥ 100%)
+            </span>
+            <span className="badge rounded-pill" style={{ backgroundColor: "orange", color: "black" }}>
+              Near Limit (90–99%)
+            </span>
+            <span className="badge rounded-pill" style={{ backgroundColor: "#2e7d32", color: "white" }}>
+              Under Budget (≤ 89%)
+            </span>
+          
+          </div>
         </>
       )}
+      <div className="mt-5">
+        <h5 className="text-primary mb-3 text-center">Calculations</h5>
+        <div className="d-flex justify-content-center flex-column align-items-center">
+          <p><strong>Total Revenue:</strong> ${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+          <p><strong>Total Expenses (Cash Operating Only):</strong> ${totalExpenses.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+          <p><strong>EBIT:</strong> ${EBIT.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+          <p><strong>EBITDA:</strong> ${EBITDA.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+        </div>
+      </div>
     </div>
   );
 }

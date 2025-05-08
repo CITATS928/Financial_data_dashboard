@@ -27,7 +27,17 @@ class FinancialLineItem(models.Model):
     ],
     help_text="Classify this line as revenue, expense, COGS, etc."
 )
-
+    expense_nature = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=[
+            ("cash_operating", "Cash Operating"),
+            ("depreciation", "Depreciation"),
+            ("amortization", "Amortization"),
+        ],
+        help_text="Further classification of expenses (non-cash vs. cash)"
+    )
     @property
     def percent_used(self):
         if self.annual_budget:
