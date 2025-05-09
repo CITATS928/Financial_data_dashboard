@@ -133,7 +133,7 @@ const EBITDA = EBIT + totalDepreciation + totalAmortization;
       {activeTab === "Pie" && (
         <>
           <h5 className="text-primary mt-4 mb-4 text-center">YTD Actual Distribution</h5>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={400}>
             <PieChart>
               <Pie
                 data={chartData}
@@ -158,7 +158,7 @@ const EBITDA = EBIT + totalDepreciation + totalAmortization;
       {activeTab === "Donut" && (
         <>
           <h5 className="text-primary mt-4 mb-4 text-center">Spending Distribution (Donut)</h5>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={400}>
             <PieChart>
               <Pie
                 data={chartData}
