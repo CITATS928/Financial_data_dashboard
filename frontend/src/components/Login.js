@@ -56,8 +56,8 @@ export default function Login() {
 
   return (
     <div className="background">
-      {/* <div className="shape"></div>
-      <div className="shape"></div> */}
+      <div className="shape"></div>
+      <div className="shape"></div>
 
       <form
         onSubmit={(e) => {

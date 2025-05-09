@@ -65,8 +65,8 @@ const Signup = () => {
 
   return (
     <div className="background">
-      {/* <div className="shape"></div>
-      <div className="shape"></div> */}
+      <div className="shape"></div>
+      <div className="shape"></div>
 
       <form onSubmit={handleSubmit}>
         <h3>Signup Here</h3>
