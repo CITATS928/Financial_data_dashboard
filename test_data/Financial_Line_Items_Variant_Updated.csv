@@ -1,0 +1,29 @@
+entity_name,account_code,description,ytd_actual,annual_budget,category,item_type,expense_nature
+Faith Community Center,554554,Digital Ministry Expansion,11780.08,12135.31,Education,revenue,
+Saint Mark's Parish,467970,Disaster Relief Aid,40953.88,42569.07,Education,expense,cash_operating
+Trinity Outreach,570551,Faith-Based Outreach,15570.28,10963.89,Education,expense,cash_operating
+Grace Fellowship,431492,Faith-Based Outreach,14819.77,17561.87,Facilities,expense,cash_operating
+Grace Fellowship,442178,Digital Ministry Expansion,8252.84,7847.64,Administration,expense,cash_operating
+Grace Fellowship,501047,Disaster Relief Aid,2266.59,0,Technology,expense,cash_operating
+Trinity Outreach,492962,Interfaith Partnership Grant,12872.85,13940.92,Finance,revenue,
+Trinity Outreach,567709,Disaster Relief Aid,23773.28,17767.73,Administration,revenue,
+Grace Fellowship,483480,Missionary Sponsorship Program,1418.66,1986.84,Spiritual Programs,revenue,
+Hope Ministries,456028,Clergy Support Services,76645.75,57691.11,Resource Management,revenue,
+Faith Community Center,477609,Congregational Growth Program,34955.35,52763.5,Outreach,revenue,
+Saint Mark's Parish,597675,Congregational Growth Program,10522.38,8685.02,Resource Management,expense,cash_operating
+Saint Mark's Parish,457259,Community Engagement Fund,11081.59,9063.93,Administration,expense,cash_operating
+Hope Ministries,465671,Missionary Sponsorship Program,286.6,0,Resource Management,expense,cash_operating
+Faith Community Center,569858,Technology Infrastructure Overhaul,14655.27,13221.08,Administration,expense,cash_operating
+Trinity Outreach,591451,Clergy Support Services,12640.39,65674.48,Administration,expense,cash_operating
+Trinity Outreach,557410,Faith-Based Outreach,3858.75,4297.21,Outreach,expense,cash_operating
+Faith Community Center,420746,Technology Infrastructure Overhaul,30778.81,14090.21,Technology,expense,cash_operating
+Hope Ministries,524985,Leadership Formation Support,34374.77,32431.88,Spiritual Programs,expense,cash_operating
+Grace Fellowship,528921,Member Services Enhancement,-13575.05,-18646.49,Spiritual Programs,expense,cash_operating
+Trinity Outreach,520013,Ministry Travel Reimbursement,16714.96,17041.94,Technology,expense,cash_operating
+Saint Mark's Parish,506536,Disaster Relief Aid,9872.9,15589.28,Spiritual Programs,expense,cash_operating
+Trinity Outreach,466115,Technology Infrastructure Overhaul,3868.7,4378.12,Administration,expense,amortization
+Grace Fellowship,500315,Faith-Based Outreach,962.95,1141.01,Technology,expense,amortization
+Saint Mark's Parish,578357,Youth Development Initiative,1903.22,2226.75,Outreach,expense,amortization
+Hope Ministries,491032,Worship Tech Upgrade,12901.75,14922.09,Community Aid,expense,depreciation
+Hope Ministries,544684,Faith-Based Outreach,5255.93,5539.15,Finance,expense,depreciation
+Saint Mark's Parish,412779,Retreat & Renewal Sessions,2630.95,2826.54,Spiritual Programs,expense,depreciation
