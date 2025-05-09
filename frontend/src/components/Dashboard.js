@@ -187,41 +187,44 @@ export default function Dashboard() {
               <option value="category">Category</option>
               <option value="item_type">Item Type</option>
             </select>
-            <input
-              type="text"
-              ref={searchInputRef}
-              className="form-control"
-              placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-             {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                style={{
-                  position: "absolute",
-                  top: "65%",
-                  right: "-600px",
-                  transform: "translateY(-50%)",
-                  border: "none",
-                  background: "transparent",
-                  fontSize: "18px",
-                  lineHeight: "1",
-                  padding: 0,
-                  margin: 0,
-                  cursor: "pointer",
-                  color: "#999",
-                }}
-                aria-label="Clear search"
-              >
-                &times;
-              </button>
-            )}
+            {/* Input + Close Button Container */}
+            <div style={{ position: "relative", flexGrow: 1 }}>
+              <input
+                type="text"
+                ref={searchInputRef}
+                className="form-control"
+                placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    right: "-500px",
+                    transform: "translateY(-50%)",
+                    border: "none",
+                    background: "transparent",
+                    fontSize: "18px",
+                    lineHeight: "1",
+                    padding: 0,
+                    margin: 0,
+                    cursor: "pointer",
+                    color: "red", 
+                  }}
+                  aria-label="Clear search"
+                >
+                  &times;
+                </button>
+              )}
           </div>
         </div>
       </div>
-  
+    </div>
+
       {/* Table and Charts */}
       <div className="mb-5">
         <TableView data={filteredData} searchQuery={searchQuery} searchColumn={searchColumn} />
@@ -233,102 +236,101 @@ export default function Dashboard() {
 }
 
 
-
-/* ========== [Archived from chore/merge_to_main branch — for reference only] ==========
+ /* ========== [Archived from chore/merge_to_main branch — for reference only] ==========
 
 // import React, { useState, useEffect, useRef } from "react";
 // import { useNavigate } from "react-router-dom";
 
 // export default function Dashboard() {
-//   const [file, setFile] = useState(null);
-//   const [tableData, setTableData] = useState([]);
-//   const [chartData, setChartData] = useState({});
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [searchColumn, setSearchColumn] = useState("all");
-//   const searchInputRef = useRef(null);
-//   const navigate = useNavigate();
+  const [file, setFile] = useState(null);
+  const [tableData, setTableData] = useState([]);
+  const [chartData, setChartData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchColumn, setSearchColumn] = useState("all");
+  const searchInputRef = useRef(null);
+  const navigate = useNavigate();
 
-//   useEffect(() => {
-//     axios.get("http://localhost:8000/api/csrf/", { withCredentials: true })
-//       .then(() => {
-//         axios.get("http://localhost:8000/api/dashboard/table/", { withCredentials: true })
-//           .then(() => {
-//             loadData();
-//           })
-//           .catch(() => {
-//             toast.warning("You must be logged in!");
-//             navigate("/");
-//           });
-//       })
-//       .catch(() => {
-//         toast.error("Failed to fetch CSRF token.");
-//       });
-//   }, [navigate]);
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/csrf/", { withCredentials: true })
+      .then(() => {
+        axios.get("http://localhost:8000/api/dashboard/table/", { withCredentials: true })
+          .then(() => {
+            loadData();
+          })
+          .catch(() => {
+            toast.warning("You must be logged in!");
+            navigate("/");
+          });
+      })
+      .catch(() => {
+        toast.error("Failed to fetch CSRF token.");
+      });
+  }, [navigate]);
 
-//   const handleLogout = () => {
-//     toast.success("Logged out successfully!");
-//     navigate("/");
-//   };
+  const handleLogout = () => {
+    toast.success("Logged out successfully!");
+    navigate("/");
+  };
 
-//   const filteredTableData = tableData.filter((row) => {
-//     if (!searchQuery) return true;
-//     if (searchColumn === "all") {
-//       return Object.values(row).some(
-//         (value) =>
-//           value &&
-//           value.toString().toLowerCase().includes(searchQuery.toLowerCase())
-//       );
-//     } else {
-//       const value = row[searchColumn];
-//       return (
-//         value &&
-//         value.toString().toLowerCase().includes(searchQuery.toLowerCase())
-//       );
-//     }
-//   });
+  const filteredTableData = tableData.filter((row) => {
+    if (!searchQuery) return true;
+    if (searchColumn === "all") {
+      return Object.values(row).some(
+        (value) =>
+          value &&
+          value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else {
+      const value = row[searchColumn];
+      return (
+        value &&
+        value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+  });
 
-//   return (
-//     <div className="container py-4">
-//       <ToastContainer position="top-right" autoClose={3000} />
-//       <h2 className="mb-3">📊 Financial Dashboard</h2>
+  return (
+    <div className="container py-4">
+      <ToastContainer position="top-right" autoClose={3000} />
+      <h2 className="mb-3">📊 Financial Dashboard</h2>
 
-//       <div className="card mb-4 shadow-sm">
-//         <div className="card-body">
-//           <h5 className="card-title mb-3">Search Events</h5>
-//           <div className="d-flex gap-3">
-//             <select
-//               className="form-select w-auto"
-//               value={searchColumn}
-//               onChange={(e) => setSearchColumn(e.target.value)}
-//             >
-//               <option value="all">All Fields</option>
-//               <option value="date">Date</option>
-//               <option value="category">Category</option>
-//               <option value="amount">Amount</option>
-//             </select>
+      <div className="card mb-4 shadow-sm">
+        <div className="card-body">
+          <h5 className="card-title mb-3">Search Events</h5>
+          <div className="d-flex gap-3">
+            <select
+              className="form-select w-auto"
+              value={searchColumn}
+              onChange={(e) => setSearchColumn(e.target.value)}
+            >
+              <option value="all">All Fields</option>
+              <option value="date">Date</option>
+              <option value="category">Category</option>
+              <option value="amount">Amount</option>
+            </select>
 
-//             <input
-//               type="text"
-//               value={searchQuery}
-//               onChange={(e) => setSearchQuery(e.target.value)}
-//               className="form-control"
-//               placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
-//             />
-//           </div>
-//         </div>
-//       </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="form-control"
+              placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
+            />
+          </div>
+        </div>
+      </div>
 
-//       <div className="mb-5">
-//         <TableView data={filteredTableData} searchQuery={searchQuery} searchColumn={searchColumn} />
-//       </div>
+      <div className="mb-5">
+        <TableView data={filteredTableData} searchQuery={searchQuery} searchColumn={searchColumn} />
+      </div>
 
-//       <div>
-//         <ChartsView data={filteredTableData} />
-//       </div>
-//     </div>
-//   );
-// }
+      <div>
+        <ChartsView data={filteredTableData} />
+      </div>
+    </div>
+  );
+}
 
-*/
+ */
