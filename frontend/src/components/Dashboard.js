@@ -195,6 +195,29 @@ export default function Dashboard() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+             {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                style={{
+                  position: "absolute",
+                  top: "65%",
+                  right: "-600px",
+                  transform: "translateY(-50%)",
+                  border: "none",
+                  background: "transparent",
+                  fontSize: "18px",
+                  lineHeight: "1",
+                  padding: 0,
+                  margin: 0,
+                  cursor: "pointer",
+                  color: "#999",
+                }}
+                aria-label="Clear search"
+              >
+                &times;
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -207,7 +230,6 @@ export default function Dashboard() {
       <ChartsView data={filteredData} />
     </div>
   );
-  
 }
 
 

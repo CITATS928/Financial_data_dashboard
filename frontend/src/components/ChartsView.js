@@ -30,8 +30,6 @@ export default function ChartsView({ data }) {
       </div>
     );
   }
-    
-  
 
   const uniqueData = Array.from(
     new Map(
