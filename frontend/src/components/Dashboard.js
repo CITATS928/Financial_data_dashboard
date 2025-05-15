@@ -163,7 +163,17 @@ export default function Dashboard() {
           <h5 className="card-title mb-3">Upload Financial CSV</h5>
           <div className="d-flex gap-3 align-items-center">
             <input type="file" onChange={handleFileChange} className="form-control" />
-            <button onClick={handleUpload} className="btn btn-primary">Upload CSV</button>
+            <button onClick={handleUpload}
+            className="btn btn-primary"
+            style={{
+              padding: "5px 10px",
+              fontSize: "0.85rem",
+              width: "auto",
+              display: "inline-block",
+            }}
+            >
+              Upload CSV
+              </button>
           </div>
         </div>
       </div>
@@ -201,6 +211,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
+                  className="btn btn-outline-secondary btn-sm"
                   style={{
                     position: "absolute",
                     top: "50%",
@@ -217,7 +228,8 @@ export default function Dashboard() {
                   }}
                   aria-label="Clear search"
                 >
-                  &times;
+                  Clear
+                  {/* &times; */}
                 </button>
               )}
           </div>

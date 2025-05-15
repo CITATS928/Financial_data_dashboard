@@ -32,7 +32,9 @@ export default function TableView({ data, searchQuery, searchColumn }) {
 
   return (
     <div className="table-responsive shadow rounded-3 overflow-hidden">
-      <div className="d-flex justify-content-between align-items-center mb-2">
+      <div className="d-flex justify-content-between align-items-center mb-2"
+      style={{ padding: "0.75rem 1rem" }}
+      >
         <h5 className="mb-0">Financial Line Items</h5>
         <div>
           <input
@@ -51,21 +53,21 @@ export default function TableView({ data, searchQuery, searchColumn }) {
       <table className="table table-hover table-bordered align-middle mb-0">
         <thead className="table-primary text-center">
           <tr>
-            <th>Entity</th>
-            <th>Category</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Code</th>
-            <th>YTD Actual</th>
-            <th>Annual Budget</th>
-            <th>% Used</th>
+            <th style={{ padding: "12px 16px" }}>Entity</th>
+            <th style={{ padding: "12px 16px" }}>Category</th>
+            <th style={{ padding: "12px 16px" }}>Description</th>
+            <th style={{ padding: "12px 16px" }}>Type</th>
+            <th style={{ padding: "12px 16px" }}>Code</th>
+            <th style={{ padding: "12px 16px" }}>YTD Actual</th>
+            <th style={{ padding: "12px 16px" }}>Annual Budget</th>
+            <th style={{ padding: "12px 16px" }}>% Used</th>
             {showAdvanced && (
               <>
-                <th>Gross Profit</th>
-                <th>EBITDA</th>
-                <th>EBIT</th>
-                <th>Profit Before Tax</th>
-                <th>Profit for Period</th>
+                <th style={{ padding: "12px 16px" }}>Gross Profit</th>
+                <th style={{ padding: "12px 16px" }}>EBITDA</th>
+                <th style={{ padding: "12px 16px" }}>EBIT</th>
+                <th style={{ padding: "12px 16px" }}>Profit Before Tax</th>
+                <th style={{ padding: "12px 16px" }}>Profit for Period</th>
               </>
             )}
           </tr>
