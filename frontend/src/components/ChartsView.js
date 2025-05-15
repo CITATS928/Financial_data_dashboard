@@ -20,6 +20,19 @@ const COLORS = [
 
 const chartTabs = ["Bar", "Pie", "Donut", "Utilization"];
 
+const CustomPieTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const { name, value } = payload[0];
+    return (
+      <div className="p-2 rounded shadow-sm bg-white border">
+        <p className="mb-0 fw-bold">{name}</p>
+        <p className="mb-0 text-success">${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function ChartsView({ data }) {
   const [activeTab, setActiveTab] = useState("Bar");
 
@@ -49,6 +62,11 @@ export default function ChartsView({ data }) {
     })
     .filter((item) => item.value > 0);
 
+    const MAX_PIE_SLICES = 12;
+    const topChartData = chartData
+      .sort((a, b) => b.value - a.value)
+      .slice(0, MAX_PIE_SLICES);
+
     const utilizationData = uniqueData
     .filter((item) =>
       item.item_type !== "revenue" &&  
@@ -67,30 +85,30 @@ export default function ChartsView({ data }) {
     .sort((a, b) => b.percent_used - a.percent_used);
   
     const totalRevenue = uniqueData
-  .filter((item) => item.item_type === "revenue")
-  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
+      .filter((item) => item.item_type === "revenue")
+      .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
 
-const totalExpenses = uniqueData
-  .filter((item) =>
-    item.item_type === "expense" &&
-    item.expense_nature !== "depreciation" &&
-    item.expense_nature !== "amortization"
-  )
-  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
+    const totalExpenses = uniqueData
+      .filter((item) =>
+        item.item_type === "expense" &&
+        item.expense_nature !== "depreciation" &&
+        item.expense_nature !== "amortization"
+      )
+      .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
 
-const totalDepreciation = uniqueData
-  .filter((item) => item.expense_nature === "depreciation")
-  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
+    const totalDepreciation = uniqueData
+      .filter((item) => item.expense_nature === "depreciation")
+      .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
 
-const totalAmortization = uniqueData
-  .filter((item) => item.expense_nature === "amortization")
-  .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
+    const totalAmortization = uniqueData
+      .filter((item) => item.expense_nature === "amortization")
+      .reduce((sum, item) => sum + parseFloat(item.ytd_actual || 0), 0);
 
-const EBIT = totalRevenue - totalExpenses - totalDepreciation - totalAmortization;
-const EBITDA = EBIT + totalDepreciation + totalAmortization;
-  return (
-    <div className="card shadow-sm rounded-3 p-4 mt-4">
-      <h5 className="text-primary mb-3 text-center">Charts</h5>
+    const EBIT = totalRevenue - totalExpenses - totalDepreciation - totalAmortization;
+    const EBITDA = EBIT + totalDepreciation + totalAmortization;
+      return (
+        <div className="card shadow-sm rounded-3 p-4 mt-4">
+          <h5 className="text-primary mb-3 text-center">Charts</h5>
 
       {/* Tabs */}
       <div className="d-flex justify-content-center mb-4">
@@ -135,17 +153,19 @@ const EBITDA = EBIT + totalDepreciation + totalAmortization;
           <h5 className="text-primary mt-4 mb-4 text-center">YTD Actual Distribution</h5>
           <ResponsiveContainer width="100%" height={400}>
             <PieChart>
+            <Tooltip content={<CustomPieTooltip />} />
               <Pie
-                data={chartData}
+                data={topChartData}
                 cx="50%"
                 cy="50%"
                 dataKey="value"
                 nameKey="name"
-                outerRadius={100}
-                label
+                outerRadius={120}
+                labelLine={true}
+                label={({ value }) => `$${value.toLocaleString()}`}
                 animationDuration={1500}
               >
-                {chartData.map((_, index) => (
+                {topChartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -154,24 +174,27 @@ const EBITDA = EBIT + totalDepreciation + totalAmortization;
         </>
       )}
 
+
       {/* Donut Chart */}
       {activeTab === "Donut" && (
         <>
           <h5 className="text-primary mt-4 mb-4 text-center">Spending Distribution (Donut)</h5>
           <ResponsiveContainer width="100%" height={400}>
             <PieChart>
+            <Tooltip content={<CustomPieTooltip />} />
               <Pie
-                data={chartData}
+                data={topChartData}
                 cx="50%"
                 cy="50%"
                 dataKey="value"
                 nameKey="name"
-                innerRadius={60}
-                outerRadius={100}
-                label
+                innerRadius={70}
+                outerRadius={120}
+                labelLine={true}
+                label={({ value }) => `$${value.toLocaleString()}`}
                 animationDuration={1500}
               >
-                {chartData.map((_, index) => (
+                {topChartData.map((_, index) => (
                   <Cell key={`cell-donut-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
