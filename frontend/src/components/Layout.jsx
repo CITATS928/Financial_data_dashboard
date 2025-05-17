@@ -1,6 +1,8 @@
 import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
+import "./Layout.css"; 
+
 
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -10,7 +12,7 @@ export default function Layout() {
   return (
     <div className="d-flex">
       <Sidebar collapsed={collapsed} toggleSidebar={toggleSidebar} />
-      <div className="container-fluid" style={{ marginLeft: collapsed ? "80px" : "240px", padding: "20px" }}>
+      <div className={`main-content ${collapsed ? "collapsed" : ""}`}>
         <Outlet />
       </div>
     </div>
