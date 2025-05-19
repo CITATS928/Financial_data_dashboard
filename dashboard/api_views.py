@@ -4,6 +4,8 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
+
 # from .models import FinancialData
 from .models import FinancialLineItem
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -163,3 +165,16 @@ def signup_api_view(request):
 
     user = User.objects.create_user(username=username, email=email, password=password)
     return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+
+
+# Get /api/current-user/
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            "username": request.user.username,
+            "email": request.user.email,
+        })
+    
+# Post /api/update-profile/
