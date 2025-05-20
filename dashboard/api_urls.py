@@ -8,6 +8,7 @@ from .api_views import (
     UploadFinancialLineItemsView,       
     FinancialLineItemsListView          
 )
+from .api_views import CurrentUserView, UpdateProfileView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -23,4 +24,6 @@ urlpatterns = [
     path('logout/', LogoutAPIView, name='api_logout'),
     path("financial-line-items/", FinancialLineItemsListView.as_view(), name="financial-line-items"),
     path('upload-financial-line-items/', UploadFinancialLineItemsView.as_view(), name='upload-financial-line-items'),
+    path("current-user/", CurrentUserView.as_view(), name="current_user"),
+    path("update-profile/", UpdateProfileView.as_view(), name="update_profile"),
 ]
