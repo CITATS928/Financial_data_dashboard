@@ -178,3 +178,32 @@ class CurrentUserView(APIView):
         })
     
 # Post /api/update-profile/
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get("current_password")
+        new_email = request.data.get("new_email")
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
+
+        # update email without password check
+        if new_email:
+            user.email = new_email
+            user.save()
+            return Response({"message": "Email updated successfully"}, status=200)
+        
+        # update password with password check
+        if current_password and new_password and confirm_password:
+            if not user.check_password(current_password):
+                return Response({"error": "Current password is incorrect"}, status=400)
+            if new_password != confirm_password:
+                return Response({"error": "New password and confirm password do not match"}, status=400)
+            
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Password updated successfully. Please re-login"}, status=200)
+        
+        return Response({"error": "Invalid request"}, status=400)
