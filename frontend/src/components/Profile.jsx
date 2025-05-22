@@ -56,7 +56,28 @@ export default function Profile() {
   };
 
   const handlePasswordUpdate = async () => {
-
+    const csrfToken = getCSRFToken();
+    try {
+      await axios.post(
+        "http://localhost:8000/api/dashboard/update-profile/",
+        {
+          current_password: currentPassword,
+          new_password: newPassword,
+          confirm_password: confirmPassword,
+        },
+        {
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      toast.success("Password updated. Please log in again.");
+      navigate("/");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Password update failed");
+    }
   };
 
 
