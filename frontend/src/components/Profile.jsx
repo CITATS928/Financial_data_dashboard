@@ -35,7 +35,24 @@ export default function Profile() {
   };
 
   const handleEmailUpdate = async () => {
-
+    const csrfToken = getCSRFToken();
+    try {
+      await axios.post(
+        "http://localhost:8000/api/dashboard/update-profile/",
+        { new_email: newEmail },
+        {
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      toast.success("Email updated. Please log in again.");
+      navigate("/");
+    } catch {
+      toast.error("Email update failed");
+    }
   };
 
   const handlePasswordUpdate = async () => {
