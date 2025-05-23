@@ -4,6 +4,8 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
+
 # from .models import FinancialData
 from .models import FinancialLineItem
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -163,3 +165,45 @@ def signup_api_view(request):
 
     user = User.objects.create_user(username=username, email=email, password=password)
     return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+
+
+# Get /api/current-user/
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            "username": request.user.username,
+            "email": request.user.email,
+        })
+    
+# Post /api/update-profile/
+class UpdateProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get("current_password")
+        new_email = request.data.get("new_email")
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
+
+        # update email without password check
+        if new_email:
+            user.email = new_email
+            user.save()
+            return Response({"message": "Email updated successfully"}, status=200)
+        
+        # update password with password check
+        if current_password and new_password and confirm_password:
+            if not user.check_password(current_password):
+                return Response({"error": "Current password is incorrect"}, status=400)
+            if new_password != confirm_password:
+                return Response({"error": "New password and confirm password do not match"}, status=400)
+            
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Password updated successfully. Please re-login"}, status=200)
+        
+        return Response({"error": "Invalid request"}, status=400)

@@ -1,31 +1,13 @@
 import { NavLink } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import "./Sidebar.css";
 
 export default function Sidebar({ collapsed, toggleSidebar }) {
   return (
-    <div
-      className="d-flex flex-column bg-dark text-white p-3"
-      style={{
-        width: collapsed ? "80px" : "240px",
-        minHeight: "100vh",
-        position: "fixed",
-        transition: "width 0.3s ease",
-      }}
-    >
-      {/* Toggle Button + Admin Tools Title */}
+    <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       <div className="d-flex align-items-center mb-3" style={{ gap: "0.5rem" }}>
         <button
-          className="btn btn-light btn-sm p-1"
-          style={{
-            backgroundColor: "transparent",
-            color: "white",
-            border: "none",
-            width: "32px",
-            height: "32px",
-            fontSize: "18px",
-            lineHeight: "1",
-            cursor: "pointer"
-          }}          
+          className="sidebar-toggle"
           onClick={toggleSidebar}
           aria-label="Toggle Sidebar"
         >
@@ -57,18 +39,6 @@ export default function Sidebar({ collapsed, toggleSidebar }) {
             {!collapsed && "Files"}
           </NavLink>
         </li>
-        {/* <li>
-          <NavLink to="/settings" className="nav-link text-white">
-            <i className="bi bi-gear me-2"></i>
-            {!collapsed && "Settings"}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/" className="nav-link text-white">
-            <i className="bi bi-box-arrow-right me-2"></i>
-            {!collapsed && "Logout"}
-          </NavLink>
-        </li> */}
       </ul>
     </div>
   );
