@@ -30,26 +30,68 @@ export default function Profile() {
 
 
   const getCSRFToken = () => {
-
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : null;
   };
 
-  const handleUpdateEmail = async () => {
-
+  const handleEmailUpdate = async () => {
+    const csrfToken = getCSRFToken();
+    try {
+      await axios.post(
+        "http://localhost:8000/api/dashboard/update-profile/",
+        { new_email: newEmail },
+        {
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      toast.success("Email updated. Please log in again.");
+      navigate("/");
+    } catch {
+      toast.error("Email update failed");
+    }
   };
 
-  const handleUpdatePassword = async () => {
-
+  const handlePasswordUpdate = async () => {
+    const csrfToken = getCSRFToken();
+    try {
+      await axios.post(
+        "http://localhost:8000/api/dashboard/update-profile/",
+        {
+          current_password: currentPassword,
+          new_password: newPassword,
+          confirm_password: confirmPassword,
+        },
+        {
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      toast.success("Password updated. Please log in again.");
+      navigate("/");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Password update failed");
+    }
   };
 
 
 
   return (
+    <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", paddingTop: "60px" }}>
     <div className="container mt-5" style={{ maxWidth:"600px" }}>
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <h2 className="mb-4">Profile Setting</h2>
       <div className="mb-4">
         <label className="form-label">Email</label>
         <input className="form-control" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)}/>
-        <button className="btn btn-primary mt-2">Update Email</button>
+        <button className="btn btn-primary mt-2" onClick={handleEmailUpdate}>Update Email</button>
       </div>
 
       <hr />
@@ -69,8 +111,9 @@ export default function Profile() {
         <input className="form-control" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
       </div>
 
-      <button className="btn btn-warning">Update Password</button>
-
+      <button className="btn btn-warning" onClick={handlePasswordUpdate}>Update Password</button>
+      
+    </div>
     </div>
   );
   }
