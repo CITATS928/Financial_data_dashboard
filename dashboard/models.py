@@ -2,6 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
+
+
+def get_default_user():
+    user, created = User.objects.get_or_create(
+        username="default_user",
+        defaults={"email": "default@example.com", "password": "defaultpassword"}
+    )
+    return user.id
+
+
+
 class FinancialLineItem(models.Model):
     entity_name = models.CharField(max_length=255)
     account_code = models.CharField(max_length=20)
@@ -79,6 +90,3 @@ class UserActivity(models.Model):
         return f"User {self.user.username} performed {self.action} at {self.timestamp}"
 
 
-def get_default_user():
-    user, created = User.objects.get_or_create(username="default_user", email="default@example.com")
-    return user.id 
