@@ -14,6 +14,10 @@ def get_default_user():
 
 
 class FinancialLineItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="line_items")  # Link to the user who created this item
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, default=get_default_user)  # assign a default user if not specified
+
+
     entity_name = models.CharField(max_length=255)
     account_code = models.CharField(max_length=20)
     description = models.CharField(max_length=255) 
