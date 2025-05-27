@@ -112,7 +112,8 @@ class UploadFinancialLineItemsView(APIView):
             items = []
             for row in reader:
                 try:
-                    items.append(FinancialLineItem(
+                    item = FinancialLineItem(
+                        user=request.user,  # Associate the user
                         entity_name=row.get("entity_name"),
                         account_code=row.get("account_code"),
                         description=row.get("description"),
@@ -121,7 +122,8 @@ class UploadFinancialLineItemsView(APIView):
                         category=row.get("category", ""),
                         item_type=row.get("item_type", "statement"),
                         expense_nature=row.get("expense_nature") or None,
-                    ))
+                    )
+                    items.append(item)
                 except Exception as row_error:
                     print(f"Skipping row due to error: {row_error}, row: {row}")
                     continue
@@ -132,7 +134,6 @@ class UploadFinancialLineItemsView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -141,6 +142,18 @@ class FinancialLineItemsListView(APIView):
         queryset = FinancialLineItem.objects.all()
         serializer = FinancialLineItemSerializer(queryset, many=True)
         return Response(serializer.data)
+    
+
+# get all items uploaded by the current user
+class MyUploadedItemsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        items = FinancialLineItem.objects.filter(user=request.user).order_by("-id")
+        serializer = FinancialLineItemSerializer(items, many=True)
+        return Response(serializer.data)
+    
+
 
 @csrf_exempt
 @api_view(['POST'])
