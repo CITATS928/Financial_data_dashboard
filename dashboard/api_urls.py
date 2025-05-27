@@ -6,7 +6,8 @@ from .api_views import (
     FinancialDataView,
     SessionLoginView,
     UploadFinancialLineItemsView,       
-    FinancialLineItemsListView          
+    FinancialLineItemsListView,
+    MyUploadedItemsView,
 )
 from .api_views import CurrentUserView, UpdateProfileView
 from rest_framework_simplejwt.views import (
@@ -26,4 +27,5 @@ urlpatterns = [
     path('upload-financial-line-items/', UploadFinancialLineItemsView.as_view(), name='upload-financial-line-items'),
     path("current-user/", CurrentUserView.as_view(), name="current_user"),
     path("update-profile/", UpdateProfileView.as_view(), name="update_profile"),
+    path("my-files/", MyUploadedItemsView.as_view(), name="my_uploaded_items"),
 ]
