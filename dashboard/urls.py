@@ -4,6 +4,7 @@ from . import api_views
 from . import views
 from .api_views import UploadCSVView, FinancialDataView
 from .views import get_csrf_token
+from .views import total_actual_by_entity
 
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('signup/', views.SignupPage, name='signup'),
     path('api/csrf/', get_csrf_token),
+path('api/total-actual-by-entity/', total_actual_by_entity),
 ]
