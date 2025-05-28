@@ -8,6 +8,7 @@ import ChartsView from "./ChartsView";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import TotalActualByEntityChart from './TotalActualByEntityChart';
 
 axios.defaults.withCredentials = true;
 
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const [searchColumn, setSearchColumn] = useState("all");
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
+  const [showTotal, setShowTotal] = useState(false);
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
@@ -224,6 +226,7 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    
 
       {/* Table and Charts */}
       <div className="mb-5">
@@ -231,6 +234,28 @@ export default function Dashboard() {
       </div>
   
       <ChartsView data={filteredData} />
+      
+    <div className="mb-5">
+      <button onClick={() => setShowTotal(prev => !prev)}
+        style={{
+    padding: '20px 8px',
+    fontSize: '15px',
+    borderRadius: '12px',
+    backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
+    color: showTotal ? 'white' : '#333',
+    border: '2px solid #ccc',
+    cursor: 'pointer',
+    // marginBottom: '10px'
+  }}
+>
+        {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
+      </button>
+
+      {showTotal && <TotalActualByEntityChart />}
     </div>
+
+    </div>
+
+    
   );
 }

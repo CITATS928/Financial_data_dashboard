@@ -9,6 +9,9 @@ import logging
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 
+from django.db.models import Sum
+from .models import FinancialLineItem
+
 @ensure_csrf_cookie
 def get_csrf_token(request):
     return JsonResponse({"message": "CSRF cookie set"})
@@ -121,3 +124,12 @@ def LogoutPage(request):
         messages.info(request, "You have been logged out successfully.")
 
     return redirect('/login/')
+
+def total_actual_by_entity(request):
+    result = (
+        FinancialLineItem.objects
+        .values('entity_name')  # Group by entity name
+        .annotate(total_actual=Sum('ytd_actual'))  # Sum of ytd_actual
+        .order_by('entity_name')
+    )
+    return JsonResponse(list(result), safe=False)
