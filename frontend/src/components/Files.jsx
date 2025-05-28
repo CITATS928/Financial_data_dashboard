@@ -1,4 +1,31 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 export default function Files() {
-    return <h2 className="text-center mt-5">Uploaded Files (Coming soon)</h2>;
-  }
+  const [items, setItem] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/api/dashboard/my-files/", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setItem(res.data);
+      })
+      .catch(() => {
+        toast.error("Failed to load files.");
+      });
+  }, []);
+
   
+
+
+
+
+  return (
+    
+  );
+}
