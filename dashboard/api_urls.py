@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from .api_views import (
     signup_api_view,
     LogoutAPIView,
@@ -26,4 +27,5 @@ urlpatterns = [
     path('upload-financial-line-items/', UploadFinancialLineItemsView.as_view(), name='upload-financial-line-items'),
     path("current-user/", CurrentUserView.as_view(), name="current_user"),
     path("update-profile/", UpdateProfileView.as_view(), name="update_profile"),
+    path('aggregate-report/', views.aggregate_report, name='aggregate-report'),
 ]
