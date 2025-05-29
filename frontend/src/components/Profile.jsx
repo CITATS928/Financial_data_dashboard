@@ -83,8 +83,10 @@ export default function Profile() {
 
 
   return (
-    <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", width: "100vw",paddingTop: "60px" }}>
-    <div style={{ width: "60%", padding: "0 60px" }}>
+    <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", width: "100vw",justifyContent: "center", 
+  alignItems: "center", 
+  padding: "60px 20px" ,  }}>
+    <div style={{  maxWidth: "800px", width: "100%", padding: "50px", backgroundColor: "#fff", borderRadius: "8px", boxShadow: "0 0 10px rgba(0,0,0,0.1)"}}>
       <ToastContainer position="top-right" autoClose={3000} />
 
       <h2 className="mb-4">Profile Setting</h2>

@@ -45,10 +45,10 @@ const AggregateReport = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto mt-6 bg-white shadow-lg rounded-2xl">
-      <h2 className="text-xl font-bold text-gray-700 mb-4">Aggregate Report</h2>
+      <h5 className="text-xl font-bold text-gray-700 mb-4">Aggregate Report</h5>
       
       {/* Total Actual Across All Entities */}
-      <div className="text-lg font-semibold text-gray-800 mb-4">
+      <div className="text-lg font-bold text-gray-800 mb-4">
         Total Actual Across All Entities: <span className="text-blue-500">{data?.total_actual_all_entities}</span>
       </div>
       
