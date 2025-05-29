@@ -8,7 +8,8 @@ import ChartsView from "./ChartsView";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import TotalActualByEntityChart from './TotalActualByEntityChart';
+// import TotalActualByEntityChart from './TotalActualByEntityChart';
+import AggregateReport from './AggregateReport';
 
 axios.defaults.withCredentials = true;
 
@@ -251,7 +252,7 @@ export default function Dashboard() {
         {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
       </button>
 
-      {showTotal && <TotalActualByEntityChart />}
+      {showTotal && <AggregateReport />}
     </div>
 
     </div>
