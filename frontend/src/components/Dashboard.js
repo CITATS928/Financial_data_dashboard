@@ -126,7 +126,7 @@ export default function Dashboard() {
       {/* Logout Button — Fixed Top Right */}
       <button
         onClick={handleLogout}
-        className="btn btn-sm btn-primary"
+        className="btn btn-sm btn-danger"
         style={{
           position: "absolute",
           top: "20px",
@@ -186,40 +186,33 @@ export default function Dashboard() {
               <option value="item_type">Item Type</option>
             </select>
             {/* Input + Close Button Container */}
-            <div style={{ position: "relative", flexGrow: 1 }}>
-              <input
-                type="text"
-                ref={searchInputRef}
-                className="form-control"
-                placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="btn btn-outline-secondary btn-sm"
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    right: "-500px",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    background: "transparent",
-                    fontSize: "18px",
-                    lineHeight: "1",
-                    padding: 0,
-                    margin: 0,
-                    cursor: "pointer",
-                    color: "red", 
+            <div className="d-flex align-items-center w-100 gap-2">
+            <input
+              type="text"
+              ref={searchInputRef}
+              className="form-control"
+              placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="btn btn-outline-secondary btn-sm text-danger"
+                style={{
+                   height: "38px",
+                   width: "80px",
+                   padding: "0",
+                   color: "red",
+                  //  whiteSpace: "nowrap",
+                   borderColor: "#ced4da",
+                   backgroundColor: "#fff"
                   }}
-                  aria-label="Clear search"
-                >
-                  Clear
-                  {/* &times; */}
-                </button>
-              )}
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
       </div>

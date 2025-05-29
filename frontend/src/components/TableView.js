@@ -31,24 +31,32 @@ export default function TableView({ data, searchQuery, searchColumn }) {
   };
 
   return (
-    <div className="table-responsive shadow rounded-3 overflow-hidden">
+    <div className="card mb-4 shadow-sm">
+      <div className="card-body">
       <div className="d-flex justify-content-between align-items-center mb-2"
-      style={{ padding: "0.75rem 1rem" }}
-      >
-        <h5 className="mb-0">Financial Line Items</h5>
-        <div>
+      style={{ padding: "0.75rem 1rem" }}>
+        {/* <h5 className="mb-0 ms-n2">Financial Line Items</h5> */}
+        <h5 className="mb-0" style={{ marginLeft: "-0.85rem" }}>Financial Line Items</h5>
+        <div className="form-check d-flex align-items-center m-0">
           <input
             type="checkbox"
-            className="form-check-input me-2"
+            className="form-check-input m-0 me-2"
             checked={showAdvanced}
             onChange={() => setShowAdvanced(!showAdvanced)}
             id="showAdvancedToggle"
+            style={{ transform: "translateY(1px)" }}
           />
-          <label className="form-check-label" htmlFor="showAdvancedToggle">
+          <label
+            className="form-check-label m-0"
+            htmlFor="showAdvancedToggle"
+            style={{ lineHeight: "1.2" }}
+          >
             Show Advanced Columns
           </label>
         </div>
+        </div>
       </div>
+      
 
       <table className="table table-hover table-bordered align-middle mb-0">
         <thead className="table-primary text-center">
