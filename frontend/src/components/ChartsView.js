@@ -133,7 +133,11 @@ export default function ChartsView({ data }) {
               margin={{ top: 10, right: 30, left: 20, bottom: 80 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} tick={{ fontSize: 12 }} />
+              <XAxis 
+                dataKey="name" 
+                tick={false} 
+                axisLine={false} 
+              />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip formatter={(value) => `$${value}`} />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
@@ -247,7 +251,7 @@ export default function ChartsView({ data }) {
           </div>
         </>
       )}
-      <div className="mt-5">
+      <div className="mt-0">
         <h5 className="text-primary mb-3 text-center">Calculations</h5>
         <div className="d-flex justify-content-center flex-column align-items-center">
           <p><strong>Total Revenue:</strong> ${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
