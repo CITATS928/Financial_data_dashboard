@@ -129,7 +129,7 @@ export default function Dashboard() {
       {/* Logout Button — Fixed Top Right */}
       <button
         onClick={handleLogout}
-        className="btn btn-sm btn-primary"
+        className="btn btn-sm btn-danger"
         style={{
           position: "absolute",
           top: "20px",
@@ -189,7 +189,7 @@ export default function Dashboard() {
               <option value="item_type">Item Type</option>
             </select>
             {/* Input + Close Button Container */}
-            <div style={{ position: "relative", flexGrow: 1 }}>
+            <div className="d-flex align-items-center w-100 gap-2">
               <input
                 type="text"
                 ref={searchInputRef}
@@ -202,25 +202,18 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="btn btn-outline-secondary btn-sm"
+                className="btn btn-outline-secondary btn-sm text-danger"
                   style={{
-                    position: "absolute",
-                    top: "50%",
-                    right: "-500px",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    background: "transparent",
-                    fontSize: "18px",
-                    lineHeight: "1",
-                    padding: 0,
-                    margin: 0,
-                    cursor: "pointer",
+                   height: "38px",
+                   width: "80px",
+                   padding: "0",
                     color: "red", 
+                  //  whiteSpace: "nowrap",
+                   borderColor: "#ced4da",
+                   backgroundColor: "#fff"
                   }}
-                  aria-label="Clear search"
-                >
+                                  >
                   Clear
-                  {/* &times; */}
                 </button>
               )}
           </div>
@@ -235,19 +228,20 @@ export default function Dashboard() {
       </div>
   
       <ChartsView data={filteredData} />
-      
+
+      {/* Aggregate Button */}
     <div className="mb-5">
       <button onClick={() => setShowTotal(prev => !prev)}
         style={{
-    padding: '20px 8px',
-    fontSize: '15px',
-    borderRadius: '12px',
-    backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
-    color: showTotal ? 'white' : '#333',
-    border: '2px solid #ccc',
-    cursor: 'pointer',
-    // marginBottom: '10px'
-  }}
+                  padding: '20px 8px',
+                  fontSize: '15px',
+                  borderRadius: '12px',
+                  backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
+                  color: showTotal ? 'white' : '#333',
+                  border: '2px solid #ccc',
+                  cursor: 'pointer',
+    
+                }} 
 >
         {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
       </button>
