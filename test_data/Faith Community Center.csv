@@ -1,0 +1,5 @@
+﻿entity_name,account_code,description,ytd_actual,annual_budget,category,item_type,expense_nature
+Faith Community Center,554554,Digital Ministry Expansion,1780.08,1235.31,Education,revenue,
+Faith Community Center,477609,Congregational Growth Program,3495.35,5263.5,Outreach,revenue,
+Faith Community Center,569858,Technology Infrastructure Overhaul,1465.27,1321.08,Administration,expense,cash_operating
+Faith Community Center,420746,Technology Infrastructure Overhaul,3078.81,1490.21,Technology,expense,cash_operating
