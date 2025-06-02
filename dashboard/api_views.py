@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from rest_framework.generics import ListAPIView
-from .models import FinancialLineItem
+from .models import FinancialLineItem, UploadedFile
 from .serializers import FinancialLineItemSerializer  # ✅ already present, reused below
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -113,7 +113,7 @@ class UploadFinancialLineItemsView(APIView):
             for row in reader:
                 try:
                     item = FinancialLineItem(
-                        user=request.user,  # Associate the user
+                        user=request.user,
                         entity_name=row.get("entity_name"),
                         account_code=row.get("account_code"),
                         description=row.get("description"),
@@ -153,7 +153,19 @@ class MyUploadedItemsView(APIView):
         serializer = FinancialLineItemSerializer(items, many=True)
         return Response(serializer.data)
     
+class MyUploadedFilesView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        files = UploadedFile.objects.filter(user=request.user).order_by("-upload_time")
+        data = [
+            {
+                "filename": file.filename,
+                "upload_time": file.upload_time,
+            }
+            for file in files
+        ]
+        return Response(data)
 
 @csrf_exempt
 @api_view(['POST'])
