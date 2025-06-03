@@ -1,7 +1,7 @@
 ﻿entity_name,account_code,description,ytd_actual,annual_budget,category,item_type,expense_nature
 Trinity Outreach,570551,Faith-Based Outreach,1570.28,1063.89,Education,expense,cash_operating
-Trinity Outreach,492962,Interfaith Partnership Grant,1272.85,1340.92,Finance,revenue,
-Trinity Outreach,567709,Disaster Relief Aid,2373.28,1767.73,Administration,revenue,
+Trinity Outreach,492962,Interfaith Partnership Grant,1272.85,1340.92,Finance,revenue,n/a
+Trinity Outreach,567709,Disaster Relief Aid,2373.28,1767.73,Administration,revenue,n/a
 Trinity Outreach,591451,Clergy Support Services,1240.39,5674.48,Administration,expense,cash_operating
 Trinity Outreach,557410,Faith-Based Outreach,3858.75,4297.21,Outreach,expense,cash_operating
 Trinity Outreach,520013,Ministry Travel Reimbursement,1674.96,1704.94,Technology,expense,cash_operating
