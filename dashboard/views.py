@@ -140,6 +140,12 @@ def aggregate_report(request):
 
     # Now, aggregate the total actual across all entities
     total_actual_all_entities = FinancialLineItem.objects.aggregate(total_actual_all_entities=Sum('ytd_actual'))
+    entities = (
+        FinancialLineItem.objects
+        .values('entity_name')
+        .annotate(total_actual=Sum('ytd_actual'))
+        .order_by('entity_name')
+    )
 
     # Return both individual totals and aggregate total
     return JsonResponse({

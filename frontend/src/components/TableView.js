@@ -148,6 +148,22 @@ export default function TableView({ data, searchQuery, searchColumn }) {
               )}
             </tr>
           ))}
+          <tr className="table-info fw-bold text-end">
+            <td colSpan="5" className="text-end pe-3">Totals:</td>
+            <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.ytd_actual) || 0), 0).toFixed(2)}</td>
+            <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.annual_budget) || 0), 0).toFixed(2)}</td>
+            <td>-</td>
+            {showAdvanced && (
+              <>
+                <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.gross_profit) || 0), 0).toFixed(2)}</td>
+                <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.ebitda) || 0), 0).toFixed(2)}</td>
+                <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.ebit) || 0), 0).toFixed(2)}</td>
+                <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.profit_before_tax) || 0), 0).toFixed(2)}</td>
+                <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.profit_for_period) || 0), 0).toFixed(2)}</td>
+              </>
+            )}
+          </tr>
+
         </tbody>
       </table>
     </div>
