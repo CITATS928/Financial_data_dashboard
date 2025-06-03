@@ -14,7 +14,7 @@ import AggregateReport from './AggregateReport';
 axios.defaults.withCredentials = true;
 
 export default function Dashboard() {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState(null);
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchColumn, setSearchColumn] = useState("all");
@@ -42,17 +42,19 @@ export default function Dashboard() {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setFiles(Array.from(e.target.files));
   };
 
   const handleUpload = async () => {
-    if (!file) return toast.error("Please select a file first.");
+    if (!files.length) return toast.error("Please select at least one file.");
 
     const csrfToken = await getCsrfToken();
     if (!csrfToken) return;
 
     const formData = new FormData();
-    formData.append("file", file);
+    files.forEach((file, index) => {
+      formData.append("files", file); // Same key name for multiple files
+    });
 
     try {
       await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
@@ -75,11 +77,33 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
-      setData(res.data);
-    } catch {
+      const enhancedData = res.data.map(item => {
+        const actual = parseFloat(item.ytd_actual) || 0;
+        const budget = parseFloat(item.annual_budget) || 0;
+        const percentUsed = budget !== 0 ? (actual / budget) * 100 : null;
+        return {
+          ...item,
+          percent_used: percentUsed,
+        };
+      });
+      setData(enhancedData);
+      console.log("Fetched and enhanced data:", enhancedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
       toast.error("Failed to load data");
     }
   };
+  
+
+  // const fetchData = async () => {
+  //   try {
+  //     const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
+  //     setData(res.data);
+  //     console.log("Fetched data:", res.data);
+  //   } catch {
+  //     toast.error("Failed to load data");
+  //   }
+  // };
 
   const handleLogout = async () => {
     try {
@@ -109,7 +133,8 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const filteredData = data.filter((row) => {
+  const filteredData = data.filter((row) => 
+    {
     if (!searchQuery) return true;
 
     if (searchColumn === "all") {
@@ -151,9 +176,9 @@ export default function Dashboard() {
       {/* Upload Section */}
       <div className="card mb-4 shadow-sm">
         <div className="card-body">
-          <h5 className="card-title mb-3">Upload Financial CSV</h5>
+          <h5 className="mb-3">Upload Financial CSV</h5>
           <div className="d-flex gap-3 align-items-center">
-            <input type="file" onChange={handleFileChange} className="form-control" />
+            <input type="file" className="form-control" onChange={handleFileChange} multiple />
             <button onClick={handleUpload}
             className="btn btn-primary"
             style={{
