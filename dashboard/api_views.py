@@ -129,6 +129,7 @@ class UploadFinancialLineItemsView(APIView):
                     continue
 
             FinancialLineItem.objects.bulk_create(items)
+            UploadedFile.objects.create(user=request.user, filename=file_obj.name)
             return Response({"message": f"{len(items)} rows uploaded."}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
