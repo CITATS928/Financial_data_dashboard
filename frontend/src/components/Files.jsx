@@ -3,70 +3,51 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 export default function Files() {
-  const [items, setItem] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/dashboard/my-files/", {
+      .get("http://localhost:8000/api/dashboard/my-uploaded-files/", {
         withCredentials: true,
       })
       .then((res) => {
-        setItem(res.data);
+        setUploadedFiles(res.data);
       })
       .catch(() => {
-        toast.error("Failed to load files.");
+        toast.error("Failed to load uploaded files.");
       });
   }, []);
 
-  
-
-
-
-
   return (
-    <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", paddingTop: "60px", width: "1000px" }}>
-    <div className="container mt-5">
-      <ToastContainer />
-      <h2 className="mb-4">My Files Records</h2>
+    <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", paddingTop: "60px" }}>
+      <div className="container mt-5">
+        <ToastContainer />
+        <h2 className="mb-4">Uploaded Files</h2>
 
-      {items.length === 0 ? (
-       <p>You haven't uploaded any file.</p>
-      ) : (
-        <table className="table table-bordered table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Entity</th>
-              <th>Account Code</th>
-              <th>Description</th>
-              <th>YTD Actual</th>
-              <th>Annual Budget</th>
-              <th>Category</th>
-              <th>Item Type</th>
-              <th>Expense Nature</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, index) => (
-              <tr key={item.id}>
-                <td>{index + 1}</td>
-                <td>{item.entity_name}</td>
-                <td>{item.account_code}</td>
-                <td>{item.description}</td>
-                <td>{item.ytd_actual}</td>
-                <td>{item.annual_budget}</td>
-                <td>{item.category}</td>
-                <td>{item.item_type}</td>
-                <td>{item.expense_nature}</td>
+        {uploadedFiles.length === 0 ? (
+          <p>You haven't uploaded any files yet.</p>
+        ) : (
+          <table className="table table-bordered table-hover">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Filename</th>
+                <th>Upload Time</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-    </div>
+            </thead>
+            <tbody>
+              {uploadedFiles.map((file, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{file.filename}</td>
+                  <td>{new Date(file.upload_time).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
