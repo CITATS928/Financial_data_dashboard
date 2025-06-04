@@ -125,20 +125,9 @@ def LogoutPage(request):
 
     return redirect('/login/')
 
-# def total_actual_by_entity(request):
-#     result = (
-#         FinancialLineItem.objects
-#         .values('entity_name') 
-#         .annotate(total_actual=Sum('ytd_actual'))  
-#         .order_by('entity_name')
-#     )
-#     return JsonResponse(list(result), safe=False)
-
+#Aggregate sum 
 def aggregate_report(request):
-    # Aggregate sum of 'actual' for each entity
     result = FinancialLineItem.objects.values('entity_name').annotate(total_actual=Sum('ytd_actual'))
-
-    # Now, aggregate the total actual across all entities
     total_actual_all_entities = FinancialLineItem.objects.aggregate(total_actual_all_entities=Sum('ytd_actual'))
     entities = (
         FinancialLineItem.objects
@@ -149,6 +138,6 @@ def aggregate_report(request):
 
     # Return both individual totals and aggregate total
     return JsonResponse({
-        'entities': list(result),  # Sum per entity
+        'entities': list(result),  
         'total_actual_all_entities': total_actual_all_entities['total_actual_all_entities']  # Overall total
     })
