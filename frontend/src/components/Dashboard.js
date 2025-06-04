@@ -8,7 +8,6 @@ import ChartsView from "./ChartsView";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-// import TotalActualByEntityChart from './TotalActualByEntityChart';
 import AggregateReport from './AggregateReport';
 
 axios.defaults.withCredentials = true;
@@ -70,7 +69,9 @@ export default function Dashboard() {
         searchInputRef.current?.focus();
       }, 500);
     } catch (err) {
+      
       toast.error("Upload failed");
+      
     }
   };
 
@@ -255,15 +256,16 @@ export default function Dashboard() {
       <ChartsView data={filteredData} />
 
       {/* Aggregate Button */}
-    <div className="mb-5">
+    <div className="mb-10" style={{ paddingTop: '35px' }}>
+
       <button onClick={() => setShowTotal(prev => !prev)}
         style={{
                   padding: '20px 8px',
                   fontSize: '15px',
                   borderRadius: '12px',
                   backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
-                  color: showTotal ? 'white' : '#333',
-                  border: '2px solid #ccc',
+                  color: showTotal ? 'white' : 'white',
+                  border: '1px solid #ccc',
                   cursor: 'pointer',
     
                 }} 
