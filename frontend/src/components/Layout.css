@@ -70,3 +70,10 @@ body[data-theme="dark"] input::placeholder,
 body[data-theme="dark"] .form-control::placeholder {
   color: #bbbbbb;
 }
+
+/*dark theme for aggregate report*/
+body[data-theme="dark"] .aggregate-box {
+  background-color: #1e1e1e !important;
+  color: #f0f0f0 !important;            
+  box-shadow: 0 0 15px rgba(0,0,0,0.8) !important;
+}
