@@ -72,5 +72,6 @@ const roundedEntities = data?.entities?.map((entry) => ({
     </div>
   );
 };
- export default AggregateReport;
+
+export default AggregateReport;
 
