@@ -19,6 +19,11 @@ export default function Files() {
       });
   }, []);
 
+  const handleDelete = (uploadId) => {
+    setUploadedFiles((prev) => prev.filter((file) => file.id !== uploadId));
+    toast.success("Deleted(backend not updated yet)");
+  };
+
   return (
     <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", paddingTop: "60px" }}>
       <div className="container mt-5">
@@ -34,6 +39,8 @@ export default function Files() {
                 <th>#</th>
                 <th>Filename</th>
                 <th>Upload Time</th>
+                <th>Rows</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -42,6 +49,12 @@ export default function Files() {
                   <td>{index + 1}</td>
                   <td>{file.filename}</td>
                   <td>{new Date(file.upload_time).toLocaleString()}</td>
+                  <td>{file.row_count}</td>
+                  <td>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(file.id)}>
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
