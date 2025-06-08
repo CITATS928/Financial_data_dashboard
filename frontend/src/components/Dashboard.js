@@ -9,17 +9,21 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import AggregateReport from './AggregateReport';
-
+import EntityBarChart from './EntityBarChart';
 axios.defaults.withCredentials = true;
 
 export default function Dashboard() {
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState();
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchColumn, setSearchColumn] = useState("all");
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const [showTotal, setShowTotal] = useState(false);
+  const [showChart, setShowChart] = useState(false);
+  const [entity, setEntity] = useState('');
+  const [entities, setEntities] = useState([]);
+  const [viewMode, setViewMode] = useState('yearly');
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
@@ -27,6 +31,21 @@ export default function Dashboard() {
       document.body.removeAttribute("style");
     };
   }, []);
+
+
+  useEffect(() => {
+  axios.get('http://localhost:8000/api/entities/')
+    .then((res) => {
+      setEntities(res.data);
+      if (res.data.length > 0) {
+        setEntity(res.data[0]); // Set first entity as default
+      }
+    })
+    .catch((err) => {
+      console.error('Error fetching entities:', err);
+    });
+}, []);
+
 
   const getCsrfToken = async () => {
     try {
@@ -45,15 +64,19 @@ export default function Dashboard() {
   };
 
   const handleUpload = async () => {
-    if (!files.length) return toast.error("Please select at least one file.");
+    // if (!files.length) return toast.error("Please select at least one file.");
+    if (!files || files.length === 0) {
+    return toast.error("Please select at least one file.");
+  }
 
     const csrfToken = await getCsrfToken();
     if (!csrfToken) return;
 
+    // 
     const formData = new FormData();
-    files.forEach((file, index) => {
-      formData.append("files", file); // Same key name for multiple files
-    });
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
 
     try {
       await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
@@ -276,6 +299,50 @@ export default function Dashboard() {
       {showTotal && <AggregateReport />}
     </div>
 
+
+<div className="mb-10" style={{ paddingTop: '35px' }}>
+<button onClick={() => setShowChart(!showChart)}
+         style={{
+                  padding: '20px 8px',
+                  fontSize: '15px',
+                  borderRadius: '12px',
+                  backgroundColor: showChart ? '#4CAF50' : '#4c84ff',
+                  color: showChart ? 'white' : 'white',
+                  border: '1px solid #ccc',
+                  cursor: 'pointer',
+    
+                }} 
+>
+      
+        {showChart ? 'Hide Report' : 'Yearly/Quarterly Report'}
+      </button>
+
+      <select
+  onChange={(e) => setEntity(e.target.value)}
+  className="ml-4 px-2 py-1 border rounded-md"
+>
+  <option value="">Select an Entity</option>
+  {entities.map((name, idx) => (
+    <option key={idx} value={name}>{name}</option>
+  ))}
+</select>
+      {showChart && (
+  <div className="mt-4">
+    <div className="mb-4 flex items-center gap-4">
+      {/* <label className="font-semibold">Toggle View:</label> */}
+      {/* <button
+        onClick={() => setViewMode(viewMode === 'yearly' ? 'quarterly' : 'yearly')}
+        className="px-4 py-2 bg-blue-600 text-black rounded-md"
+      >
+       Toggle View
+      </button> */}
+    </div>
+
+    <EntityBarChart entityName={entity} view={viewMode} />
+  </div>
+)}
+</div>
+  
     </div>
 
     

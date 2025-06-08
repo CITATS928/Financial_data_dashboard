@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from datetime import date
 # Create your models here.
 class FinancialLineItem(models.Model):
     entity_name = models.CharField(max_length=255)
@@ -9,6 +9,8 @@ class FinancialLineItem(models.Model):
 
     ytd_actual = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     annual_budget = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    date = models.DateField() 
+    
 
     category = models.CharField(
         max_length=100,

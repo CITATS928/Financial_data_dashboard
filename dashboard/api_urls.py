@@ -28,4 +28,7 @@ urlpatterns = [
     path("current-user/", CurrentUserView.as_view(), name="current_user"),
     path("update-profile/", UpdateProfileView.as_view(), name="update_profile"),
     path('aggregate-report/', views.aggregate_report, name='aggregate-report'),
+     path('entities/', views.get_entity_names, name='get_entity_names'),
+    path('entity-yearly-actual/<str:entity_name>/', views.entity_yearly_actual, name='entity_yearly_actual'),
+    path('entity-quarterly-actual/<str:entity_name>/', views.entity_quarterly_actual, name='entity_quarterly_actual'),
 ]
