@@ -1,6 +1,7 @@
 /* Main content layout */
 .main-content {
   margin-left: 240px;
+  width: calc(100% - 240px);
   padding: 20px;
   transition: margin-left 0.3s ease;
 }
@@ -76,4 +77,28 @@ body[data-theme="dark"] .aggregate-box {
   background-color: #1e1e1e !important;
   color: #f0f0f0 !important;            
   box-shadow: 0 0 15px rgba(0,0,0,0.8) !important;
+}
+
+/*Dark theme styles for react-toastify notifications */
+body[data-theme="dark"] .Toastify__toast {
+  background: #2c2f33 !important;
+  color: #f8f9fa !important;
+  box-shadow: 0 0 15px rgba(0,0,0,0.8) !important;
+  border-radius: 8px;
+}
+
+body[data-theme="dark"] .Toastify__toast--success {
+  background: #4caf50 !important;
+}
+
+body[data-theme="dark"] .Toastify__toast--error {
+  background: #e03e3e !important;
+}
+
+body[data-theme="dark"] .Toastify__progress-bar {
+  background: #4c84ff !important;
+}
+
+html, body {
+  overflow-x: hidden;
 }
