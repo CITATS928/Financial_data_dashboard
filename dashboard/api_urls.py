@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from .api_views import (
     signup_api_view,
     LogoutAPIView,
@@ -31,4 +32,5 @@ urlpatterns = [
     # path("my-files/", MyUploadedItemsView.as_view(), name="my_uploaded_items"),
     path("my-uploaded-files/", MyUploadedFilesView.as_view(), name="my_uploaded_files"),
 
+    path('aggregate-report/', views.aggregate_report, name='aggregate-report'),
 ]

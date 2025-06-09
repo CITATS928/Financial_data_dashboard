@@ -8,16 +8,18 @@ import ChartsView from "./ChartsView";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import AggregateReport from './AggregateReport';
 
 axios.defaults.withCredentials = true;
 
 export default function Dashboard() {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState(null);
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchColumn, setSearchColumn] = useState("all");
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
+  const [showTotal, setShowTotal] = useState(false);
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
@@ -39,17 +41,19 @@ export default function Dashboard() {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setFiles(Array.from(e.target.files));
   };
 
   const handleUpload = async () => {
-    if (!file) return toast.error("Please select a file first.");
+    if (!files.length) return toast.error("Please select at least one file.");
 
     const csrfToken = await getCsrfToken();
     if (!csrfToken) return;
 
     const formData = new FormData();
-    formData.append("file", file);
+    files.forEach((file, index) => {
+      formData.append("files", file); // Same key name for multiple files
+    });
 
     try {
       await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
@@ -65,18 +69,42 @@ export default function Dashboard() {
         searchInputRef.current?.focus();
       }, 500);
     } catch (err) {
+      
       toast.error("Upload failed");
+      
     }
   };
 
   const fetchData = async () => {
     try {
       const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
-      setData(res.data);
-    } catch {
+      const enhancedData = res.data.map(item => {
+        const actual = parseFloat(item.ytd_actual) || 0;
+        const budget = parseFloat(item.annual_budget) || 0;
+        const percentUsed = budget !== 0 ? (actual / budget) * 100 : null;
+        return {
+          ...item,
+          percent_used: percentUsed,
+        };
+      });
+      setData(enhancedData);
+      console.log("Fetched and enhanced data:", enhancedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
       toast.error("Failed to load data");
     }
   };
+  
+
+  // const fetchData = async () => {
+  //   try {
+  //     const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
+  //     setData(res.data);
+  //     console.log("Fetched data:", res.data);
+  //   } catch {
+  //     toast.error("Failed to load data");
+  //   }
+  // };
 
   const handleLogout = async () => {
     try {
@@ -106,7 +134,8 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const filteredData = data.filter((row) => {
+  const filteredData = data.filter((row) => 
+    {
     if (!searchQuery) return true;
 
     if (searchColumn === "all") {
@@ -126,7 +155,7 @@ export default function Dashboard() {
       {/* Logout Button — Fixed Top Right */}
       <button
         onClick={handleLogout}
-        className="btn btn-sm btn-primary"
+        className="btn btn-sm btn-danger"
         style={{
           position: "absolute",
           top: "20px",
@@ -148,9 +177,9 @@ export default function Dashboard() {
       {/* Upload Section */}
       <div className="card mb-4 shadow-sm">
         <div className="card-body">
-          <h5 className="card-title mb-3">Upload Financial CSV</h5>
+          <h5 className="mb-3">Upload Financial CSV</h5>
           <div className="d-flex gap-3 align-items-center">
-            <input type="file" onChange={handleFileChange} className="form-control" />
+            <input type="file" className="form-control" onChange={handleFileChange} multiple />
             <button onClick={handleUpload}
             className="btn btn-primary"
             style={{
@@ -186,7 +215,7 @@ export default function Dashboard() {
               <option value="item_type">Item Type</option>
             </select>
             {/* Input + Close Button Container */}
-            <div style={{ position: "relative", flexGrow: 1 }}>
+            <div className="d-flex align-items-center w-100 gap-2">
               <input
                 type="text"
                 ref={searchInputRef}
@@ -199,31 +228,25 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="btn btn-outline-secondary btn-sm"
+                className="btn btn-outline-secondary btn-sm text-danger"
                   style={{
-                    position: "absolute",
-                    top: "50%",
-                    right: "-500px",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    background: "transparent",
-                    fontSize: "18px",
-                    lineHeight: "1",
-                    padding: 0,
-                    margin: 0,
-                    cursor: "pointer",
+                   height: "38px",
+                   width: "80px",
+                   padding: "0",
                     color: "red", 
+                  //  whiteSpace: "nowrap",
+                   borderColor: "#ced4da",
+                   backgroundColor: "#fff"
                   }}
-                  aria-label="Clear search"
-                >
+                                  >
                   Clear
-                  {/* &times; */}
                 </button>
               )}
           </div>
         </div>
       </div>
     </div>
+    
 
       {/* Table and Charts */}
       <div className="mb-5">
@@ -231,6 +254,30 @@ export default function Dashboard() {
       </div>
   
       <ChartsView data={filteredData} />
+
+      {/* Aggregate Button */}
+    <div className="mb-10" style={{ paddingTop: '35px' }}>
+
+      <button onClick={() => setShowTotal(prev => !prev)}
+        style={{
+                  padding: '20px 8px',
+                  fontSize: '15px',
+                  borderRadius: '12px',
+                  backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
+                  color: showTotal ? 'white' : 'white',
+                  border: '1px solid #ccc',
+                  cursor: 'pointer',
+    
+                }} 
+>
+        {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
+      </button>
+
+      {showTotal && <AggregateReport />}
     </div>
+
+    </div>
+
+    
   );
 }

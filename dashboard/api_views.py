@@ -28,6 +28,7 @@ from rest_framework import status
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
     serializer_class = FinancialLineItemSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UploadCSVView(APIView):
@@ -95,45 +96,149 @@ class SessionLoginView(APIView):
 
 
 # ✅ NEW: Upload FinancialLineItem CSV
+
+# ✅ Enhanced: UploadFinancialLineItemsView with per-file summary
+
 class UploadFinancialLineItemsView(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        file_obj = request.FILES.get("file")
-        if not file_obj:
-            return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+        files = request.FILES.getlist("files")
+        if not files:
+            return Response({"error": "No files uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        total_rows = 0
+        total_skipped = 0
+        results = []
 
-        try:
-            decoded_file = file_obj.read().decode("utf-8")
-            io_string = io.StringIO(decoded_file)
-            reader = csv.DictReader(io_string)
+        for file_obj in files:
+            skipped_rows_this_file = 0
+            uploaded_rows_this_file = 0
 
-            items = []
-            for row in reader:
+            try:
+                decoded_file = file_obj.read().decode("utf-8")
+                io_string = io.StringIO(decoded_file)
+
+                # Auto-detect delimiter (tab, comma, etc.)
+                sample = io_string.read(1024)
+                io_string.seek(0)
+
                 try:
-                    item = FinancialLineItem(
-                        user=request.user,
-                        entity_name=row.get("entity_name"),
-                        account_code=row.get("account_code"),
-                        description=row.get("description"),
-                        ytd_actual=float(row.get("ytd_actual") or 0),
-                        annual_budget=float(row.get("annual_budget") or 0),
-                        category=row.get("category", ""),
-                        item_type=row.get("item_type", "statement"),
-                        expense_nature=row.get("expense_nature") or None,
-                    )
-                    items.append(item)
+                    dialect = csv.Sniffer().sniff(sample)
+                    if dialect.delimiter not in [',', '\t']:
+                        print(f"⚠ Unknown delimiter `{repr(dialect.delimiter)}`, defaulting to tab.")
+                        dialect.delimiter = '\t'
+                except csv.Error:
+                    print("⚠ Sniffer failed, using default tab delimiter.")
+                    dialect = csv.excel_tab
+
+                print(f"📂 Parsing file: {file_obj.name}")
+                print(f"🧭 Detected delimiter: {repr(dialect.delimiter)}")
+
+                reader = csv.DictReader(io_string, dialect=dialect)
+                reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
+
+                items = []
+                for row in reader:
+                    try:
+                        print("Parsed row:", row)  # ✅ moved safely inside the loop
+
+                        row = {k.strip(): (v.strip() if v else "") for k, v in row.items()}
+
+                        if not row.get("entity_name") or not row.get("account_code"):
+                            print(f"⚠ Skipping row due to missing required fields: {row}")
+                            skipped_rows_this_file += 1
+                            continue
+
+                        item = FinancialLineItem(
+                            user=request.user,
+                            entity_name=row.get("entity_name"),
+                            account_code=row.get("account_code"),
+                            description=row.get("description", ""),
+                            ytd_actual=float(row.get("ytd_actual") or 0),
+                            annual_budget=float(row.get("annual_budget") or 0),
+                            category=row.get("category", ""),
+                            item_type=row.get("item_type", "statement"),
+                            expense_nature=row.get("expense_nature") or "n/a",
+                        )
+
                 except Exception as row_error:
                     print(f"Skipping row due to error: {row_error}, row: {row}")
+                    skipped_rows_this_file += 1
                     continue
 
-            FinancialLineItem.objects.bulk_create(items)
-            UploadedFile.objects.create(user=request.user, filename=file_obj.name)
-            return Response({"message": f"{len(items)} rows uploaded."}, status=status.HTTP_201_CREATED)
+                FinancialLineItem.objects.bulk_create(items)
+                uploaded_rows_this_file = len(items)
+                total_rows += uploaded_rows_this_file
+                total_skipped += skipped_rows_this_file
 
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+                UploadedFile.objects.create(
+                    user=request.user,
+                    filename=file_obj.name,
+                )
+
+
+                results.append({
+                    "filename": file_obj.name,
+                    "rows_uploaded": uploaded_rows_this_file,
+                    "rows_skipped": skipped_rows_this_file,
+                })
+
+            except Exception as e:
+                return Response(
+                    {"error": f"Error processing file {file_obj.name}: {str(e)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        return Response(
+            {
+                "message": f"Successfully processed {len(files)} file(s).",
+                "results": results,
+                "total_uploaded_rows": total_rows,
+                "total_skipped_rows": total_skipped,
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
+# class UploadFinancialLineItemsView(APIView):
+#     parser_classes = [MultiPartParser]
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         file_obj = request.FILES.get("file")
+#         if not file_obj:
+#             return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             decoded_file = file_obj.read().decode("utf-8")
+#             io_string = io.StringIO(decoded_file)
+#             reader = csv.DictReader(io_string)
+
+#             items = []
+#             for row in reader:
+#                 try:
+#                     items.append(FinancialLineItem(
+#                         entity_name=row.get("entity_name"),
+#                         account_code=row.get("account_code"),
+#                         description=row.get("description"),
+#                         ytd_actual=float(row.get("ytd_actual") or 0),
+#                         annual_budget=float(row.get("annual_budget") or 0),
+#                         category=row.get("category", ""),
+#                         item_type=row.get("item_type", "statement"),
+#                         expense_nature=row.get("expense_nature") or None,
+#                     ))
+#                 except Exception as row_error:
+#                     print(f"Skipping row due to error: {row_error}, row: {row}")
+#                     continue
+
+#             FinancialLineItem.objects.bulk_create(items)
+#             return Response({"message": f"{len(items)} rows uploaded."}, status=status.HTTP_201_CREATED)
+
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
