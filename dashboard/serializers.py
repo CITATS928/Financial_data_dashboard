@@ -11,6 +11,7 @@ class FinancialLineItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FinancialLineItem
+        # fields = '__all__'
         fields = [
             "entity_name",
             "account_code",
