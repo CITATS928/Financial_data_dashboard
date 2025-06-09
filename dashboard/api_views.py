@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from rest_framework.generics import ListAPIView
-from .models import FinancialLineItem
+from .models import FinancialLineItem, UploadedFile
 from .serializers import FinancialLineItemSerializer  # ✅ already present, reused below
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -165,24 +165,26 @@ class UploadFinancialLineItemsView(APIView):
                     except Exception as row_error:
                         print(f"❌ Skipping row due to error: {row_error}, row: {row}")
                         skipped_rows_this_file += 1
+                        continue
+
 
                 FinancialLineItem.objects.bulk_create(items)
                 uploaded_rows_this_file = len(items)
-
                 total_rows += uploaded_rows_this_file
                 total_skipped += skipped_rows_this_file
+
+                UploadedFile.objects.create(
+                    user=request.user,
+                    filename=file_obj.name,
+                )
 
                 results.append({
                     "filename": file_obj.name,
                     "rows_uploaded": uploaded_rows_this_file,
                     "rows_skipped": skipped_rows_this_file,
                 })
-
+                
             except Exception as e:
-                import traceback
-                traceback_str = traceback.format_exc()
-                print(f"🔥 Error in file {file_obj.name}: {e}")
-                print(traceback_str)
                 return Response(
                     {"error": f"Error processing file {file_obj.name}: {str(e)}"},
                     status=status.HTTP_400_BAD_REQUEST
@@ -236,7 +238,6 @@ class UploadFinancialLineItemsView(APIView):
 #         except Exception as e:
 #             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -245,6 +246,30 @@ class FinancialLineItemsListView(APIView):
         queryset = FinancialLineItem.objects.all()
         serializer = FinancialLineItemSerializer(queryset, many=True)
         return Response(serializer.data)
+    
+
+# get all items uploaded by the current user
+class MyUploadedItemsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        items = FinancialLineItem.objects.filter(user=request.user).order_by("-id")
+        serializer = FinancialLineItemSerializer(items, many=True)
+        return Response(serializer.data)
+    
+class MyUploadedFilesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        files = UploadedFile.objects.filter(user=request.user).order_by("-upload_time")
+        data = [
+            {
+                "filename": file.filename,
+                "upload_time": file.upload_time,
+            }
+            for file in files
+        ]
+        return Response(data)
 
 @csrf_exempt
 @api_view(['POST'])
