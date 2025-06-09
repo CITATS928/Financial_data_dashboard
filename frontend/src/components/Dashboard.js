@@ -20,7 +20,7 @@ export default function Dashboard() {
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const [showTotal, setShowTotal] = useState(false);
-
+  
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
     return () => {
@@ -134,6 +134,7 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+        
   const filteredData = data.filter((row) => 
     {
     if (!searchQuery) return true;
