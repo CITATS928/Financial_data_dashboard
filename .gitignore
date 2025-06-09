@@ -44,3 +44,6 @@ db.sqlite3
 note.md
 
 /.venv
+
+
+backup.py
