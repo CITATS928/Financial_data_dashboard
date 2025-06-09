@@ -151,8 +151,7 @@ class UploadFinancialLineItemsView(APIView):
                             skipped_rows_this_file += 1
                             continue
 
-                        item = FinancialLineItem(
-                            user=request.user,
+                        items.append(FinancialLineItem(
                             entity_name=row.get("entity_name"),
                             account_code=row.get("account_code"),
                             description=row.get("description", ""),
@@ -161,31 +160,30 @@ class UploadFinancialLineItemsView(APIView):
                             category=row.get("category", ""),
                             item_type=row.get("item_type", "statement"),
                             expense_nature=row.get("expense_nature") or "n/a",
-                        )
+                        ))
 
-                except Exception as row_error:
-                    print(f"Skipping row due to error: {row_error}, row: {row}")
-                    skipped_rows_this_file += 1
-                    continue
+                    except Exception as row_error:
+                        print(f"❌ Skipping row due to error: {row_error}, row: {row}")
+                        skipped_rows_this_file += 1
+                        continue
+
 
                 FinancialLineItem.objects.bulk_create(items)
                 uploaded_rows_this_file = len(items)
                 total_rows += uploaded_rows_this_file
                 total_skipped += skipped_rows_this_file
 
-
                 UploadedFile.objects.create(
                     user=request.user,
                     filename=file_obj.name,
                 )
-
 
                 results.append({
                     "filename": file_obj.name,
                     "rows_uploaded": uploaded_rows_this_file,
                     "rows_skipped": skipped_rows_this_file,
                 })
-
+                
             except Exception as e:
                 return Response(
                     {"error": f"Error processing file {file_obj.name}: {str(e)}"},
