@@ -152,6 +152,7 @@ class UploadFinancialLineItemsView(APIView):
                             continue
 
                         items.append(FinancialLineItem(
+                            user=request.user, 
                             entity_name=row.get("entity_name"),
                             account_code=row.get("account_code"),
                             description=row.get("description", ""),
@@ -183,8 +184,12 @@ class UploadFinancialLineItemsView(APIView):
                     "rows_uploaded": uploaded_rows_this_file,
                     "rows_skipped": skipped_rows_this_file,
                 })
-                
+
             except Exception as e:
+                import traceback
+                traceback_str = traceback.format_exc()
+                print(f"🔥 Error in file {file_obj.name}: {e}")
+                print(traceback_str)
                 return Response(
                     {"error": f"Error processing file {file_obj.name}: {str(e)}"},
                     status=status.HTTP_400_BAD_REQUEST
@@ -200,43 +205,6 @@ class UploadFinancialLineItemsView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
-# class UploadFinancialLineItemsView(APIView):
-#     parser_classes = [MultiPartParser]
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request):
-#         file_obj = request.FILES.get("file")
-#         if not file_obj:
-#             return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
-
-#         try:
-#             decoded_file = file_obj.read().decode("utf-8")
-#             io_string = io.StringIO(decoded_file)
-#             reader = csv.DictReader(io_string)
-
-#             items = []
-#             for row in reader:
-#                 try:
-#                     items.append(FinancialLineItem(
-#                         entity_name=row.get("entity_name"),
-#                         account_code=row.get("account_code"),
-#                         description=row.get("description"),
-#                         ytd_actual=float(row.get("ytd_actual") or 0),
-#                         annual_budget=float(row.get("annual_budget") or 0),
-#                         category=row.get("category", ""),
-#                         item_type=row.get("item_type", "statement"),
-#                         expense_nature=row.get("expense_nature") or None,
-#                     ))
-#                 except Exception as row_error:
-#                     print(f"Skipping row due to error: {row_error}, row: {row}")
-#                     continue
-
-#             FinancialLineItem.objects.bulk_create(items)
-#             return Response({"message": f"{len(items)} rows uploaded."}, status=status.HTTP_201_CREATED)
-
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
