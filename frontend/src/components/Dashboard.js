@@ -20,15 +20,11 @@ export default function Dashboard() {
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const [showTotal, setShowTotal] = useState(false);
-<<<<<<< HEAD
   const [showChart, setShowChart] = useState(false);
   const [entity, setEntity] = useState('');
   const [entities, setEntities] = useState([]);
   const [viewMode, setViewMode] = useState('yearly');
 
-=======
-  
->>>>>>> 4c749b1f6025727dace8543207aeea6678287770
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
     return () => {
@@ -68,7 +64,7 @@ export default function Dashboard() {
   };
 
   const handleUpload = async () => {
-    // if (!files.length) return toast.error("Please select at least one file.");
+     if (!files.length) return toast.error("Please select at least one file.");
     if (!files || files.length === 0) {
     return toast.error("Please select at least one file.");
   }
@@ -161,7 +157,6 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-        
   const filteredData = data.filter((row) => 
     {
     if (!searchQuery) return true;
