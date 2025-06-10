@@ -152,7 +152,7 @@ class UploadFinancialLineItemsView(APIView):
                             continue
 
                         items.append(FinancialLineItem(
-                            user=request.user,
+                            user=request.user, 
                             entity_name=row.get("entity_name"),
                             account_code=row.get("account_code"),
                             description=row.get("description", ""),
@@ -184,8 +184,12 @@ class UploadFinancialLineItemsView(APIView):
                     "rows_uploaded": uploaded_rows_this_file,
                     "rows_skipped": skipped_rows_this_file,
                 })
-                
+
             except Exception as e:
+                import traceback
+                traceback_str = traceback.format_exc()
+                print(f"🔥 Error in file {file_obj.name}: {e}")
+                print(traceback_str)
                 return Response(
                     {"error": f"Error processing file {file_obj.name}: {str(e)}"},
                     status=status.HTTP_400_BAD_REQUEST
