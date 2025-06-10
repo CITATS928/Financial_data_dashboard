@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 
-export default function TableView({ data, searchQuery, searchColumn }) {
+
+export default function TableView({ data, searchQuery, searchColumn, handleReset }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [selectedEntity, setSelectedEntity] = useState("All");
 
   if (!Array.isArray(data) || data.length === 0) {
     return (
@@ -11,13 +13,15 @@ export default function TableView({ data, searchQuery, searchColumn }) {
     );
   }
 
-  // Ensure no duplicates in data based on unique fields like account_code and description
+  const uniqueEntities = Array.from(new Set(data.map(item => item.entity_name))).sort();
+
   const uniqueData = data.filter((value, index, self) =>
     index === self.findIndex((t) => (
       t.account_code === value.account_code && t.description === value.description
     ))
   );
 
+  
   const highlightMatch = (text) => {
     if (!searchQuery || !text) return text;
     const parts = text.toString().split(new RegExp(`(${searchQuery})`, "gi"));
@@ -33,110 +37,89 @@ export default function TableView({ data, searchQuery, searchColumn }) {
   return (
     <div className="card mb-4 shadow-sm">
       <div className="card-body">
-      <div className="d-flex justify-content-between align-items-center mb-2"
-      style={{ padding: "0.75rem 1rem" }}>
-        {/* <h5 className="mb-0 ms-n2">Financial Line Items</h5> */}
-        <h5 className="mb-0" style={{ marginLeft: "-0.85rem" }}>Financial Line Items</h5>
-        <div className="form-check d-flex align-items-center m-0">
-          <input
-            type="checkbox"
-            className="form-check-input m-0 me-2"
-            checked={showAdvanced}
-            onChange={() => setShowAdvanced(!showAdvanced)}
-            id="showAdvancedToggle"
-            style={{ transform: "translateY(1px)" }}
-          />
-          <label
-            className="form-check-label m-0"
-            htmlFor="showAdvancedToggle"
-            style={{ lineHeight: "1.2" }}
-          >
-            Show Advanced Columns
-          </label>
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3"
+          style={{ padding: "0.75rem 1rem" }}>
+            <h5 className="mb-1" style={{ marginLeft: "-0.85rem" }}>Financial Line Items</h5>
+            <select
+              className="form-select form-select-sm"
+              style={{ width: "180px" }}
+              value={selectedEntity}
+              onChange={(e) => setSelectedEntity(e.target.value)}
+            >
+              <option value="All">All Churches</option>
+              {uniqueEntities.map((entity) => (
+                <option key={entity} value={entity}>
+                  {entity}
+                </option>
+              ))}
+            </select>
+
+            <button
+              className="btn btn-outline-danger btn-sm me-auto"
+              style={{ width: "60px" }}
+              onClick={handleReset}
+            >
+              Reset
+            </button>
+          </div>
+
+          <div className="form-check d-flex align-items-center m-0 ms-auto" style={{ transform: "translate(820px, -38px)" }}>
+            <input
+              type="checkbox"
+              className="form-check-input m-0 me-2"
+              checked={showAdvanced}
+              onChange={() => setShowAdvanced(!showAdvanced)}
+              id="showAdvancedToggle"
+              style={{ transform: "translateY(1px)" }}
+            />
+            <label
+              className="form-check-label m-0"
+              htmlFor="showAdvancedToggle"
+              style={{ lineHeight: "1.2" }}
+            >
+              Show Advanced Columns
+            </label>
+          </div>
         </div>
-        </div>
-      </div>
-      
+      {/* </div> */}
 
       <table className="table table-hover table-bordered align-middle mb-0">
-        <thead className="table-primary text-center">
+        <thead className="text-center">
           <tr>
-            <th style={{ padding: "12px 16px" }}>Entity</th>
-            <th style={{ padding: "12px 16px" }}>Category</th>
-            <th style={{ padding: "12px 16px" }}>Description</th>
-            <th style={{ padding: "12px 16px" }}>Type</th>
-            <th style={{ padding: "12px 16px" }}>Code</th>
-            <th style={{ padding: "12px 16px" }}>YTD Actual</th>
-            <th style={{ padding: "12px 16px" }}>Annual Budget</th>
-            <th style={{ padding: "12px 16px" }}>% Used</th>
-            {showAdvanced && (
-              <>
-                <th style={{ padding: "12px 16px" }}>Gross Profit</th>
-                <th style={{ padding: "12px 16px" }}>EBITDA</th>
-                <th style={{ padding: "12px 16px" }}>EBIT</th>
-                <th style={{ padding: "12px 16px" }}>Profit Before Tax</th>
-                <th style={{ padding: "12px 16px" }}>Profit for Period</th>
-              </>
-            )}
+            {["Entity", "Category", "Description", "Type", "Code", "YTD Actual", "Annual Budget", "% Used"]
+              .map(label => (
+                <th key={label} className="table-header">{label}</th>
+              ))}
+            {showAdvanced && ["Gross Profit", "EBITDA", "EBIT", "Profit Before Tax", "Profit for Period"]
+              .map(label => (
+                <th key={label} className="table-header">{label}</th>
+              ))}
           </tr>
         </thead>
         <tbody>
           {uniqueData.map((row) => (
             <tr key={`${row.entity_name}-${row.account_code}`}>
-              <td>
-                {(searchColumn === "entity_name" || searchColumn === "all")
-                  ? highlightMatch(row.entity_name)
-                  : row.entity_name}
-              </td>
-              <td>
-                {(searchColumn === "category" || searchColumn === "all")
-                  ? highlightMatch(row.category || "-")
-                  : row.category || "-"}
-              </td>
-              <td>
-                {(searchColumn === "description" || searchColumn === "all")
-                  ? highlightMatch(row.description)
-                  : row.description}
-              </td>
-              <td>
-                {(searchColumn === "item_type" || searchColumn === "all")
-                  ? highlightMatch(row.item_type)
-                  : row.item_type}
-              </td>
-              <td>
-                {(searchColumn === "account_code" || searchColumn === "all")
-                  ? highlightMatch(row.account_code || "-")
-                  : row.account_code || "-"}
-              </td>
-              <td>
-                {(searchColumn === "ytd_actual" || searchColumn === "all")
-                  ? highlightMatch(`$${parseFloat(row.ytd_actual).toFixed(2)}`)
-                  : `$${parseFloat(row.ytd_actual).toFixed(2)}`}
-              </td>
-              <td>
-                {(searchColumn === "annual_budget" || searchColumn === "all")
-                  ? highlightMatch(`$${parseFloat(row.annual_budget).toFixed(2)}`)
-                  : `$${parseFloat(row.annual_budget).toFixed(2)}`}
-              </td>
-              <td
-                style={{
-                  color:
-                    row.item_type === "expense"
-                      ? row.percent_used >= 100
-                        ? "red"
-                        : row.percent_used > 89
-                        ? "orange"
-                        : "#2e7d32"
-                      : row.item_type === "revenue"
-                      ? "#00b894"
-                      : "inherit"
-
-                }}
-              >
+              <td>{searchColumn === "entity_name" || searchColumn === "all" ? highlightMatch(row.entity_name) : row.entity_name}</td>
+              <td>{searchColumn === "category" || searchColumn === "all" ? highlightMatch(row.category || "-") : row.category || "-"}</td>
+              <td>{searchColumn === "description" || searchColumn === "all" ? highlightMatch(row.description) : row.description}</td>
+              <td>{searchColumn === "item_type" || searchColumn === "all" ? highlightMatch(row.item_type) : row.item_type}</td>
+              <td>{searchColumn === "account_code" || searchColumn === "all" ? highlightMatch(row.account_code || "-") : row.account_code || "-"}</td>
+              <td>{searchColumn === "ytd_actual" || searchColumn === "all" ? highlightMatch(`$${parseFloat(row.ytd_actual).toFixed(2)}`) : `$${parseFloat(row.ytd_actual).toFixed(2)}`}</td>
+              <td>{searchColumn === "annual_budget" || searchColumn === "all" ? highlightMatch(`$${parseFloat(row.annual_budget).toFixed(2)}`) : `$${parseFloat(row.annual_budget).toFixed(2)}`}</td>
+              <td style={{
+                color:
+                  row.item_type === "expense"
+                    ? row.percent_used >= 100
+                      ? "red"
+                      : row.percent_used > 89
+                      ? "orange"
+                      : "#2e7d32"
+                    : row.item_type === "revenue"
+                    ? "#00b894"
+                    : "inherit"
+              }}>
                 {row.percent_used != null ? `${row.percent_used.toFixed(2)}%` : "-"}
               </td>
-            
-            
               {showAdvanced && (
                 <>
                   <td>{row.gross_profit != null ? `$${row.gross_profit.toFixed(2)}` : "-"}</td>
@@ -148,7 +131,7 @@ export default function TableView({ data, searchQuery, searchColumn }) {
               )}
             </tr>
           ))}
-          <tr className="table-info fw-bold text-end">
+          <tr className="table-footer-row">
             <td colSpan="5" className="text-end pe-3">Totals:</td>
             <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.ytd_actual) || 0), 0).toFixed(2)}</td>
             <td>${uniqueData.reduce((sum, row) => sum + (parseFloat(row.annual_budget) || 0), 0).toFixed(2)}</td>
@@ -163,7 +146,6 @@ export default function TableView({ data, searchQuery, searchColumn }) {
               </>
             )}
           </tr>
-
         </tbody>
       </table>
     </div>

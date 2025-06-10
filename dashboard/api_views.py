@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from rest_framework.generics import ListAPIView
-from .models import FinancialLineItem
+from .models import FinancialLineItem, UploadedFile
 from .serializers import FinancialLineItemSerializer  # ✅ already present, reused below
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -152,6 +152,7 @@ class UploadFinancialLineItemsView(APIView):
                             continue
 
                         items.append(FinancialLineItem(
+                            user=request.user, 
                             entity_name=row.get("entity_name"),
                             account_code=row.get("account_code"),
                             description=row.get("description", ""),
@@ -165,12 +166,18 @@ class UploadFinancialLineItemsView(APIView):
                     except Exception as row_error:
                         print(f"❌ Skipping row due to error: {row_error}, row: {row}")
                         skipped_rows_this_file += 1
+                        continue
+
 
                 FinancialLineItem.objects.bulk_create(items)
                 uploaded_rows_this_file = len(items)
-
                 total_rows += uploaded_rows_this_file
                 total_skipped += skipped_rows_this_file
+
+                UploadedFile.objects.create(
+                    user=request.user,
+                    filename=file_obj.name,
+                )
 
                 results.append({
                     "filename": file_obj.name,
@@ -198,45 +205,6 @@ class UploadFinancialLineItemsView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
-# class UploadFinancialLineItemsView(APIView):
-#     parser_classes = [MultiPartParser]
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request):
-#         file_obj = request.FILES.get("file")
-#         if not file_obj:
-#             return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
-
-#         try:
-#             decoded_file = file_obj.read().decode("utf-8")
-#             io_string = io.StringIO(decoded_file)
-#             reader = csv.DictReader(io_string)
-
-#             items = []
-#             for row in reader:
-#                 try:
-#                     items.append(FinancialLineItem(
-#                         entity_name=row.get("entity_name"),
-#                         account_code=row.get("account_code"),
-#                         description=row.get("description"),
-#                         ytd_actual=float(row.get("ytd_actual") or 0),
-#                         annual_budget=float(row.get("annual_budget") or 0),
-#                         category=row.get("category", ""),
-#                         item_type=row.get("item_type", "statement"),
-#                         expense_nature=row.get("expense_nature") or None,
-#                     ))
-#                 except Exception as row_error:
-#                     print(f"Skipping row due to error: {row_error}, row: {row}")
-#                     continue
-
-#             FinancialLineItem.objects.bulk_create(items)
-#             return Response({"message": f"{len(items)} rows uploaded."}, status=status.HTTP_201_CREATED)
-
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -245,6 +213,29 @@ class FinancialLineItemsListView(APIView):
         queryset = FinancialLineItem.objects.all()
         serializer = FinancialLineItemSerializer(queryset, many=True)
         return Response(serializer.data)
+    
+# get all items uploaded by the current user
+class MyUploadedItemsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        items = FinancialLineItem.objects.filter(user=request.user).order_by("-id")
+        serializer = FinancialLineItemSerializer(items, many=True)
+        return Response(serializer.data)
+    
+class MyUploadedFilesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        files = UploadedFile.objects.filter(user=request.user).order_by("-upload_time")
+        data = [
+            {
+                "filename": file.filename,
+                "upload_time": file.upload_time,
+            }
+            for file in files
+        ]
+        return Response(data)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -269,7 +260,6 @@ def signup_api_view(request):
 
     user = User.objects.create_user(username=username, email=email, password=password)
     return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
-
 
 # Get /api/current-user/
 class CurrentUserView(APIView):

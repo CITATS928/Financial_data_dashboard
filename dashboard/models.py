@@ -2,7 +2,22 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
 # Create your models here.
+
+
+def get_default_user():
+    user, created = User.objects.get_or_create(
+        username="default_user",
+        defaults={"email": "default@example.com", "password": "defaultpassword"}
+    )
+    return user.id
+
+
+
 class FinancialLineItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="line_items")  # Link to the user who created this item
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, default=get_default_user)  # assign a default user if not specified
+
+
     entity_name = models.CharField(max_length=255)
     account_code = models.CharField(max_length=20)
     description = models.CharField(max_length=255) 
@@ -70,6 +85,15 @@ class FinancialLineItem(models.Model):
         return f"{self.account_code} | {self.description} | {self.entity_name}"
 
 
+class UploadedFile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    filename = models.CharField(max_length=255)
+    upload_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.filename} by {self.user.username} at {self.upload_time}"
+
+
 class UserActivity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=255)
@@ -81,6 +105,3 @@ class UserActivity(models.Model):
         return f"User {self.user.username} performed {self.action} at {self.timestamp}"
 
 
-def get_default_user():
-    user, created = User.objects.get_or_create(username="default_user", email="default@example.com")
-    return user.id 
