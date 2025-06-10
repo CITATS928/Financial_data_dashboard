@@ -15,13 +15,16 @@ export default function TableView({ data, searchQuery, searchColumn, handleReset
 
   const uniqueEntities = Array.from(new Set(data.map(item => item.entity_name))).sort();
 
-  const uniqueData = data.filter((value, index, self) =>
+  const filteredData = selectedEntity === "All"
+  ? data
+  : data.filter(item => item.entity_name === selectedEntity);
+
+  const uniqueData = filteredData.filter((value, index, self) =>
     index === self.findIndex((t) => (
       t.account_code === value.account_code && t.description === value.description
     ))
   );
 
-  
   const highlightMatch = (text) => {
     if (!searchQuery || !text) return text;
     const parts = text.toString().split(new RegExp(`(${searchQuery})`, "gi"));
@@ -63,7 +66,7 @@ export default function TableView({ data, searchQuery, searchColumn, handleReset
             </button>
           </div>
 
-          <div className="form-check d-flex align-items-center m-0 ms-auto" style={{ transform: "translate(820px, -38px)" }}>
+          <div className="form-check d-flex align-items-center m-0 ms-auto" style={{ transform: "translate(800px, -38px)" }}>
             <input
               type="checkbox"
               className="form-check-input m-0 me-2"
