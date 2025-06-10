@@ -33,25 +33,30 @@ const CustomPieTooltip = ({ active, payload }) => {
   return null;
 };
 
-export default function ChartsView({ data }) {
+export default function ChartsView({ data, selectedChurch }) {
   const [activeTab, setActiveTab] = useState("Bar");
 
-  if (!Array.isArray(data) || data.length === 0) {
-    return (
-      <div className="alert alert-secondary text-center">
-        No chart data available
-      </div>
+  const filteredData =
+    selectedChurch && selectedChurch !== "All Churches"
+      ? data.filter(item => item.entity_name === selectedChurch)
+      : data;
+
+      if (!Array.isArray(filteredData) || filteredData.length === 0) {
+        return (
+          <div className="alert alert-secondary text-center">
+            No chart data available
+          </div>
+        );
+      }
+
+    const uniqueData = Array.from(
+      new Map(
+         filteredData.map(item => [
+          `${item.entity_name}-${item.account_code}-${item.description}`, item
+         ])
+      ).values()
     );
-  }
-
-  const uniqueData = Array.from(
-    new Map(
-      data.map(item => [
-        `${item.entity_name}-${item.account_code}-${item.description}`, item
-      ])
-    ).values()
-  );
-
+    
   const chartData = uniqueData
     .map((item) => {
       const value = parseFloat(item.ytd_actual);
