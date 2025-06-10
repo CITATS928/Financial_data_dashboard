@@ -152,7 +152,7 @@ class UploadFinancialLineItemsView(APIView):
                             continue
 
                         items.append(FinancialLineItem(
-                            user=request.user, 
+                            user=request.user,
                             entity_name=row.get("entity_name"),
                             account_code=row.get("account_code"),
                             description=row.get("description", ""),
@@ -205,7 +205,6 @@ class UploadFinancialLineItemsView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -215,7 +214,6 @@ class FinancialLineItemsListView(APIView):
         serializer = FinancialLineItemSerializer(queryset, many=True)
         return Response(serializer.data)
     
-
 # get all items uploaded by the current user
 class MyUploadedItemsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -262,7 +260,6 @@ def signup_api_view(request):
 
     user = User.objects.create_user(username=username, email=email, password=password)
     return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
-
 
 # Get /api/current-user/
 class CurrentUserView(APIView):
