@@ -33,7 +33,7 @@ urlpatterns = [
     path("my-uploaded-files/", MyUploadedFilesView.as_view(), name="my_uploaded_files"),
 
     path('aggregate-report/', views.aggregate_report, name='aggregate-report'),
-     path('entities/', views.get_entity_names, name='get_entity_names'),
+    path('entities/', views.get_entity_names, name='get_entity_names'),
     path('entity-yearly-actual/<str:entity_name>/', views.entity_yearly_actual, name='entity_yearly_actual'),
     path('entity-quarterly-actual/<str:entity_name>/', views.entity_quarterly_actual, name='entity_quarterly_actual'),
 ]
