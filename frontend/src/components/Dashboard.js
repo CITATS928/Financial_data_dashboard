@@ -329,13 +329,6 @@ export default function Dashboard() {
       {showChart && (
   <div className="mt-4">
     <div className="mb-4 flex items-center gap-4">
-      {/* <label className="font-semibold">Toggle View:</label> */}
-      {/* <button
-        onClick={() => setViewMode(viewMode === 'yearly' ? 'quarterly' : 'yearly')}
-        className="px-4 py-2 bg-blue-600 text-black rounded-md"
-      >
-       Toggle View
-      </button> */}
     </div>
 
     <EntityBarChart entityName={entity} view={viewMode} />
