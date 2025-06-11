@@ -5,7 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
-
+from django.db import connection
+from django.utils.text import slugify
+import datetime
 # from .models import FinancialData
 from .models import FinancialLineItem
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -304,3 +306,49 @@ class UpdateProfileView(APIView):
             return Response({"message": "Password updated successfully. Please re-login"}, status=200)
         
         return Response({"error": "Invalid request"}, status=400)
+    
+
+
+class UploadDynamicCSVView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        file_obj = request.FILES.get("file")
+        if not file_obj:
+            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            decoded_file = file_obj.read().decode("utf-8")
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+
+            base_name = slugify(file_obj.name.replace('.csv', ''))
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            table_name = f"user_{request.user.id}_{base_name}_{timestamp}"
+
+            fileds = reader.fieldnames
+            if not fileds:
+                return Response({"error": "CSV file is empty"}, status=400)
+            
+            columns = ", ".join([f'"{field}" TEXT' for field in fileds])
+            create_table_sql = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})'
+
+            with connection.cursor() as cursor:
+                cursor.execute(create_table_sql)
+
+                for row in reader:
+                    values = [row.get(field, '') for field in fileds]
+                    placeholders = ", ".join(["%s"] * len(values))
+                    insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fileds)}) VALUES ({placeholders});'
+                    cursor.execute(insert_sql, values)
+
+            UploadedFile.objects.create(
+                user=request.user,
+                filename=file_obj.name,
+                table_name=table_name
+            )
+
+            return Response({"message": f"Uploaded to new table `{table_name}`."}, status=201)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
