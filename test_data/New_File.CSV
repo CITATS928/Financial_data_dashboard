@@ -1,0 +1,11 @@
+entity_name,account_code,description,ytd_actual,annual_budget,category,item_type,expense_nature,date
+Saint Mark's Parish,467970,Disaster Relief Aid,4053.88,4259.07,Education,expense,cash_operating,2015/01/01
+Saint Mark's Parish,597675, Congregational Growth Program,1052.38,685.02,Resource Management,expense,cash_operating,2016/01/01
+
+Saint Mark's Parish,457259,Community Engagement Fund,1081.59,5063.93,Administration,expense,cash_operating,2017/01/01
+
+Saint Mark's Parish,506536,Disaster Relief Aid,3872.9,1589.28,Spiritual Programs,expense,cash_operating,2018/01/01
+Faith Community Center,554554,Digital Ministry Expansion,1780.08,1235.31,Education,revenue,n/a,2015/01/01
+Faith Community Center,477609,Congregational Growth Program,3495.35,5263.5,Outreach,revenue,n/a,2016/01/01
+Faith Community Center,569858,Technology Infrastructure Overhaul,1465.27,1321.08,Administration,expense,cash_operating,2017/01/01
+Faith Community Center,420746,Technology Infrastructure Overhaul,3078.81,1490.21,Technology,expense,cash_operating,2018/01/01

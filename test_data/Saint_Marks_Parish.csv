@@ -1,12 +1,12 @@
 ﻿entity_name,account_code,description,ytd_actual,annual_budget,category,item_type,expense_nature,date
-Saint Mark's Parish,467970,Disaster Relief Aid,4053.88,4259.07,Education,expense,cash_operating,01/01/2015
-Saint Mark's Parish,597675,Congregational Growth Program,1052.38,685.02,Resource Management,expense,cash_operating,01/01/2016
+Saint Mark's Parish,467970,Disaster Relief Aid,4053.88,4259.07,Education,expense,cash_operating,2015/01/01
+Saint Mark's Parish,597675, Congregational Growth Program,1052.38,685.02,Resource Management,expense,cash_operating,2016/01/01
 
-Saint Mark's Parish,457259,Community Engagement Fund,1081.59,5063.93,Administration,expense,cash_operating,01/01/2017
+Saint Mark's Parish,457259,Community Engagement Fund,1081.59,5063.93,Administration,expense,cash_operating,2017/01/01
 
-Saint Mark's Parish,506536,Disaster Relief Aid,3872.9,1589.28,Spiritual Programs,expense,cash_operating,01/01/2018
+Saint Mark's Parish,506536,Disaster Relief Aid,3872.9,1589.28,Spiritual Programs,expense,cash_operating,2018/01/01
 
-Saint Mark's Parish,578357,Youth Development Initiative,1903.22,2226.75,Outreach,expense,amortization,01/01/2019
+Saint Mark's Parish,578357,Youth Development Initiative,1903.22,2226.75,Outreach,expense,amortization,2019/01/01
 
-Saint Mark's Parish,412779,Retreat & Renewal Sessions,2630.95,2826.54,Spiritual Programs,expense,depreciation,01/01/2020
+Saint Mark's Parish,412779,Retreat & Renewal Sessions,2630.95,2826.54,Spiritual Programs,expense,depreciation,2020/01/01
 

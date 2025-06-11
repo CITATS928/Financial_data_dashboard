@@ -24,7 +24,7 @@ class FinancialLineItem(models.Model):
 
     ytd_actual = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     annual_budget = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    # date = models.DateField() 
+    date = models.DateField(default=date.today) 
     
 
     category = models.CharField(
