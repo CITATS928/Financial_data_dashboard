@@ -23,11 +23,13 @@ const EntityBarChart = ({ entityName }) => {
   }, [view, entityName]);
 
   return (
-    <div className="p-4 bg-white shadow rounded-lg max-w-4xl mx-auto">
+    //<div className="p-4 bg-white shadow rounded-lg max-w-4xl mx-auto">
+    <div className="entity-chart-box card p-4 rounded-lg shadow max-w-4xl mx-auto">
+
       <div className="mb-4">
   <button
     onClick={() => setView(view === 'yearly' ? 'quarterly' : 'yearly')}
-    className="px-0 py-0 text-sm bg-blue-600 text-black rounded-md hover:bg-blue-700 transition duration-200"
+    className="btn-toggle-view px-0 py-0 text-sm bg-blue-600 text-black rounded-md hover:bg-blue-700 transition duration-200"
   >
     Click to {view === 'yearly' ? 'Quarterly' : 'Yearly'}
   </button>

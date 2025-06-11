@@ -121,7 +121,8 @@ export default function Profile() {
 
 
   return (
-    <div style={{ backgroundColor: "#f8f9fa", width: "85vw", minHeight: "100vh", paddingTop: "60px" }}>
+    <div className="main-content">
+
       {/* Logout Button */}
       <button
         onClick={handleLogout}
