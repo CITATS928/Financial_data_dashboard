@@ -1,15 +1,15 @@
 entity_name,account_code,description,ytd_actual,annual_budget,category,item_type,expense_nature
-Faith Community Center,554554,Digital Ministry Expansion,1780.08,1235.31,Education,revenue,
+Faith Community Center,554554,Digital Ministry Expansion,1780.08,1235.31,Education,revenue
 Saint Mark's Parish,467970,Disaster Relief Aid,4053.88,4259.07,Education,expense,cash_operating
 Trinity Outreach,570551,Faith-Based Outreach,1570.28,1063.89,Education,expense,cash_operating
 Grace Fellowship,431492,Faith-Based Outreach,1419.77,1761.87,Facilities,expense,cash_operating
 Grace Fellowship,442178,Digital Ministry Expansion,8252.84,7847.64,Administration,expense,cash_operating
 Grace Fellowship,501047,Disaster Relief Aid,2266.59,0,Technology,expense,cash_operating
-Trinity Outreach,492962,Interfaith Partnership Grant,1272.85,1340.92,Finance,revenue,
-Trinity Outreach,567709,Disaster Relief Aid,2373.28,1767.73,Administration,revenue,
-Grace Fellowship,483480,Missionary Sponsorship Program,1418.66,1986.84,Spiritual Programs,revenue,
-Hope Ministries,456028,Clergy Support Services,7645.75,5769.11,Resource Management,revenue,
-Faith Community Center,477609,Congregational Growth Program,3495.35,5263.5,Outreach,revenue,
+Trinity Outreach,492962,Interfaith Partnership Grant,1272.85,1340.92,Finance,revenue
+Trinity Outreach,567709,Disaster Relief Aid,2373.28,1767.73,Administration,revenue
+Grace Fellowship,483480,Missionary Sponsorship Program,1418.66,1986.84,Spiritual Programs,revenue
+Hope Ministries,456028,Clergy Support Services,7645.75,5769.11,Resource Management,revenue
+Faith Community Center,477609,Congregational Growth Program,3495.35,5263.5,Outreach,revenue
 Saint Mark's Parish,597675,Congregational Growth Program,1052.38,685.02,Resource Management,expense,cash_operating
 Saint Mark's Parish,457259,Community Engagement Fund,1081.59,5063.93,Administration,expense,cash_operating
 Hope Ministries,465671,Missionary Sponsorship Program,286.6,0,Resource Management,expense,cash_operating
