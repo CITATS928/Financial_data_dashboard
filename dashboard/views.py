@@ -11,6 +11,9 @@ from django.http import JsonResponse
 
 from django.db.models import Sum
 from .models import FinancialLineItem
+from django.db.models.functions import ExtractYear
+from django.utils.timezone import now
+from django.db.models.functions import ExtractQuarter
 
 @ensure_csrf_cookie
 def get_csrf_token(request):
@@ -141,3 +144,34 @@ def aggregate_report(request):
         'entities': list(result),  
         'total_actual_all_entities': total_actual_all_entities['total_actual_all_entities']  # Overall total
     })
+
+
+def get_entity_names(request):
+    entities = FinancialLineItem.objects.values_list('entity_name', flat=True).distinct()
+    return JsonResponse(list(entities), safe=False)
+
+def entity_yearly_actual(request, entity_name):
+    current_year = now().year
+    past_seven_years = current_year - 6
+    data = (
+        FinancialLineItem.objects
+        .filter(entity_name=entity_name, date__year__gte=past_seven_years)
+        .annotate(year=ExtractYear('date'))
+        .values('year')
+        .annotate(total_actual=Sum('ytd_actual'))
+        .order_by('year')
+    )
+    return JsonResponse(list(data), safe=False)
+
+def entity_quarterly_actual(request, entity_name):
+        current_year = now().year
+        past_seven_years = current_year - 6
+        data = (
+            FinancialLineItem.objects
+            .filter(entity_name=entity_name, date__year__gte=past_seven_years)
+            .annotate(year=ExtractYear('date'), quarter=ExtractQuarter('date'))
+            .values('year', 'quarter')
+            .annotate(total_actual=Sum('ytd_actual'))
+            .order_by('year', 'quarter')
+        )
+        return JsonResponse(list(data), safe=False)
