@@ -12,6 +12,13 @@
   width: calc(100% - 80px);
 }
 
+/* Light Theme */
+body[data-theme="light"] .main-content {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+
 /* Dark Theme */
 body[data-theme="dark"] .main-content {
   background-color: #121212;
@@ -101,4 +108,11 @@ body[data-theme="dark"] .Toastify__progress-bar {
 
 html, body {
   overflow-x: hidden;
+}
+
+/*File page*/
+.main-content.files-page {
+  margin-left: 0 !important;
+  width: 100% !important;
+  padding: 20px;
 }
