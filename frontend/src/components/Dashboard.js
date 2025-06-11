@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [entity, setEntity] = useState('');
   const [entities, setEntities] = useState([]);
   const [viewMode, setViewMode] = useState('yearly');
+  const [selectedEntity, setSelectedEntity] = useState("All");
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
