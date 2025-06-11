@@ -3,15 +3,12 @@ from django.contrib.auth.models import User
 from datetime import date
 # Create your models here.
 
-
 def get_default_user():
     user, created = User.objects.get_or_create(
         username="default_user",
         defaults={"email": "default@example.com", "password": "defaultpassword"}
     )
     return user.id
-
-
 
 class FinancialLineItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="line_items")  # Link to the user who created this item

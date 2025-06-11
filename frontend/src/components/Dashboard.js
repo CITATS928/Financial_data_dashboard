@@ -47,6 +47,14 @@ export default function Dashboard() {
 }, []);
 
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setSearchColumn("all");
+    setSelectedEntity("All");
+  };
+  
+  
+
   const getCsrfToken = async () => {
     try {
       await axios.get("http://localhost:8000/api/csrf/", {
@@ -118,17 +126,6 @@ export default function Dashboard() {
     }
   };
   
-
-  // const fetchData = async () => {
-  //   try {
-  //     const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
-  //     setData(res.data);
-  //     console.log("Fetched data:", res.data);
-  //   } catch {
-  //     toast.error("Failed to load data");
-  //   }
-  // };
-
   const handleLogout = async () => {
     try {
       const csrfToken = await getCsrfToken();
@@ -157,19 +154,37 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const filteredData = data.filter((row) => 
-    {
-    if (!searchQuery) return true;
+  const filteredData = data.filter((row) => {
+    const matchesSearch = !searchQuery
+      ? true
+      : searchColumn === "all"
+      ? Object.values(row).some(
+          (val) =>
+            val &&
+            val.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : row[searchColumn] &&
+        row[searchColumn].toString().toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (searchColumn === "all") {
-      return Object.values(row).some(
-        (val) => val && val.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    } else {
-      const val = row[searchColumn];
-      return val && val.toString().toLowerCase().includes(searchQuery.toLowerCase());
-    }
+    const matchesEntity =
+      selectedEntity === "All" || row.entity_name === selectedEntity;
+
+    return matchesSearch && matchesEntity;
   });
+        
+  // const filteredData = data.filter((row) => 
+  //   {
+  //   if (!searchQuery) return true;
+
+  //   if (searchColumn === "all") {
+  //     return Object.values(row).some(
+  //       (val) => val && val.toString().toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //   } else {
+  //     const val = row[searchColumn];
+  //     return val && val.toString().toLowerCase().includes(searchQuery.toLowerCase());
+  //   }
+  // });
 
   return (
     <div className="py-4" style={{minHeight: "100vh" }}>
@@ -271,9 +286,16 @@ export default function Dashboard() {
     </div>
     
 
-      {/* Table and Charts */}
+      {/* Table & Charts */}
       <div className="mb-5">
-        <TableView data={filteredData} searchQuery={searchQuery} searchColumn={searchColumn} />
+        <TableView
+          data={filteredData}
+          searchQuery={searchQuery}
+          searchColumn={searchColumn}
+          selectedEntity={selectedEntity}
+          setSelectedEntity={setSelectedEntity}
+          handleReset={handleReset}
+        />
       </div>
   
       <ChartsView data={filteredData} />
@@ -296,7 +318,7 @@ export default function Dashboard() {
         {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
       </button>
 
-      {showTotal && <AggregateReport />}
+      {showTotal && <AggregateReport data={filteredData} />}
     </div>
 
 
