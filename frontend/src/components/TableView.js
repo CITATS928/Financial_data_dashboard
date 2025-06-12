@@ -61,7 +61,7 @@ export default function TableView({ data, searchQuery, searchColumn, selectedEnt
           </select>
 
           <button
-            className="btn btn-outline-danger btn-sm"
+            className="btn btn-sm btn-danger"
             style={{ width: "100px" }}
             onClick={handleReset}
           >
