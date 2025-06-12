@@ -52,11 +52,12 @@ export default function Dashboard() {
 
     const formData = new FormData();
     files.forEach((file, index) => {
-      formData.append("files", file); // Same key name for multiple files
+      formData.append("file", file); // Same key name for multiple files
     });
 
     try {
-      await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
+      // await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
+      await axios.post("http://localhost:8000/api/dashboard/upload-dynamic-csv/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           "X-CSRFToken": csrfToken,
