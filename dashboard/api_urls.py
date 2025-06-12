@@ -10,6 +10,7 @@ from .api_views import (
     FinancialLineItemsListView,
     MyUploadedItemsView,
     MyUploadedFilesView,
+    UploadDynamicCSVView
 )
 from .api_views import CurrentUserView, UpdateProfileView
 from rest_framework_simplejwt.views import (
@@ -31,6 +32,8 @@ urlpatterns = [
     path("update-profile/", UpdateProfileView.as_view(), name="update_profile"),
     # path("my-files/", MyUploadedItemsView.as_view(), name="my_uploaded_items"),
     path("my-uploaded-files/", MyUploadedFilesView.as_view(), name="my_uploaded_files"),
+    path("upload-dynamic-csv/", UploadDynamicCSVView.as_view(), name="upload_dynamic_csv"),
 
     path('aggregate-report/', views.aggregate_report, name='aggregate-report'),
+
 ]
