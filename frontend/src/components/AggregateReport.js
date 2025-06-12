@@ -38,12 +38,9 @@ const roundedEntities = data?.entities?.map((entry) => ({
   }));
  
 
-
-
- return(
-    <div className="p-6 max-w-4xl mx-auto mt-10 bg-white shadow-lg rounded-2xl" style={{ paddingTop: '50px' }}>
-
-      <h5 className="text-xl font-bold text-primary mb-4 text-center">Aggregate Report</h5>
+  return (
+    <div className="aggregate-box p-6 max-w-4xl mx-auto mt-6 bg-white shadow-lg rounded-2xl">
+      <h5 className="text-xl font-bold text-gray-700 mb-4">Aggregate Report</h5>
       
       
       <div className="text-lg font-bold text-gray-800 mb-4 mt-4">

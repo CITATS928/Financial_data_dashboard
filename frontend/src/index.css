@@ -11,3 +11,24 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/*theme toggle*/
+/* Default (Light Theme) */
+body[data-theme="light"] {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Dark Theme */
+body[data-theme="dark"] {
+  background-color: #121212;
+  color: #f8f9fa;
+}
+
+[data-theme="dark"] .nav-link {
+  color: #f8f9fa;
+}
+
+[data-theme="light"] .nav-link {
+  color: #212529;
+}

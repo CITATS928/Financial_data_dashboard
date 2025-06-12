@@ -152,7 +152,7 @@ class UploadFinancialLineItemsView(APIView):
                             continue
 
                         items.append(FinancialLineItem(
-                            user=request.user, 
+                            user=request.user,
                             entity_name=row.get("entity_name"),
                             account_code=row.get("account_code"),
                             description=row.get("description", ""),

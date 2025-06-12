@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,6 +29,43 @@ export default function Profile() {
       });
   },[]);
 
+  //~  
+  const getCsrfToken = async () => {
+    try {
+      await axios.get("http://localhost:8000/api/csrf/", {
+        withCredentials: true,
+      });
+      return Cookies.get("csrftoken");
+    } catch (error) {
+      toast.error("Failed to fetch CSRF token");
+      return null;
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const csrfToken = await getCsrfToken();
+      if (!csrfToken) return;
+  
+      await axios.post(
+        "http://localhost:8000/api/logout/",
+        {},
+        {
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
+  
+      toast.success("Logged out successfully!");
+      navigate("/");
+    } catch (error) {
+      toast.error("Failed to log out.");
+      console.error("Logout error:", error);
+    }
+  };  
+//~  
 
   const getCSRFToken = () => {
     const match = document.cookie.match(/csrftoken=([^;]+)/);
@@ -83,7 +121,19 @@ export default function Profile() {
 
 
   return (
-    <div style={{ backgroundColor: "#f8f9fa", width: "85vw", minHeight: "100vh", paddingTop: "60px" }}>
+    <div className="main-content">
+
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="btn btn-sm btn-danger"
+        style={{
+          position: "absolute", top: "20px", right: "20px", width: "auto", display: "inline-block", padding: "5px 10px", fontSize: "0.85rem", zIndex: 9999,
+        }}
+      >
+        Logout
+      </button>
+
     <div className="container mt-5" style={{ maxWidth:"600px" }}>
       <ToastContainer position="top-right" autoClose={3000} />
 
