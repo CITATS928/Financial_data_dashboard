@@ -43,9 +43,9 @@ body[data-theme="dark"] .card {
 
 /*theme changing for buttons and inputs inside cards*/
 body[data-theme="dark"] .card .btn {
-  background-color: #4c84ff;
+  /* background-color: #4c84ff; */
   color: white;
-  border: none;
+  border-color: #555;
 }
 
 body[data-theme="dark"] .card .form-control {
