@@ -322,25 +322,29 @@ class UploadDynamicCSVView(APIView):
             decoded_file = file_obj.read().decode("utf-8")
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
+            reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
+
 
             base_name = slugify(file_obj.name.replace('.csv', ''))
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             table_name = f"user_{request.user.id}_{base_name}_{timestamp}"
 
-            fileds = reader.fieldnames
-            if not fileds:
+            fields = reader.fieldnames
+            if not fields:
                 return Response({"error": "CSV file is empty"}, status=400)
-            
-            columns = ", ".join([f'"{field}" TEXT' for field in fileds])
+
+            columns = ", ".join([f'"{field}" TEXT' for field in fields])
             create_table_sql = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})'
 
             with connection.cursor() as cursor:
                 cursor.execute(create_table_sql)
 
                 for row in reader:
-                    values = [row.get(field, '') for field in fileds]
-                    placeholders = ", ".join(["%s"] * len(values))
-                    insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fileds)}) VALUES ({placeholders});'
+                    values = [row.get(field, '') for field in fields]
+                    placeholders = ", ".join(["?"] * len(values)) 
+                    insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders});'
+                    print("⬇️ insert_sql:", insert_sql)
+                    print("⬇️ values:", values) 
                     cursor.execute(insert_sql, values)
 
             UploadedFile.objects.create(
@@ -350,5 +354,8 @@ class UploadDynamicCSVView(APIView):
             )
 
             return Response({"message": f"Uploaded to new table `{table_name}`."}, status=201)
+
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
