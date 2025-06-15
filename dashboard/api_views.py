@@ -318,6 +318,11 @@ class UploadDynamicCSVView(APIView):
         if not file_obj:
             return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
 
+        total_uploaded_rows = 0
+        total_skipped_rows = 0
+        results = []
+
+
         try:
             decoded_file = file_obj.read().decode("utf-8")
             io_string = io.StringIO(decoded_file)
@@ -353,7 +358,13 @@ class UploadDynamicCSVView(APIView):
                 table_name=table_name
             )
 
-            return Response({"message": f"Uploaded to new table `{table_name}`."}, status=201)
+
+
+            return Response({"message": f"Uploaded to new table `{table_name}`.",
+                            "results": results,
+                            "total_uploaded_rows": total_uploaded_rows,
+                            "total_skipped_rows": total_skipped_rows,
+                             }, status=201)
 
         except Exception as e:
             import traceback
