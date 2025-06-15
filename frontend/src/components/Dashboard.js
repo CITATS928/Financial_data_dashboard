@@ -52,7 +52,7 @@ export default function Dashboard() {
 
     const formData = new FormData();
     files.forEach((file, index) => {
-      formData.append("file", file); // Same key name for multiple files
+      formData.append("files", file); // Same key name for multiple files
     });
 
     try {
