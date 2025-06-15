@@ -314,59 +314,74 @@ class UploadDynamicCSVView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        file_obj = request.FILES.get("file")
-        if not file_obj:
-            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+        files = request.FILES.getlist("files")
+        if not files:
+            return Response({"error": "No files uploaded."}, status=status.HTTP_400_BAD_REQUEST)
 
         total_uploaded_rows = 0
         total_skipped_rows = 0
         results = []
 
+        for file_obj in files:
+            try:
+                decoded_file = file_obj.read().decode("utf-8")
+                io_string = io.StringIO(decoded_file)
+                reader = csv.DictReader(io_string)
+                reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
 
-        try:
-            decoded_file = file_obj.read().decode("utf-8")
-            io_string = io.StringIO(decoded_file)
-            reader = csv.DictReader(io_string)
-            reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
+                base_name = slugify(file_obj.name.replace('.csv', ''))
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                table_name = f"user_{request.user.id}_{base_name}_{timestamp}"
 
+                fields = reader.fieldnames
+                if not fields:
+                    results.append({"filename": file_obj.name, "error": "CSV file has no headers."})
+                    continue
 
-            base_name = slugify(file_obj.name.replace('.csv', ''))
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            table_name = f"user_{request.user.id}_{base_name}_{timestamp}"
+                columns = ", ".join([f'"{field}" TEXT' for field in fields])
+                create_table_sql = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})'
 
-            fields = reader.fieldnames
-            if not fields:
-                return Response({"error": "CSV file is empty"}, status=400)
+                uploaded_rows = 0
+                skipped_rows = 0
 
-            columns = ", ".join([f'"{field}" TEXT' for field in fields])
-            create_table_sql = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})'
+                with connection.cursor() as cursor:
+                    cursor.execute(create_table_sql)
 
-            with connection.cursor() as cursor:
-                cursor.execute(create_table_sql)
+                    for row in reader:
+                        values = [row.get(field, '').strip() for field in fields]
+                        if not any(values):
+                            skipped_rows += 1
+                            continue
 
-                for row in reader:
-                    values = [row.get(field, '') for field in fields]
-                    placeholders = ", ".join(["?"] * len(values)) 
-                    insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders});'
-                    print("⬇️ insert_sql:", insert_sql)
-                    print("⬇️ values:", values) 
-                    cursor.execute(insert_sql, values)
+                        placeholders = ", ".join(["?"] * len(values))
+                        insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders});'
+                        cursor.execute(insert_sql, values)
+                        uploaded_rows += 1
 
-            UploadedFile.objects.create(
-                user=request.user,
-                filename=file_obj.name,
-                table_name=table_name
-            )
+                UploadedFile.objects.create(
+                    user=request.user,
+                    filename=file_obj.name,
+                    table_name=table_name
+                )
 
+                results.append({
+                    "filename": file_obj.name,
+                    "table": table_name,
+                    "rows_uploaded": uploaded_rows,
+                    "rows_skipped": skipped_rows
+                })
 
+                total_uploaded_rows += uploaded_rows
+                total_skipped_rows += skipped_rows
 
-            return Response({"message": f"Uploaded to new table `{table_name}`.",
-                            "results": results,
-                            "total_uploaded_rows": total_uploaded_rows,
-                            "total_skipped_rows": total_skipped_rows,
-                             }, status=201)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                results.append({"filename": file_obj.name, "error": str(e)})
 
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "message": f"Processed {len(files)} file(s).",
+            "results": results,
+            "total_uploaded_rows": total_uploaded_rows,
+            "total_skipped_rows": total_skipped_rows,
+        }, status=status.HTTP_201_CREATED)
