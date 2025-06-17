@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchColumn, setSearchColumn] = useState("all");
+  const [excludeQuery, setExcludeQuery] = useState("");
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const [showTotal, setShowTotal] = useState(false);
@@ -156,24 +157,57 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const filteredData = data.filter((row) => {
-    const matchesSearch = !searchQuery
-      ? true
-      : searchColumn === "all"
-      ? Object.values(row).some(
-          (val) =>
-            val &&
-            val.toString().toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      : row[searchColumn] &&
-        row[searchColumn].toString().toLowerCase().includes(searchQuery.toLowerCase());
+  // const filteredData = data.filter((row) => {
+  //   const matchesSearch = !searchQuery
+  //     ? true
+  //     : searchColumn === "all"
+  //     ? Object.values(row).some(
+  //         (val) =>
+  //           val &&
+  //           val.toString().toLowerCase().includes(searchQuery.toLowerCase())
+  //       )
+  //     : row[searchColumn] &&
+  //       row[searchColumn].toString().toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesEntity =
-      selectedEntity === "All" || row.entity_name === selectedEntity;
+  //   const matchesEntity =
+  //     selectedEntity === "All" || row.entity_name === selectedEntity;
 
-    return matchesSearch && matchesEntity;
-  });
+  //   return matchesSearch && matchesEntity;
+  // });
         
+      const filteredData = data.filter((row) => {
+        const query = searchQuery.toLowerCase();
+        const exclude = excludeQuery.toLowerCase();
+
+        const matchesSearch = !searchQuery
+          ? true
+          : searchColumn === "all"
+          ? Object.values(row).some(
+              (val) =>
+                val &&
+                val.toString().toLowerCase().includes(query)
+            )
+          : row[searchColumn] &&
+            row[searchColumn].toString().toLowerCase().includes(query);
+
+        const matchesExclude = !excludeQuery
+          ? true
+          : searchColumn === "all"
+          ? !Object.values(row).some(
+              (val) =>
+                val &&
+                val.toString().toLowerCase().includes(exclude)
+            )
+          : !(row[searchColumn] &&
+              row[searchColumn].toString().toLowerCase().includes(exclude));
+
+        const matchesEntity =
+          selectedEntity === "All" || row.entity_name === selectedEntity;
+
+        return matchesSearch && matchesExclude && matchesEntity;
+      });
+
+
   // const filteredData = data.filter((row) => 
   //   {
   //   if (!searchQuery) return true;
@@ -236,7 +270,7 @@ export default function Dashboard() {
       </div>
   
       {/* Search Section */}
-      <div className="card mb-4 shadow-sm">
+      {/* <div className="card mb-4 shadow-sm">
         <div className="card-body">
           <h5 className="card-title mb-3">Search Records</h5>
           <div className="d-flex gap-3">
@@ -253,9 +287,9 @@ export default function Dashboard() {
               <option value="annual_budget">Annual Budget</option>
               <option value="category">Category</option>
               <option value="item_type">Item Type</option>
-            </select>
+            </select> */}
             {/* Input + Close Button Container */}
-            <div className="d-flex align-items-center w-100 gap-2">
+            {/* <div className="d-flex align-items-center w-100 gap-2">
               <input
                 type="text"
                 ref={searchInputRef}
@@ -268,7 +302,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                className="btn btn-outline-secondary btn-sm text-danger"
+                  className="btn btn-outline-secondary btn-sm text-danger"
                   style={{
                    height: "38px",
                    width: "80px",
@@ -278,15 +312,84 @@ export default function Dashboard() {
                    borderColor: "#ced4da",
                    backgroundColor: "#fff"
                   }}
-                                  >
+                  >
                   Clear
                 </button>
               )}
           </div>
         </div>
       </div>
-    </div>
+    </div> */}
     
+
+    {/* Search & Filters Section */}
+     
+      <div className="card mb-4 shadow-sm">
+        <div className="card-body">
+          <h5 className="mb-3">Search & Filter</h5>
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+            <div className="d-flex gap-2 flex-grow-1">
+              {/* Column Selector */}
+              <select
+                className="form-select w-auto"
+                value={searchColumn}
+                onChange={(e) => setSearchColumn(e.target.value)}
+              >
+                <option value="all">All Fields</option>
+                <option value="entity_name">Entity Name</option>
+                <option value="account_code">Account Code</option>
+                <option value="description">Description</option>
+                <option value="ytd_actual">YTD Actual</option>
+                <option value="annual_budget">Annual Budget</option>
+                <option value="category">Category</option>
+                <option value="item_type">Item Type</option>
+              </select>
+
+              {/* Include Input */}
+              <input
+                type="text"
+                ref={searchInputRef}
+                className="form-control"
+                placeholder={`Include ${searchColumn === "all" ? "any field" : searchColumn}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+
+              {/* Exclude Input */}
+              <input
+                type="text"
+                className="form-control"
+                placeholder={`Exclude ${searchColumn === "all" ? "any field" : searchColumn}`}
+                value={excludeQuery}
+                onChange={(e) => setExcludeQuery(e.target.value)}
+              />
+
+              {(searchQuery || excludeQuery) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setExcludeQuery("");
+                  }}
+                  className="btn btn-outline-secondary btn-sm text-danger"
+                  style={{
+                   height: "38px",
+                   width: "200px",
+                   padding: "0",
+                    color: "red", 
+                  //  whiteSpace: "nowrap",
+                   borderColor: "#ced4da",
+                   backgroundColor: "#fff"
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Table & Charts */}
       <div className="mb-5">
@@ -365,3 +468,4 @@ export default function Dashboard() {
     
   );
 }
+
