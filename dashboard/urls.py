@@ -16,7 +16,9 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('signup/', views.SignupPage, name='signup'),
     path('api/csrf/', get_csrf_token),
-    # path('api/total-actual-by-entity/', total_actual_by_entity),
     path('api/aggregate_report/', aggregate_report),
+    path('api/entity-yearly-actual/<str:entity_name>/', views.entity_yearly_actual),
+    path('api/entities/', views.get_entity_names, name='get_entity_names'),
+
 ]
 

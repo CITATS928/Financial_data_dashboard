@@ -9,17 +9,22 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import AggregateReport from './AggregateReport';
-
+import EntityBarChart from './EntityBarChart';
 axios.defaults.withCredentials = true;
 
 export default function Dashboard() {
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState();
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchColumn, setSearchColumn] = useState("all");
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const [showTotal, setShowTotal] = useState(false);
+  const [showChart, setShowChart] = useState(false);
+  const [entity, setEntity] = useState('');
+  const [entities, setEntities] = useState([]);
+  const [viewMode, setViewMode] = useState('yearly');
+  const [selectedEntity, setSelectedEntity] = useState("All");
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
@@ -27,6 +32,29 @@ export default function Dashboard() {
       document.body.removeAttribute("style");
     };
   }, []);
+
+
+  useEffect(() => {
+  axios.get('http://localhost:8000/api/entities/')
+    .then((res) => {
+      setEntities(res.data);
+      if (res.data.length > 0) {
+        setEntity(res.data[0]); // Set first entity as default
+      }
+    })
+    .catch((err) => {
+      console.error('Error fetching entities:', err);
+    });
+}, []);
+
+
+  const handleReset = () => {
+    setSearchQuery("");
+    setSearchColumn("all");
+    setSelectedEntity("All");
+  };
+  
+  
 
   const getCsrfToken = async () => {
     try {
@@ -45,15 +73,19 @@ export default function Dashboard() {
   };
 
   const handleUpload = async () => {
-    if (!files.length) return toast.error("Please select at least one file.");
+     if (!files.length) return toast.error("Please select at least one file.");
+    if (!files || files.length === 0) {
+    return toast.error("Please select at least one file.");
+  }
 
     const csrfToken = await getCsrfToken();
     if (!csrfToken) return;
 
+    // 
     const formData = new FormData();
-    files.forEach((file, index) => {
-      formData.append("files", file); // Same key name for multiple files
-    });
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
 
     try {
       // await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
@@ -96,17 +128,6 @@ export default function Dashboard() {
     }
   };
   
-
-  // const fetchData = async () => {
-  //   try {
-  //     const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
-  //     setData(res.data);
-  //     console.log("Fetched data:", res.data);
-  //   } catch {
-  //     toast.error("Failed to load data");
-  //   }
-  // };
-
   const handleLogout = async () => {
     try {
       const csrfToken = await getCsrfToken();
@@ -135,19 +156,37 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const filteredData = data.filter((row) => 
-    {
-    if (!searchQuery) return true;
+  const filteredData = data.filter((row) => {
+    const matchesSearch = !searchQuery
+      ? true
+      : searchColumn === "all"
+      ? Object.values(row).some(
+          (val) =>
+            val &&
+            val.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : row[searchColumn] &&
+        row[searchColumn].toString().toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (searchColumn === "all") {
-      return Object.values(row).some(
-        (val) => val && val.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    } else {
-      const val = row[searchColumn];
-      return val && val.toString().toLowerCase().includes(searchQuery.toLowerCase());
-    }
+    const matchesEntity =
+      selectedEntity === "All" || row.entity_name === selectedEntity;
+
+    return matchesSearch && matchesEntity;
   });
+        
+  // const filteredData = data.filter((row) => 
+  //   {
+  //   if (!searchQuery) return true;
+
+  //   if (searchColumn === "all") {
+  //     return Object.values(row).some(
+  //       (val) => val && val.toString().toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //   } else {
+  //     const val = row[searchColumn];
+  //     return val && val.toString().toLowerCase().includes(searchQuery.toLowerCase());
+  //   }
+  // });
 
   return (
     <div className="py-4" style={{minHeight: "100vh" }}>
@@ -249,9 +288,16 @@ export default function Dashboard() {
     </div>
     
 
-      {/* Table and Charts */}
+      {/* Table & Charts */}
       <div className="mb-5">
-        <TableView data={filteredData} searchQuery={searchQuery} searchColumn={searchColumn} />
+        <TableView
+          data={filteredData}
+          searchQuery={searchQuery}
+          searchColumn={searchColumn}
+          selectedEntity={selectedEntity}
+          setSelectedEntity={setSelectedEntity}
+          handleReset={handleReset}
+        />
       </div>
   
       <ChartsView data={filteredData} />
@@ -274,9 +320,46 @@ export default function Dashboard() {
         {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
       </button>
 
-      {showTotal && <AggregateReport />}
+      {showTotal && <AggregateReport data={filteredData} />}
     </div>
 
+
+<div className="mb-10" style={{ paddingTop: '35px' }}>
+<button onClick={() => setShowChart(!showChart)}
+         style={{
+                  padding: '20px 8px',
+                  fontSize: '15px',
+                  borderRadius: '12px',
+                  backgroundColor: showChart ? '#4CAF50' : '#4c84ff',
+                  color: showChart ? 'white' : 'white',
+                  border: '1px solid #ccc',
+                  cursor: 'pointer',
+    
+                }} 
+>
+      
+        {showChart ? 'Hide Report' : 'Yearly/Quarterly Report'}
+      </button>
+
+      <select
+  onChange={(e) => setEntity(e.target.value)}
+  className="ml-4 px-2 py-1 border rounded-md"
+>
+  <option value="">Select an Entity</option>
+  {entities.map((name, idx) => (
+    <option key={idx} value={name}>{name}</option>
+  ))}
+</select>
+      {showChart && (
+  <div className="mt-4">
+    <div className="mb-4 flex items-center gap-4">
+    </div>
+
+    <EntityBarChart entityName={entity} view={viewMode} />
+  </div>
+)}
+</div>
+  
     </div>
 
     

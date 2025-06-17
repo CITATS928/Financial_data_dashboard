@@ -1,8 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from datetime import date
 # Create your models here.
-
 
 def get_default_user():
     user, created = User.objects.get_or_create(
@@ -10,8 +9,6 @@ def get_default_user():
         defaults={"email": "default@example.com", "password": "defaultpassword"}
     )
     return user.id
-
-
 
 class FinancialLineItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="line_items")  # Link to the user who created this item
@@ -24,6 +21,8 @@ class FinancialLineItem(models.Model):
 
     ytd_actual = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     annual_budget = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    date = models.DateField(default=date.today) 
+    
 
     category = models.CharField(
         max_length=100,
