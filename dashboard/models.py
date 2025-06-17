@@ -85,7 +85,7 @@ class FinancialLineItem(models.Model):
 class UploadedFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=255)
-    table_name = models.CharField(max_length=255)
+    table_name = models.CharField(max_length=255, default='default_table_name')
     upload_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
