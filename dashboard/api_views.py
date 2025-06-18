@@ -5,7 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
-
+from django.db import connection
+from django.utils.text import slugify
+import datetime
 # from .models import FinancialData
 from .models import FinancialLineItem
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -301,3 +303,82 @@ class UpdateProfileView(APIView):
             return Response({"message": "Password updated successfully. Please re-login"}, status=200)
         
         return Response({"error": "Invalid request"}, status=400)
+    
+
+
+class UploadDynamicCSVView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        files = request.FILES.getlist("files")
+        if not files:
+            return Response({"error": "No files uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_uploaded_rows = 0
+        total_skipped_rows = 0
+        results = []
+
+        for file_obj in files:
+            try:
+                decoded_file = file_obj.read().decode("utf-8")
+                io_string = io.StringIO(decoded_file)
+                reader = csv.DictReader(io_string)
+                reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
+
+                base_name = slugify(file_obj.name.replace('.csv', ''))
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                table_name = f"user_{request.user.id}_{base_name}_{timestamp}"
+
+                fields = reader.fieldnames
+                if not fields:
+                    results.append({"filename": file_obj.name, "error": "CSV file has no headers."})
+                    continue
+
+                columns = ", ".join([f'"{field}" TEXT' for field in fields])
+                create_table_sql = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})'
+
+                uploaded_rows = 0
+                skipped_rows = 0
+
+                with connection.cursor() as cursor:
+                    cursor.execute(create_table_sql)
+
+                    for row in reader:
+                        values = [row.get(field, '').strip() for field in fields]
+                        if not any(values):
+                            skipped_rows += 1
+                            continue
+
+                        placeholders = ", ".join(["?"] * len(values))
+                        insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders});'
+                        cursor.execute(insert_sql, values)
+                        uploaded_rows += 1
+
+                UploadedFile.objects.create(
+                    user=request.user,
+                    filename=file_obj.name,
+                    table_name=table_name
+                )
+
+                results.append({
+                    "filename": file_obj.name,
+                    "table": table_name,
+                    "rows_uploaded": uploaded_rows,
+                    "rows_skipped": skipped_rows
+                })
+
+                total_uploaded_rows += uploaded_rows
+                total_skipped_rows += skipped_rows
+
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                results.append({"filename": file_obj.name, "error": str(e)})
+
+        return Response({
+            "message": f"Processed {len(files)} file(s).",
+            "results": results,
+            "total_uploaded_rows": total_uploaded_rows,
+            "total_skipped_rows": total_skipped_rows,
+        }, status=status.HTTP_201_CREATED)
