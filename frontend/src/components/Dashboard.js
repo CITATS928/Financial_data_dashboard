@@ -24,7 +24,7 @@ export default function Dashboard() {
   const [showChart, setShowChart] = useState(false);
   const [entity, setEntity] = useState('');
   const [entities, setEntities] = useState([]);
-  const [viewMode, setViewMode] = useState('yearly');
+  const [viewMode] = useState('yearly');
   const [selectedEntity, setSelectedEntity] = useState("All");
 
   useEffect(() => {
@@ -377,7 +377,7 @@ export default function Dashboard() {
                    height: "38px",
                    width: "200px",
                    padding: "0",
-                    color: "red", 
+                   color: "red", 
                   //  whiteSpace: "nowrap",
                    borderColor: "#ced4da",
                    backgroundColor: "#fff"
