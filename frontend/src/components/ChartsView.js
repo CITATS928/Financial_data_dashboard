@@ -151,14 +151,7 @@ export default function ChartsView({ data, selectedChurch }) {
                 axisLine={false} 
               />
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#333",  // Dark background
-                  color: "#f8f9fa",         // Light text
-                  border: "1px solid #555"
-                }}
-                formatter={(value) => `$${value}`}
-              />
+              <Tooltip formatter={(value) => `$${value}`} />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
               <Bar dataKey="value" name="YTD Actual" radius={[6, 6, 0, 0]} animationDuration={1500}>
                 {chartData.map((_, index) => (
