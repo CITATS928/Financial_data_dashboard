@@ -25,6 +25,13 @@ const CustomPieTooltip = ({ active, payload }) => {
     const { name, value } = payload[0];
     return (
       <div className="p-2 rounded shadow-sm bg-white border">
+      {/* <div
+          className="p-2 rounded shadow-sm border"
+          style={{
+            backgroundColor: document.body.getAttribute("data-theme") === "dark" ? "#333" : "#fff",
+            color: document.body.getAttribute("data-theme") === "dark" ? "#f8f9fa" : "#212529"
+          }}
+        > */}
         <p className="mb-0 fw-bold">{name}</p>
         <p className="mb-0 text-success">${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
       </div>
@@ -112,7 +119,7 @@ export default function ChartsView({ data, selectedChurch }) {
     const EBIT = totalRevenue - totalExpenses - totalDepreciation - totalAmortization;
     const EBITDA = EBIT + totalDepreciation + totalAmortization;
       return (
-        <div className="card shadow-sm rounded-3 p-4 mt-4">
+        <div className="card shadow-sm rounded-3 p-4 mt-4 entity-chart-box">
           <h5 className="text-primary mb-3 text-center">Charts</h5>
 
       {/* Tabs */}
