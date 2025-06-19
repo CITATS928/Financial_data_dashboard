@@ -25,7 +25,7 @@ export default function Files() {
   };
 
   return (
-    <div style={{  width: "82vw", minHeight: "100vh", paddingTop: "20px" }}>
+    <div style={{width: "82vw", minHeight: "100vh", paddingTop: "20px" }}>
       <div className="container mt-5">
         <ToastContainer />
         <h2 className="mb-4">Uploaded Files</h2>

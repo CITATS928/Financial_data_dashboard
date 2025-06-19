@@ -410,17 +410,22 @@ export default function Dashboard() {
 
       <button onClick={() => setShowTotal(prev => !prev)}
         style={{
-                  padding: '20px 8px',
+                  padding: '8px 16px',
                   fontSize: '15px',
                   borderRadius: '12px',
                   backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
                   color: showTotal ? 'white' : 'white',
                   border: '1px solid #ccc',
                   cursor: 'pointer',
+                  width: 'fit-content',     
+                  minWidth: 'auto',         
+                  display: 'inline-block', 
+                  marginBottom: '20px',
+                   
     
                 }} 
 >
-        {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
+        {showTotal ? 'Hide Aggregate Chart' : 'Show Aggregate Chart'}
       </button>
 
       {showTotal && <AggregateReport data={filteredData} />}
@@ -430,13 +435,16 @@ export default function Dashboard() {
 <div className="mb-10" style={{ paddingTop: '35px' }}>
 <button onClick={() => setShowChart(!showChart)}
          style={{
-                  padding: '20px 8px',
+                  padding: '8px 16px',
                   fontSize: '15px',
                   borderRadius: '12px',
                   backgroundColor: showChart ? '#4CAF50' : '#4c84ff',
                   color: showChart ? 'white' : 'white',
                   border: '1px solid #ccc',
                   cursor: 'pointer',
+                  width: 'fit-content',     
+                  minWidth: 'auto',         
+                  display: 'inline-block',
     
                 }} 
 >

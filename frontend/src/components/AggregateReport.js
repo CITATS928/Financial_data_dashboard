@@ -39,7 +39,8 @@ const roundedEntities = data?.entities?.map((entry) => ({
  
 
   return (
-    <div className="aggregate-box p-6 max-w-4xl mx-auto mt-6 bg-white shadow-lg rounded-2xl">
+    <div className="aggregate-box  p-4 rounded-1g shadow max-w-4xl mx-auto">
+      <div className="mb-4">
       <h5 className="text-xl font-bold text-gray-700 mb-4">Aggregate Report</h5>
       
       
@@ -49,7 +50,7 @@ const roundedEntities = data?.entities?.map((entry) => ({
          {parseFloat(data?.total_actual_all_entities)?.toFixed(2)}
        </span>
      </div>
-
+</div>
       
       <ResponsiveContainer width="90%" height={300}>
       <BarChart data={data?.entities}>
