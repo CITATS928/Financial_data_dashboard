@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function TableView({ data, searchQuery, searchColumn, selectedEntity, setSelectedEntity, handleReset }) {
+export default function TableView({ data, searchQuery, searchColumn, selectedEntity, setSelectedEntity, handleReset, handleDownloadPDF }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   // const [selectedEntity, setSelectedEntity] = useState("All");
   
@@ -67,6 +67,18 @@ export default function TableView({ data, searchQuery, searchColumn, selectedEnt
           >
             Reset Filters
           </button>
+
+          {/* //w */}
+          <button
+            className="btn btn-sm"
+            style={{
+              width: "130px", backgroundColor: "#fff9c4", color: "#333"
+            }}
+            onClick={handleDownloadPDF}
+          >
+            Export as PDF
+          </button>
+          {/* //w */}
 
           <div className="form-check d-flex align-items-center m-0 ms-auto">
             <input

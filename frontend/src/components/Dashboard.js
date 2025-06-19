@@ -1,5 +1,9 @@
 // Dashboard.js
 
+//w
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+//w
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -12,7 +16,13 @@ import AggregateReport from './AggregateReport';
 import EntityBarChart from './EntityBarChart';
 axios.defaults.withCredentials = true;
 
+
+
 export default function Dashboard() {
+  //w
+  const dashboardRef = useRef(null);
+  //w
+
   const [files, setFiles] = useState();
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -128,6 +138,29 @@ export default function Dashboard() {
       toast.error("Failed to load data");
     }
   };
+
+  //w
+  // const handleDownloadPDF = () => {
+  //   const input = dashboardRef.current;
+  //   if (!input) return;
+  
+  //   html2canvas(input, { scale: 2 }).then((canvas) => {
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const pdf = new jsPDF("p", "mm", "a4");
+  //     const imgProps = pdf.getImageProperties(imgData);
+  //     const pdfWidth = pdf.internal.pageSize.getWidth();
+  //     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  
+  //     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  //     pdf.save("dashboard-report.pdf");
+  //   });
+  // };
+  const handleDownloadPDF = () => {
+    const pdf = new jsPDF();
+    pdf.text("This is a blank pdf", 10, 10);
+    pdf.save("blank-report.pdf");
+  };
+//w  
   
   const handleLogout = async () => {
     try {
@@ -223,7 +256,9 @@ export default function Dashboard() {
   // });
 
   return (
-    <div className="py-4" style={{minHeight: "100vh" }}>
+    //w
+    //<div className="py-4" style={{minHeight: "100vh" }}>
+    <div ref={dashboardRef} className="py-4" style={{minHeight: "100vh"}}>
       <ToastContainer position="top-right" autoClose={3000} />
   
       {/* Logout Button — Fixed Top Right */}
@@ -243,6 +278,9 @@ export default function Dashboard() {
       >
         Logout
       </button>
+
+
+
   
       <div className="mb-4">
         <h2 className="text-primary">📊 Diocese of DE Dashboard</h2>
@@ -400,6 +438,9 @@ export default function Dashboard() {
           selectedEntity={selectedEntity}
           setSelectedEntity={setSelectedEntity}
           handleReset={handleReset}
+          //w
+          handleDownloadPDF={handleDownloadPDF}
+          //w
         />
       </div>
   
