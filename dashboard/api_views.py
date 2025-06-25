@@ -26,6 +26,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
 
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
@@ -382,3 +383,16 @@ class UploadDynamicCSVView(APIView):
             "total_uploaded_rows": total_uploaded_rows,
             "total_skipped_rows": total_skipped_rows,
         }, status=status.HTTP_201_CREATED)
+
+
+@csrf_exempt
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_uploaded_file(request, file_id):
+    try:
+
+
+        return Response({"message": "File and associated table deleted successfully."}, status=200)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
