@@ -390,6 +390,13 @@ class UploadDynamicCSVView(APIView):
 @permission_classes([IsAuthenticated])
 def delete_uploaded_file(request, file_id):
     try:
+        file = UploadedFile.objects.get(id=file_id, user=request.user)
+        table_name = file.table_name
+
+        # Delete the table from the database
+        with connection.cursor() as cursor:
+            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+
 
 
         return Response({"message": "File and associated table deleted successfully."}, status=200)
