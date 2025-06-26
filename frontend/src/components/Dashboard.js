@@ -268,60 +268,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-  
-      {/* Search Section */}
-      {/* <div className="card mb-4 shadow-sm">
-        <div className="card-body">
-          <h5 className="card-title mb-3">Search Records</h5>
-          <div className="d-flex gap-3">
-            <select
-              className="form-select w-auto"
-              value={searchColumn}
-              onChange={(e) => setSearchColumn(e.target.value)}
-            >
-              <option value="all">All Fields</option>
-              <option value="entity_name">Entity Name</option>
-              <option value="account_code">Account Code</option>
-              <option value="description">Description</option>
-              <option value="ytd_actual">YTD Actual</option>
-              <option value="annual_budget">Annual Budget</option>
-              <option value="category">Category</option>
-              <option value="item_type">Item Type</option>
-            </select> */}
-            {/* Input + Close Button Container */}
-            {/* <div className="d-flex align-items-center w-100 gap-2">
-              <input
-                type="text"
-                ref={searchInputRef}
-                className="form-control"
-                placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="btn btn-outline-secondary btn-sm text-danger"
-                  style={{
-                   height: "38px",
-                   width: "80px",
-                   padding: "0",
-                    color: "red", 
-                  //  whiteSpace: "nowrap",
-                   borderColor: "#ced4da",
-                   backgroundColor: "#fff"
-                  }}
-                  >
-                  Clear
-                </button>
-              )}
-          </div>
-        </div>
-      </div>
-    </div> */}
-    
-
+   
     {/* Search & Filters Section */}
      
       <div className="card mb-4 shadow-sm">
