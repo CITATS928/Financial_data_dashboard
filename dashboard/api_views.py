@@ -397,7 +397,8 @@ def delete_uploaded_file(request, file_id):
         with connection.cursor() as cursor:
             cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
 
-
+        # Delete the UploadedFile record
+        file.delete()
 
         return Response({"message": "File and associated table deleted successfully."}, status=200)
 
