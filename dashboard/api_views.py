@@ -401,6 +401,7 @@ def delete_uploaded_file(request, file_id):
         file.delete()
 
         return Response({"message": "File and associated table deleted successfully."}, status=200)
-
+    except UploadedFile.DoesNotExist:
+        return Response({"error": "File not found."}, status=404)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
