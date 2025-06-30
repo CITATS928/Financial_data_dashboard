@@ -236,6 +236,7 @@ class MyUploadedFilesView(APIView):
                 "id": file.id,
                 "filename": file.filename,
                 "upload_time": file.upload_time,
+                "table_name": file.table_name,
             }
             for file in files
         ]
