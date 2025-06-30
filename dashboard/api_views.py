@@ -233,6 +233,7 @@ class MyUploadedFilesView(APIView):
         files = UploadedFile.objects.filter(user=request.user).order_by("-upload_time")
         data = [
             {
+                "id": file.id,
                 "filename": file.filename,
                 "upload_time": file.upload_time,
             }
