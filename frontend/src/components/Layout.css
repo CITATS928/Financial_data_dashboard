@@ -186,7 +186,7 @@ body[data-theme="light"] mark {
 
 /* Highlight color for dark theme */
 body[data-theme="dark"] mark {
-  background-color: #4c84ff;  /* your dashboard blue */
+  background-color: #4c84ff;  /* dashboard blue */
   color: white;
   padding: 0 2px;
   border-radius: 3px;
