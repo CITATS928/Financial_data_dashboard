@@ -24,13 +24,17 @@ export default function Files() {
   
     axios
       .delete(`http://localhost:8000/api/dashboard/delete-file/${uploadId}/`, {
-        withCredentials: true
+        withCredentials: true,
+        
       })
       .then(() => {
         setUploadedFiles((prev) => prev.filter((file) => file.id !== uploadId));
         toast.success("File deleted successfully.");
       })
-
+      .catch((err) => {
+        console.error("Delete failed:", err);
+        toast.error("Failed to delete file.");
+      });
   };
 
   return (
