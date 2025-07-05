@@ -19,9 +19,18 @@ export default function Files() {
       });
   }, []);
 
+  
   const handleDelete = (uploadId) => {
-    setUploadedFiles((prev) => prev.filter((file) => file.id !== uploadId));
-    toast.success("Deleted(backend not updated yet)");
+  
+    axios
+      .delete(`http://localhost:8000/api/dashboard/delete-file/${uploadId}/`, {
+        withCredentials: true
+      })
+      .then(() => {
+        setUploadedFiles((prev) => prev.filter((file) => file.id !== uploadId));
+        toast.success("File deleted successfully.");
+      })
+
   };
 
   return (
