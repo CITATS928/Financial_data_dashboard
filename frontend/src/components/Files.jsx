@@ -71,7 +71,7 @@ export default function Files() {
                 <th>#</th>
                 <th>Filename</th>
                 <th>Upload Time</th>
-                <th>Rows</th>
+                <th>Row Count</th>
                 <th>Action</th>
               </tr>
             </thead>
