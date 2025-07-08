@@ -230,17 +230,24 @@ class MyUploadedFilesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        files = UploadedFile.objects.filter(user=request.user).order_by("-upload_time")
-        data = [
-            {
+        files = UploadedFile
+        result = []
+
+        for file in files:
+
+            with connection.cursor() as cursor:
+                cursor.execute(f'SELECT COUNT(*) FROM "{file.table_name}"')
+                row_count = cursor.fetchone()[0]
+
+            result.append({
                 "id": file.id,
                 "filename": file.filename,
                 "upload_time": file.upload_time,
                 "table_name": file.table_name,
-            }
-            for file in files
-        ]
-        return Response(data)
+                "row_count": row_count,
+            })
+
+        return Response(result)
 
 @csrf_exempt
 @api_view(['POST'])
