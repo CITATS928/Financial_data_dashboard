@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import api_views
 from . import views
@@ -18,8 +18,6 @@ urlpatterns = [
     path('api/csrf/', get_csrf_token),
     path('api/aggregate_report/', aggregate_report),
     path('api/entity-yearly-actual/<str:entity_name>/', views.entity_yearly_actual),
-    # path('api/entities-names/', views.get_entity_names, name='get_entity_names'),
-    # path('api/', include('dashboard.api_urls')),
+    path('api/entities/', views.get_entity_names, name='get_entity_names'),
 
 ]
-
