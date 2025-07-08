@@ -8,6 +8,9 @@ export default function Sidebar({ collapsed, toggleSidebar }) {
   //theme
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
+  // const [reportsOpen, setReportsOpen] = useState(false);
+
+
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -54,6 +57,44 @@ export default function Sidebar({ collapsed, toggleSidebar }) {
             {!collapsed && "Files"}
           </NavLink>
         </li>
+        
+  {/* <div
+    className="nav-link d-flex align-items-center justify-content-between"
+    style={{ cursor: 'pointer' }}
+    onClick={() => setReportsOpen(!reportsOpen)}
+  >
+    <span>
+      <i className="bi bi bi-building me-2"></i>
+      {!collapsed && "Churches"}
+    </span>
+    {!collapsed && (
+      <i className={`bi ${reportsOpen ? "bi-chevron-up" : "bi-chevron-down"}`} />
+    )}
+  </div> */}
+
+  {/* Submenu */}
+  {/* {!collapsed && reportsOpen && (
+    <ul className="list-unstyled ps-4">
+      <li>
+        <NavLink to="/report1" className="nav-link">Faith Community Center</NavLink>
+      </li>
+      <li>
+        <NavLink to="/report2" className="nav-link">Saint Mark's Parish</NavLink>
+      </li>
+      <li>
+        <NavLink to="/report3" className="nav-link">Trinity Outreach</NavLink>
+      </li>
+      <li>
+        <NavLink to="/report4" className="nav-link">Grace Fellowship</NavLink>
+      </li>
+      <li>
+        <NavLink to="/report5" className="nav-link">Hope Ministries</NavLink>
+      </li>
+    </ul>
+  )}
+</li> */}
+
+        
       </ul>
 
       {/* Theme Toggle*/}

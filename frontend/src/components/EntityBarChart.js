@@ -25,14 +25,14 @@ const EntityBarChart = ({ entityName }) => {
   return (
     //<div className="p-4 bg-white shadow rounded-lg max-w-4xl mx-auto">
     <div className="entity-chart-box card p-4 rounded-lg shadow max-w-4xl mx-auto">
-
+     <h5 className="text-xl font-bold text-gray-700 mb-4">Quarterly/Yearly Report</h5>
       <div className="mb-4">
-  <button
+  {/* <button
     onClick={() => setView(view === 'yearly' ? 'quarterly' : 'yearly')}
     className="btn-toggle-view px-0 py-0 text-sm bg-blue-600rounded-md hover:bg-blue-700 transition duration-200"
   >
     Click to {view === 'yearly' ? 'Quarterly view' : 'Yearly view'}
-  </button>
+  </button> */}
 </div>
 
       <ResponsiveContainer width="100%" height={350}>

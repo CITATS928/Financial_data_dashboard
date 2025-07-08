@@ -382,3 +382,20 @@ class UploadDynamicCSVView(APIView):
             "total_uploaded_rows": total_uploaded_rows,
             "total_skipped_rows": total_skipped_rows,
         }, status=status.HTTP_201_CREATED)
+
+# @api_view(['GET'])
+# def entity_list_api(request):
+   
+#     entities = FinancialLineItem.objects.all()
+#     serializer = FinancialLineItemSerializer(entities, many=True)
+#     return Response(serializer.data)
+
+# @api_view(['GET'])
+# def entity_detail_api(request, pk):
+#     try:
+#         entity = FinancialLineItem.objects.get(pk=pk)
+#     except FinancialLineItem.DoesNotExist:
+#         return Response({'error': 'Entity not found'}, status=404)
+
+#     serializer = FinancialLineItemSerializer(entity)
+#     return Response(serializer.data)

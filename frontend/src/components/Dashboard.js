@@ -449,10 +449,9 @@ export default function Dashboard() {
                 }} 
 >
       
-        {showChart ? 'Hide Report' : 'Yearly/Quarterly Report'}
+        {showChart ? 'Hide Chart' : 'Yearly/Quarterly Chart'}
       </button>
-
-      <select
+<select
   onChange={(e) => setEntity(e.target.value)}
   className="ml-4 px-2 py-1 border rounded-md"
 >

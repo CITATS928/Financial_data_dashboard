@@ -39,7 +39,7 @@ const roundedEntities = data?.entities?.map((entry) => ({
  
 
   return (
-    <div className="aggregate-box  p-4 rounded-1g shadow max-w-4xl mx-auto">
+    <div className="aggregate-box  p-4 bg-white rounded-1g shadow max-w-4xl mx-auto">
       <div className="mb-4">
       <h5 className="text-xl font-bold text-gray-700 mb-4">Aggregate Report</h5>
       
