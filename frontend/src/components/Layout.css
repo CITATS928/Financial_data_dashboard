@@ -176,3 +176,18 @@ body[data-theme="dark"] .form-select-sm {
   padding-right: 2rem; /* room for arrow */
 }
 
+/* Highlight color for light theme */
+body[data-theme="light"] mark {
+  background-color: #d0ebff;  /* soft light blue */
+  color: #003366;             /* dark blue text */
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+/* Highlight color for dark theme */
+body[data-theme="dark"] mark {
+  background-color: #4c84ff;  /* your dashboard blue */
+  color: white;
+  padding: 0 2px;
+  border-radius: 3px;
+}
