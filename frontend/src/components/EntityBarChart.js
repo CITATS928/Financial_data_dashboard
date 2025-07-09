@@ -44,7 +44,7 @@ const EntityBarChart = ({ entityName }) => {
           <Legend />
           <Bar dataKey="total_actual" fill="#4F46E5" />
         </BarChart>
-         <h4>Current view: {view}</h4>
+         {/* <h4>Current view: {view}</h4> */}
       </ResponsiveContainer>
     </div>
   );

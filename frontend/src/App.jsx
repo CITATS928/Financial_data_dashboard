@@ -5,6 +5,8 @@ import Signup from "./components/Signup";
 import Profile from "./components/Profile";
 import Files from "./components/Files";
 import Layout from "./components/Layout";
+import EntityListPage from "./components/EntityListPage";
+import EntityDetail from "./components/EntityDetail";
 
 function App() {
   return (
@@ -18,6 +20,9 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/files" element={<Files />} />
+
+         <Route path="/entities" element={<EntityListPage />} />
+        <Route path="/entities/:id" element={<EntityDetail />} />
       </Route>
 
     <Route path="*" element={<Login />} /> {/* Redirect to Login for any other route */}

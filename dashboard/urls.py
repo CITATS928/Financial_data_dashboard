@@ -6,6 +6,7 @@ from .api_views import UploadCSVView, FinancialDataView
 from .views import get_csrf_token
 # from .views import total_actual_by_entity
 from .views import aggregate_report
+from .views import get_entity_detail
 
 
 
@@ -19,5 +20,7 @@ urlpatterns = [
     path('api/aggregate_report/', aggregate_report),
     path('api/entity-yearly-actual/<str:entity_name>/', views.entity_yearly_actual),
     path('api/entities/', views.get_entity_names, name='get_entity_names'),
+    path('api/entities/<str:entity_name>/details/',  views.get_entity_detail),
+    path('api/all-items/', views.get_all_items),
 
 ]

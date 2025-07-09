@@ -1,28 +1,27 @@
-// import React, { useState, useEffect } from 'react';
-// import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-// function EntityListPage() {
-//   const [entities, setEntities] = useState([]);
+export default function EntityListPage() {
+  const [entities, setEntities] = useState([]);
 
-//   useEffect(() => {
-//     // Fetch the list of entities from the backend
-//     fetch('/api/entities/')
-//       .then((response) => response.json())
-//       .then((data) => setEntities(data));
-//   }, []);
+  useEffect(() => {
+    fetch("http://localhost:8000/api/entities/")
+      .then((res) => res.json())
+      .then((data) => setEntities(data))
+      .catch((err) => console.error("Error fetching entities:", err));
+  }, []);
 
-//   return (
-//     <div>
-//       <h1>Entities</h1>
-//       <ul>
-//         {entities.map((entity) => (
-//           <li key={entity.id}>
-//             <Link to={`/entities/${entity.id}`}>{entity.entity_name}</Link>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
+  return (
+   <div className="w-100 vh-100 p-4" style={{ overflowY: "auto" }}>
 
-// export default EntityListPage;
+      <h3 className="text-center mb-4">Churches</h3>
+      <ul className="list-group">
+        {entities.map((name, index) => (
+          <li key={index} className="list-group-item">
+            <Link to={`/entities/${encodeURIComponent(name)}`}>{name}</Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
