@@ -230,14 +230,18 @@ class MyUploadedFilesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        files = UploadedFile
+        files = UploadedFile.objects.filter(user=request.user).order_by("-upload_time")
         result = []
 
         for file in files:
-
-            with connection.cursor() as cursor:
-                cursor.execute(f'SELECT COUNT(*) FROM "{file.table_name}"')
-                row_count = cursor.fetchone()[0]
+            row_count = 0
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(f'SELECT COUNT(*) FROM "{file.table_name}"')
+                    row_count = cursor.fetchone()[0]
+            except Exception as e:
+                print(f"⚠️ Failed to get row count for table {file.table_name}: {e}")
+                row_count = -1 
 
             result.append({
                 "id": file.id,
