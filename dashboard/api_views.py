@@ -240,7 +240,7 @@ class MyUploadedFilesView(APIView):
                     cursor.execute(f'SELECT COUNT(*) FROM "{file.table_name}"')
                     row_count = cursor.fetchone()[0]
             except Exception as e:
-                print(f"⚠️ Failed to get row count for table {file.table_name}: {e}")
+                print(f"Failed to get row count for table {file.table_name}: {e}")
                 row_count = -1 
 
             result.append({
