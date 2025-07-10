@@ -24,11 +24,11 @@ export default function Files() {
   const getCookie = (name) => {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
-      const cookies = document.cookie;
+      const cookies = document.cookie.split(";");
       for (let cookie of cookies) {
         cookie = cookie.trim();
         if (cookie.startsWith(name + "=")) {
-          cookieValue = decodeURIComponent(cookie.slice(name.length));
+          cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
           break;
         }
       }
@@ -40,7 +40,7 @@ export default function Files() {
     const csrfToken = getCookie("csrftoken");
   
     axios
-      .delete(`http://localhost:8000/delete-file/${uploadId}/`, {
+      .delete(`http://localhost:8000/api/dashboard/delete-file/${uploadId}/`, {
         withCredentials: true,
         headers: {
           "X-CSRFToken": csrfToken,
