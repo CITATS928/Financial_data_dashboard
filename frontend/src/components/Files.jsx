@@ -19,9 +19,41 @@ export default function Files() {
       });
   }, []);
 
+
+  
+  const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + "=")) {
+          cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+  
   const handleDelete = (uploadId) => {
-    setUploadedFiles((prev) => prev.filter((file) => file.id !== uploadId));
-    toast.success("Deleted(backend not updated yet)");
+    const csrfToken = getCookie("csrftoken");
+  
+    axios
+      .delete(`http://localhost:8000/api/dashboard/delete-file/${uploadId}/`, {
+        withCredentials: true,
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      })
+      .then(() => {
+        setUploadedFiles((prev) => prev.filter((file) => file.id !== uploadId));
+        toast.success("File deleted successfully.");
+      })
+      .catch((err) => {
+        console.error("Delete failed:", err);
+        toast.error("Failed to delete file.");
+      });
   };
 
   return (
