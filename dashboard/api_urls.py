@@ -10,7 +10,8 @@ from .api_views import (
     FinancialLineItemsListView,
     MyUploadedItemsView,
     MyUploadedFilesView,
-    UploadDynamicCSVView
+    UploadDynamicCSVView,
+    delete_uploaded_file,
 )
 from .api_views import CurrentUserView, UpdateProfileView
 from rest_framework_simplejwt.views import (
@@ -38,5 +39,6 @@ urlpatterns = [
     path('entities/', views.get_entity_names, name='get_entity_names'),
     path('entity-yearly-actual/<str:entity_name>/', views.entity_yearly_actual, name='entity_yearly_actual'),
     path('entity-quarterly-actual/<str:entity_name>/', views.entity_quarterly_actual, name='entity_quarterly_actual'),
+    path("delete-file/<int:file_id>/", delete_uploaded_file, name="delete_uploaded_file"),
 
 ]
