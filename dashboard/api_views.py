@@ -5,7 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import JSONParser
-
+from django.db import connection
+from django.utils.text import slugify
+import datetime
 # from .models import FinancialData
 from .models import FinancialLineItem
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -24,6 +26,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
 
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
@@ -41,9 +44,13 @@ class UploadCSVView(APIView):
             return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            decoded_file = file_obj.read().decode("utf-8")
+            decoded_file = file_obj.read().decode("utf-8").replace('\r', '\n')  # <- replace \r with \n
             io_string = io.StringIO(decoded_file)
-            reader = csv.DictReader(io_string)
+            reader = csv.DictReader(io_string, delimiter=',')  # <- force comma as delimiter
+
+            # decoded_file = file_obj.read().decode("utf-8")
+            # io_string = io.StringIO(decoded_file)
+            # reader = csv.DictReader(io_string)
 
             for row in reader:
                 FinancialData.objects.create(
@@ -139,6 +146,13 @@ class UploadFinancialLineItemsView(APIView):
                 reader = csv.DictReader(io_string, dialect=dialect)
                 reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
 
+                required_fields = {"entity_name", "account_code", "ytd_actual", "annual_budget"}
+                if not set(reader.fieldnames or []).issuperset(required_fields):
+                    return Response({
+                        "error": f"Missing required columns in {file_obj.name}. Found: {reader.fieldnames}"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                
                 items = []
                 for row in reader:
                     try:
@@ -228,14 +242,27 @@ class MyUploadedFilesView(APIView):
 
     def get(self, request):
         files = UploadedFile.objects.filter(user=request.user).order_by("-upload_time")
-        data = [
-            {
+        result = []
+
+        for file in files:
+            row_count = 0
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(f'SELECT COUNT(*) FROM "{file.table_name}"')
+                    row_count = cursor.fetchone()[0]
+            except Exception as e:
+                print(f"Failed to get row count for table {file.table_name}: {e}")
+                row_count = -1 
+
+            result.append({
+                "id": file.id,
                 "filename": file.filename,
                 "upload_time": file.upload_time,
-            }
-            for file in files
-        ]
-        return Response(data)
+                "table_name": file.table_name,
+                "row_count": row_count,
+            })
+
+        return Response(result)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -380,3 +407,24 @@ class UploadDynamicCSVView(APIView):
             "total_uploaded_rows": total_uploaded_rows,
             "total_skipped_rows": total_skipped_rows,
         }, status=status.HTTP_201_CREATED)
+
+@csrf_exempt
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_uploaded_file(request, file_id):
+    try:
+        file = UploadedFile.objects.get(id=file_id, user=request.user)
+        table_name = file.table_name
+
+        # Delete the table from the database
+        with connection.cursor() as cursor:
+            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+
+        # Delete the UploadedFile record
+        file.delete()
+
+        return Response({"message": "File and associated table deleted successfully."}, status=200)
+    except UploadedFile.DoesNotExist:
+        return Response({"error": "File not found."}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
