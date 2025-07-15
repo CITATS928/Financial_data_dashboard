@@ -17,7 +17,7 @@ const EntityBarChart = ({ entityName }) => {
           ...d,
           label: view === 'yearly' ? `${d.year}` : `${d.year} Q${d.quarter}`
         }));
-         console.log("Formatted data:", formatted);  // Log the data to check
+         console.log("Formatted data:", formatted);  
         setData(formatted);
       })
       .catch(err => console.error('Error:', err));
