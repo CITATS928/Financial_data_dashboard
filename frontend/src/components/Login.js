@@ -36,7 +36,7 @@ export default function Login() {
 
     try {
       // Unused variable 'res' removed
-      await axios.get(
+      await axios.post(
         "http://localhost:8000/api/dashboard/session-login/",
         { username, password },
         {
