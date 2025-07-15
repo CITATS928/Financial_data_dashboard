@@ -1,29 +1,70 @@
 import React, { useState } from "react";
+import { FaSortUp, FaSortDown } from "react-icons/fa";
 
-export default function TableView({ data, searchQuery, searchColumn, selectedEntity, setSelectedEntity, handleReset, handleDownloadPDF }) {
+export default function TableView({
+  data,
+  searchQuery,
+  searchColumn,
+  selectedEntity,
+  setSelectedEntity,
+  handleReset,
+}) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  // const [selectedEntity, setSelectedEntity] = useState("All");
-  
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   if (!Array.isArray(data) || data.length === 0) {
     return (
-      <div className="alert alert-warning text-center">
-        No table data available
-      </div>
+      <div className="alert alert-warning text-center">No table data available</div>
     );
   }
 
-  const uniqueEntities = Array.from(new Set(data.map(item => item.entity_name))).sort();
+  const uniqueEntities = Array.from(new Set(data.map((item) => item.entity_name))).sort();
 
-  const filteredData = selectedEntity === "All"
-    ? data
-    : data.filter(item => item.entity_name === selectedEntity);
+  const filteredData =
+    selectedEntity === "All"
+      ? data
+      : data.filter((item) => item.entity_name === selectedEntity);
 
-  const uniqueData = filteredData.filter((value, index, self) =>
-    index === self.findIndex((t) =>
-      t.account_code === value.account_code && t.description === value.description
-    )
+  const uniqueData = filteredData.filter(
+    (value, index, self) =>
+      index ===
+      self.findIndex(
+        (t) =>
+          t.account_code === value.account_code &&
+          t.description === value.description
+      )
   );
+
+  const sortedData = [...uniqueData].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+
+    const valA = a[sortConfig.key];
+    const valB = b[sortConfig.key];
+
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+
+    if (typeof valA === "number" && typeof valB === "number") {
+      return sortConfig.direction === "asc" ? valA - valB : valB - valA;
+    }
+
+    return sortConfig.direction === "asc"
+      ? valA.toString().localeCompare(valB.toString())
+      : valB.toString().localeCompare(valA.toString());
+  });
+
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return null;
+    return sortConfig.direction === "asc" ? <FaSortUp /> : <FaSortDown />;
+  };
 
   const highlightMatch = (text) => {
     if (!searchQuery || !text) return text;
@@ -40,6 +81,25 @@ export default function TableView({ data, searchQuery, searchColumn, selectedEnt
   const formatCurrency = (value) =>
     isNaN(parseFloat(value)) ? "-" : `$${parseFloat(value).toFixed(2)}`;
 
+  const columns = [
+    { label: "Entity", key: "entity_name" },
+    { label: "Category", key: "category" },
+    { label: "Description", key: "description" },
+    { label: "Type", key: "item_type" },
+    { label: "Code", key: "account_code" },
+    { label: "YTD Actual", key: "ytd_actual" },
+    { label: "Annual Budget", key: "annual_budget" },
+    { label: "% Used", key: "percent_used" },
+  ];
+
+  const advancedColumns = [
+    { label: "Gross Profit", key: "gross_profit" },
+    { label: "EBITDA", key: "ebitda" },
+    { label: "EBIT", key: "ebit" },
+    { label: "Profit Before Tax", key: "profit_before_tax" },
+    { label: "Profit for Period", key: "profit_for_period" },
+  ];
+
   return (
     <div className="card mb-4 shadow-sm">
       <div className="card-body">
@@ -54,31 +114,13 @@ export default function TableView({ data, searchQuery, searchColumn, selectedEnt
           >
             <option value="All">All Churches</option>
             {uniqueEntities.map((entity) => (
-              <option key={entity} value={entity}>
-                {entity}
-              </option>
+              <option key={entity} value={entity}>{entity}</option>
             ))}
           </select>
 
-          <button
-            className="btn btn-sm btn-danger"
-            style={{ width: "100px" }}
-            onClick={handleReset}
-          >
+          <button className="btn btn-sm btn-danger" style={{ width: "100px" }} onClick={handleReset}>
             Reset Filters
           </button>
-
-          {/* //w */}
-          <button
-            className="btn btn-sm"
-            style={{
-              width: "130px", backgroundColor: "#fff9c4", color: "#333"
-            }}
-            onClick={handleDownloadPDF}
-          >
-            Export as PDF
-          </button>
-          {/* //w */}
 
           <div className="form-check d-flex align-items-center m-0 ms-auto">
             <input
@@ -97,26 +139,28 @@ export default function TableView({ data, searchQuery, searchColumn, selectedEnt
         <table className="table table-hover table-bordered align-middle mb-0">
           <thead className="text-center">
             <tr>
-              {["Entity", "Category", "Description", "Type", "Code", "YTD Actual", "Annual Budget", "% Used"]
-                .map(label => (
-                  <th key={label} className="table-header">{label}</th>
-                ))}
-              {showAdvanced && ["Gross Profit", "EBITDA", "EBIT", "Profit Before Tax", "Profit for Period"]
-                .map(label => (
-                  <th key={label} className="table-header">{label}</th>
-                ))}
+              {[...columns, ...(showAdvanced ? advancedColumns : [])].map(({ label, key }) => (
+                <th
+                  key={key}
+                  className="table-header cursor-pointer"
+                  onClick={() => handleSort(key)}
+                  style={{ userSelect: "none" }}
+                >
+                  {label} {getSortIcon(key)}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {uniqueData.map((row) => (
+            {sortedData.map((row) => (
               <tr key={`${row.entity_name}-${row.account_code}`}>
-                <td>{searchColumn === "entity_name" || searchColumn === "all" ? highlightMatch(row.entity_name) : row.entity_name}</td>
-                <td>{searchColumn === "category" || searchColumn === "all" ? highlightMatch(row.category || "-") : row.category || "-"}</td>
-                <td>{searchColumn === "description" || searchColumn === "all" ? highlightMatch(row.description) : row.description}</td>
-                <td>{searchColumn === "item_type" || searchColumn === "all" ? highlightMatch(row.item_type) : row.item_type}</td>
-                <td>{searchColumn === "account_code" || searchColumn === "all" ? highlightMatch(row.account_code || "-") : row.account_code || "-"}</td>
-                <td>{searchColumn === "ytd_actual" || searchColumn === "all" ? highlightMatch(formatCurrency(row.ytd_actual)) : formatCurrency(row.ytd_actual)}</td>
-                <td>{searchColumn === "annual_budget" || searchColumn === "all" ? highlightMatch(formatCurrency(row.annual_budget)) : formatCurrency(row.annual_budget)}</td>
+                <td>{highlightMatch(row.entity_name)}</td>
+                <td>{highlightMatch(row.category || "-")}</td>
+                <td>{highlightMatch(row.description)}</td>
+                <td>{highlightMatch(row.item_type)}</td>
+                <td>{highlightMatch(row.account_code || "-")}</td>
+                <td>{highlightMatch(formatCurrency(row.ytd_actual))}</td>
+                <td>{highlightMatch(formatCurrency(row.annual_budget))}</td>
                 <td style={{
                   color:
                     row.item_type === "expense"
@@ -144,16 +188,16 @@ export default function TableView({ data, searchQuery, searchColumn, selectedEnt
             ))}
             <tr className="table-footer-row">
               <td colSpan="5" className="text-end pe-3">Totals:</td>
-              <td>{formatCurrency(uniqueData.reduce((sum, row) => sum + (parseFloat(row.ytd_actual) || 0), 0))}</td>
-              <td>{formatCurrency(uniqueData.reduce((sum, row) => sum + (parseFloat(row.annual_budget) || 0), 0))}</td>
+              <td>{formatCurrency(sortedData.reduce((sum, row) => sum + (parseFloat(row.ytd_actual) || 0), 0))}</td>
+              <td>{formatCurrency(sortedData.reduce((sum, row) => sum + (parseFloat(row.annual_budget) || 0), 0))}</td>
               <td>-</td>
               {showAdvanced && (
                 <>
-                  <td>{formatCurrency(uniqueData.reduce((sum, row) => sum + (parseFloat(row.gross_profit) || 0), 0))}</td>
-                  <td>{formatCurrency(uniqueData.reduce((sum, row) => sum + (parseFloat(row.ebitda) || 0), 0))}</td>
-                  <td>{formatCurrency(uniqueData.reduce((sum, row) => sum + (parseFloat(row.ebit) || 0), 0))}</td>
-                  <td>{formatCurrency(uniqueData.reduce((sum, row) => sum + (parseFloat(row.profit_before_tax) || 0), 0))}</td>
-                  <td>{formatCurrency(uniqueData.reduce((sum, row) => sum + (parseFloat(row.profit_for_period) || 0), 0))}</td>
+                  <td>{formatCurrency(sortedData.reduce((sum, row) => sum + (parseFloat(row.gross_profit) || 0), 0))}</td>
+                  <td>{formatCurrency(sortedData.reduce((sum, row) => sum + (parseFloat(row.ebitda) || 0), 0))}</td>
+                  <td>{formatCurrency(sortedData.reduce((sum, row) => sum + (parseFloat(row.ebit) || 0), 0))}</td>
+                  <td>{formatCurrency(sortedData.reduce((sum, row) => sum + (parseFloat(row.profit_before_tax) || 0), 0))}</td>
+                  <td>{formatCurrency(sortedData.reduce((sum, row) => sum + (parseFloat(row.profit_for_period) || 0), 0))}</td>
                 </>
               )}
             </tr>

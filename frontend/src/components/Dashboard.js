@@ -14,7 +14,7 @@ import PrintReport from "./PrintReport";
 axios.defaults.withCredentials = true;
 
 export default function Dashboard() {
-  const [files, setFiles] = useState();
+  const [files, setFiles] = useState([]);
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchColumn, setSearchColumn] = useState("all");
@@ -35,28 +35,25 @@ export default function Dashboard() {
     };
   }, []);
 
-
   useEffect(() => {
-  axios.get('http://localhost:8000/api/entities/')
-    .then((res) => {
-      setEntities(res.data);
-      if (res.data.length > 0) {
-        setEntity(res.data[0]); // Set first entity as default
-      }
-    })
-    .catch((err) => {
-      console.error('Error fetching entities:', err);
-    });
-}, []);
-
+    axios.get('http://localhost:8000/api/entities/')
+      .then((res) => {
+        setEntities(res.data);
+        if (res.data.length > 0) {
+          setEntity(res.data[0]); // Set first entity as default
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching entities:', err);
+      });
+  }, []);
 
   const handleReset = () => {
     setSearchQuery("");
+    setExcludeQuery("");
     setSearchColumn("all");
     setSelectedEntity("All");
   };
-  
-  
 
   const getCsrfToken = async () => {
     try {
@@ -75,45 +72,56 @@ export default function Dashboard() {
   };
 
   const handleUpload = async () => {
-     if (!files.length) return toast.error("Please select at least one file.");
     if (!files || files.length === 0) {
-    return toast.error("Please select at least one file.");
-  }
+      if (!files.length) return toast.error("Please select at least one file.");
+    }
 
     const csrfToken = await getCsrfToken();
     if (!csrfToken) return;
 
-    // 
     const formData = new FormData();
-  files.forEach((file) => {
-    formData.append("files", file);
-  });
+    files.forEach((file) => {
+      formData.append("files", file); // backend expects "files"
+    });
 
     try {
-      // await axios.post("http://localhost:8000/api/dashboard/upload-financial-line-items/", formData, {
-      await axios.post("http://localhost:8000/api/dashboard/upload-dynamic-csv/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "X-CSRFToken": csrfToken,
-        },
-        withCredentials: true,
-      });
+      const response = await axios.post("http://localhost:8000/api/upload-financial-line-items/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "X-CSRFToken": csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
+
       toast.success("Upload successful");
+
+      if (response.data?.results?.length > 0) {
+        response.data.results.forEach((result) => {
+          if (result.error) {
+            toast.error(`${result.filename}: ${result.error}`);
+          } else {
+            toast.success(
+              `${result.filename} uploaded to ${result.table} (${result.rows_uploaded} rows)`
+            );
+          }
+        });
+      }
+
       fetchData();
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 500);
     } catch (err) {
-      
-      toast.error("Upload failed");
-      
+      console.error("Upload error:", err);
+      toast.error("Upload failed. Check console for details.");
     }
   };
 
   const fetchData = async () => {
     try {
       const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
-      const enhancedData = res.data.map(item => {
+      const enhancedData = res.data.map((item) => {
         const actual = parseFloat(item.ytd_actual) || 0;
         const budget = parseFloat(item.annual_budget) || 0;
         const percentUsed = budget !== 0 ? (actual / budget) * 100 : null;
@@ -129,12 +137,12 @@ export default function Dashboard() {
       toast.error("Failed to load data");
     }
   };
-  
+
   const handleLogout = async () => {
     try {
       const csrfToken = await getCsrfToken();
       if (!csrfToken) return;
-  
+
       await axios.post(
         "http://localhost:8000/api/logout/",
         {},
@@ -145,7 +153,7 @@ export default function Dashboard() {
           withCredentials: true,
         }
       );
-  
+
       toast.success("Logged out successfully!");
       navigate("/");
     } catch (error) {
@@ -153,81 +161,43 @@ export default function Dashboard() {
       console.error("Logout error:", error);
     }
   };
-  
-    useEffect(() => {
+
+  useEffect(() => {
     fetchData();
   }, []);
 
-  // const filteredData = data.filter((row) => {
-  //   const matchesSearch = !searchQuery
-  //     ? true
-  //     : searchColumn === "all"
-  //     ? Object.values(row).some(
-  //         (val) =>
-  //           val &&
-  //           val.toString().toLowerCase().includes(searchQuery.toLowerCase())
-  //       )
-  //     : row[searchColumn] &&
-  //       row[searchColumn].toString().toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredData = data.filter((row) => {
+    const query = searchQuery.toLowerCase();
+    const exclude = excludeQuery.toLowerCase();
 
-  //   const matchesEntity =
-  //     selectedEntity === "All" || row.entity_name === selectedEntity;
+    const matchesSearch = !searchQuery
+      ? true
+      : searchColumn === "all"
+      ? Object.values(row).some(
+          (val) => val && val.toString().toLowerCase().includes(query)
+        )
+      : row[searchColumn] &&
+        row[searchColumn].toString().toLowerCase().includes(query);
 
-  //   return matchesSearch && matchesEntity;
-  // });
-        
-      const filteredData = data.filter((row) => {
-        const query = searchQuery.toLowerCase();
-        const exclude = excludeQuery.toLowerCase();
+    const matchesExclude = !excludeQuery
+      ? true
+      : searchColumn === "all"
+      ? !Object.values(row).some(
+          (val) => val && val.toString().toLowerCase().includes(exclude)
+        )
+      : !(row[searchColumn] && row[searchColumn].toString().toLowerCase().includes(exclude));
 
-        const matchesSearch = !searchQuery
-          ? true
-          : searchColumn === "all"
-          ? Object.values(row).some(
-              (val) =>
-                val &&
-                val.toString().toLowerCase().includes(query)
-            )
-          : row[searchColumn] &&
-            row[searchColumn].toString().toLowerCase().includes(query);
+    const matchesEntity =
+      selectedEntity === "All" || row.entity_name === selectedEntity;
 
-        const matchesExclude = !excludeQuery
-          ? true
-          : searchColumn === "all"
-          ? !Object.values(row).some(
-              (val) =>
-                val &&
-                val.toString().toLowerCase().includes(exclude)
-            )
-          : !(row[searchColumn] &&
-              row[searchColumn].toString().toLowerCase().includes(exclude));
-
-        const matchesEntity =
-          selectedEntity === "All" || row.entity_name === selectedEntity;
-
-        return matchesSearch && matchesExclude && matchesEntity;
-      });
-
-
-  // const filteredData = data.filter((row) => 
-  //   {
-  //   if (!searchQuery) return true;
-
-  //   if (searchColumn === "all") {
-  //     return Object.values(row).some(
-  //       (val) => val && val.toString().toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //   } else {
-  //     const val = row[searchColumn];
-  //     return val && val.toString().toLowerCase().includes(searchQuery.toLowerCase());
-  //   }
-  // });
+    return matchesSearch && matchesExclude && matchesEntity;
+  });
 
   return (
-    <div className="py-4" style={{minHeight: "100vh" }}>
+    <div className="py-4" style={{ minHeight: "100vh" }}>
       <ToastContainer position="top-right" autoClose={3000} />
-  
-      {/* Logout Button — Fixed Top Right */}
+
+      {/* Logout Button */}
       <button
         onClick={handleLogout}
         className="btn btn-sm btn-danger"
@@ -244,92 +214,43 @@ export default function Dashboard() {
       >
         Logout
       </button>
-  
+
       <div className="mb-4">
         <h2 className="text-primary">📊 Diocese of DE Dashboard</h2>
       </div>
-  
+
       {/* Upload Section */}
       <div className="card mb-4 shadow-sm">
         <div className="card-body">
           <h5 className="mb-3">Upload Financial CSV</h5>
           <div className="d-flex gap-3 align-items-center">
-            <input type="file" className="form-control" onChange={handleFileChange} multiple />
-            <button onClick={handleUpload}
-            className="btn btn-primary"
-            style={{
-              padding: "5px 10px",
-              fontSize: "0.85rem",
-              width: "auto",
-              display: "inline-block",
-            }}
+            <input
+              type="file"
+              className="form-control"
+              onChange={handleFileChange}
+              multiple
+            />
+            <button
+              onClick={handleUpload}
+              className="btn btn-primary"
+              style={{
+                padding: "5px 10px",
+                fontSize: "0.85rem",
+                width: "auto",
+                display: "inline-block",
+              }}
             >
               Upload CSV
-              </button>
+            </button>
           </div>
         </div>
       </div>
-  
-      {/* Search Section */}
-      {/* <div className="card mb-4 shadow-sm">
-        <div className="card-body">
-          <h5 className="card-title mb-3">Search Records</h5>
-          <div className="d-flex gap-3">
-            <select
-              className="form-select w-auto"
-              value={searchColumn}
-              onChange={(e) => setSearchColumn(e.target.value)}
-            >
-              <option value="all">All Fields</option>
-              <option value="entity_name">Entity Name</option>
-              <option value="account_code">Account Code</option>
-              <option value="description">Description</option>
-              <option value="ytd_actual">YTD Actual</option>
-              <option value="annual_budget">Annual Budget</option>
-              <option value="category">Category</option>
-              <option value="item_type">Item Type</option>
-            </select> */}
-            {/* Input + Close Button Container */}
-            {/* <div className="d-flex align-items-center w-100 gap-2">
-              <input
-                type="text"
-                ref={searchInputRef}
-                className="form-control"
-                placeholder={`Search by ${searchColumn === "all" ? "any field" : searchColumn}`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="btn btn-outline-secondary btn-sm text-danger"
-                  style={{
-                   height: "38px",
-                   width: "80px",
-                   padding: "0",
-                    color: "red", 
-                  //  whiteSpace: "nowrap",
-                   borderColor: "#ced4da",
-                   backgroundColor: "#fff"
-                  }}
-                  >
-                  Clear
-                </button>
-              )}
-          </div>
-        </div>
-      </div>
-    </div> */}
-    
 
-    {/* Search & Filters Section */}
-     
+      {/* Search & Filters Section */}
       <div className="card mb-4 shadow-sm">
         <div className="card-body">
           <h5 className="mb-3">Search & Filter</h5>
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-
             <div className="d-flex gap-2 flex-grow-1">
               {/* Column Selector */}
               <select
@@ -352,7 +273,9 @@ export default function Dashboard() {
                 type="text"
                 ref={searchInputRef}
                 className="form-control"
-                placeholder={`Include ${searchColumn === "all" ? "any field" : searchColumn}`}
+                placeholder={`Include ${
+                  searchColumn === "all" ? "any field" : searchColumn
+                }`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -361,7 +284,9 @@ export default function Dashboard() {
               <input
                 type="text"
                 className="form-control"
-                placeholder={`Exclude ${searchColumn === "all" ? "any field" : searchColumn}`}
+                placeholder={`Exclude ${
+                  searchColumn === "all" ? "any field" : searchColumn
+                }`}
                 value={excludeQuery}
                 onChange={(e) => setExcludeQuery(e.target.value)}
               />
@@ -369,19 +294,15 @@ export default function Dashboard() {
               {(searchQuery || excludeQuery) && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setExcludeQuery("");
-                  }}
+                  onClick={handleReset}
                   className="btn btn-outline-secondary btn-sm text-danger"
                   style={{
-                   height: "38px",
-                   width: "200px",
-                   padding: "0",
-                   color: "red", 
-                  //  whiteSpace: "nowrap",
-                   borderColor: "#ced4da",
-                   backgroundColor: "#fff"
+                    height: "38px",
+                    width: "200px",
+                    padding: 0,
+                    color: "red",
+                    borderColor: "#ced4da",
+                    backgroundColor: "#fff",
                   }}
                 >
                   Clear
@@ -403,71 +324,66 @@ export default function Dashboard() {
           handleReset={handleReset}
         />
       </div>
-  
+
       <ChartsView data={filteredData} />
 
       {/* Aggregate Button */}
-    <div className="mb-10" style={{ paddingTop: '35px' }}>
+      <div className="mb-10" style={{ paddingTop: "35px" }}>
+        <button
+          onClick={() => setShowTotal((prev) => !prev)}
+          style={{
+            padding: "20px 8px",
+            fontSize: "15px",
+            borderRadius: "12px",
+            backgroundColor: showTotal ? "#4CAF50" : "#4c84ff",
+            color: "white",
+            border: "1px solid #ccc",
+            cursor: "pointer",
+          }}
+        >
+          {showTotal ? "Hide Aggregate" : "Show Aggregate"}
+        </button>
 
-      <button onClick={() => setShowTotal(prev => !prev)}
-        style={{
-                  padding: '20px 8px',
-                  fontSize: '15px',
-                  borderRadius: '12px',
-                  backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
-                  color: showTotal ? 'white' : 'white',
-                  border: '1px solid #ccc',
-                  cursor: 'pointer',
-    
-                }} 
->
-        {showTotal ? 'Hide Aggregate' : 'Show Aggregate'}
-      </button>
+        {showTotal && <AggregateReport data={filteredData} />}
+      </div>
 
-      {showTotal && <AggregateReport data={filteredData} />}
+      <div className="mb-10" style={{ paddingTop: "35px" }}>
+        <button
+          onClick={() => setShowChart(!showChart)}
+          style={{
+            padding: "20px 8px",
+            fontSize: "15px",
+            borderRadius: "12px",
+            backgroundColor: showChart ? "#4CAF50" : "#4c84ff",
+            color: "white",
+            border: "1px solid #ccc",
+            cursor: "pointer",
+          }}
+        >
+          {showChart ? "Hide Report" : "Yearly/Quarterly Report"}
+        </button>
+
+        <select
+          onChange={(e) => setEntity(e.target.value)}
+          className="ml-4 px-2 py-1 border rounded-md"
+          value={entity}
+        >
+          <option value="">Select an Entity</option>
+          {entities.map((name, idx) => (
+            <option key={idx} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+
+        {showChart && (
+          <div className="mt-4">
+            <EntityBarChart entityName={entity} view={viewMode} />
+          </div>
+        )}
+        <PrintReport data={filteredData} selectedEntity={selectedEntity} />
+
+      </div>
     </div>
-
-
-<div className="mb-10" style={{ paddingTop: '35px' }}>
-<button onClick={() => setShowChart(!showChart)}
-         style={{
-                  padding: '20px 8px',
-                  fontSize: '15px',
-                  borderRadius: '12px',
-                  backgroundColor: showChart ? '#4CAF50' : '#4c84ff',
-                  color: showChart ? 'white' : 'white',
-                  border: '1px solid #ccc',
-                  cursor: 'pointer',
-    
-                }} 
->
-      
-        {showChart ? 'Hide Report' : 'Yearly/Quarterly Report'}
-      </button>
-
-      <select
-  onChange={(e) => setEntity(e.target.value)}
-  className="ml-4 px-2 py-1 border rounded-md"
->
-  <option value="">Select an Entity</option>
-  {entities.map((name, idx) => (
-    <option key={idx} value={name}>{name}</option>
-  ))}
-</select>
-      {showChart && (
-  <div className="mt-4">
-    <div className="mb-4 flex items-center gap-4">
-    </div>
-
-    <EntityBarChart entityName={entity} view={viewMode} />
-  </div>
-)}
-<PrintReport data={filteredData} selectedEntity={selectedEntity} />
-</div>
-  
-    </div>
-
-    
   );
 }
-
