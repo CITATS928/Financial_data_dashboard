@@ -9,6 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import AggregateReport from './AggregateReport';
+import EntityBarChart from './EntityBarChart';
 
 axios.defaults.withCredentials = true;
 
@@ -20,14 +21,31 @@ export default function Dashboard() {
   const searchInputRef = useRef(null);
   const navigate = useNavigate();
   const [showTotal, setShowTotal] = useState(false);
+  const [showChart, setShowChart] = useState(false);
+  const [entities, setEntities] = useState([]);
+  const [entity, setEntity] = useState('');
+  const [viewMode] = useState('yearly');
   const [selectedEntity, setSelectedEntity] = useState("All");
-
-
+ 
+  
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
     return () => {
       document.body.removeAttribute("style");
     };
+  }, []);
+
+  useEffect(() => {
+    axios.get('http://localhost:8000/api/entities/')
+      .then((res) => {
+        setEntities(res.data);
+        if (res.data.length > 0) {
+          setEntity(res.data[0]); // Set first entity as default
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching entities:', err);
+      });
   }, []);
 
   const handleReset = () => {

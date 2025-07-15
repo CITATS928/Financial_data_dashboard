@@ -16,24 +16,40 @@ export default function EntityDetail() {
     item.description?.toLowerCase().includes(search.toLowerCase())
   );
 
+ const [isDark, setIsDark] = useState(
+  window.matchMedia('(prefers-color-scheme: dark)').matches
+);
+useEffect(() => {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const handleChange = (e) => setIsDark(e.matches);
+
+  mediaQuery.addEventListener('change', handleChange);
+  return () => mediaQuery.removeEventListener('change', handleChange);
+}, []);
+
+
+
   return (
     <div style={{ padding: "20px" }}>
       <h2 style={{ marginBottom: "20px" }}> {id}</h2>
 
      
       <input
-        type="text"
-        placeholder="Search by description..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          padding: "10px",
-          width: "300px",
-          marginBottom: "20px",
-          border: "1px solid #ccc",
-          borderRadius: "6px",
-        }}
-      />
+  type="text"
+  placeholder="Search by description..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  style={{
+    padding: "10px",
+    width: "300px",
+    marginBottom: "20px",
+    border: `1px solid ${isDark ? "#4b5563" : "#ccc"}`,
+    borderRadius: "6px",
+    backgroundColor: isDark ? "#374151" : "#fff", // dark gray-700
+    color: isDark ? "#f9fafb" : "#000",
+  }}
+/>
+
 
       <div
         style={{
@@ -46,11 +62,15 @@ export default function EntityDetail() {
           <div
             key={item.id}
             style={{
-              backgroundColor: "#fff",
-              padding: "15px",
-              borderRadius: "12px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-              transition: "0.3s",
+              backgroundColor: isDark ? "#1f2937" : "#ffffff", // dark gray-800 or white
+    color: isDark ? "#f3f4f6" : "#1f2937",            // light text in dark, dark text in light
+    border: `1px solid ${isDark ? "#4b5563" : "#d1d5db"}`,
+    padding: "15px",
+    borderRadius: "12px",
+    boxShadow: isDark
+      ? "0 2px 6px rgba(0,0,0,0.3)"
+      : "0 2px 6px rgba(0,0,0,0.1)",
+    transition: "background-color 0.3s, color 0.3s",
             }}
           >
             <h5>{item.description}</h5>

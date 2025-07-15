@@ -22,6 +22,38 @@ const EntityBarChart = ({ entityName }) => {
       .catch(err => console.error('Error:', err));
   }, [view, entityName]);
 
+  const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || payload.length === 0) return null;
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  const tooltipStyle = {
+    backgroundColor: isDark ? '#1f2937' : '#ffffff',       // dark: gray-800
+    color: isDark ? '#f3f4f6' : '#1f2937',                 // dark: gray-100
+    border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, // dark: gray-600
+    padding: '12px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+  };
+
+  const labelStyle = {
+    fontWeight: 600,
+    marginBottom: '4px',
+  };
+
+  const valueStyle = {
+    color: isDark ? '#60a5fa' : '#3b82f6', // blue-400 or blue-500
+  };
+
+  return (
+    <div style={tooltipStyle}>
+      <p style={labelStyle}>{label}</p>
+      <p style={valueStyle}>Total Actual: ${Number(payload[0].value).toFixed(2)}</p>
+    </div>
+  );
+};
+
+
   return (
     //<div className="p-4 bg-white shadow rounded-lg max-w-4xl mx-auto">
     <div className="entity-chart-box card p-4 rounded-lg shadow max-w-4xl mx-auto">
@@ -40,7 +72,7 @@ const EntityBarChart = ({ entityName }) => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip />
+          <Tooltip content={<CustomTooltip />}/>
           <Legend />
           <Bar dataKey="total_actual" fill="#4F46E5" />
         </BarChart>

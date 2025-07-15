@@ -13,16 +13,36 @@ const COLORS = [
     const value = rawValue.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    });
+    });const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    const tooltipStyle = {
+      backgroundColor: isDark ? '#1f2937' : '#ffffff', // dark: gray-800
+      color: isDark ? '#f9fafb' : '#1f2937',            // dark: gray-100, light: gray-800
+      border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, // dark: gray-600, light: gray-300
+      padding: '12px',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    };
+
+    const labelStyle = {
+      fontWeight: '600',
+      marginBottom: '4px',
+    };
+
+    const valueStyle = {
+      color: isDark ? '#60a5fa' : '#3b82f6', // dark: blue-400, light: blue-500
+      marginTop: '4px',
+    };
+
     return (
-      <div className="bg-white border rounded shadow p-2">
-        <p className="font-semibold text-gray-700">{label}</p>
-        <p className="text-blue-500">Total Actual: ${value}</p>
+      <div style={tooltipStyle}>
+        <p style={labelStyle}>{label}</p>
+        <p style={valueStyle}>Total Actual: ${value}</p>
       </div>
     );
   }
   return null;
- };
+};
 const AggregateReport = () => {
   const [data, setData] = useState(null);
 
@@ -53,7 +73,7 @@ const roundedEntities = data?.entities?.map((entry) => ({
 </div>
       
       <ResponsiveContainer width="90%" height={300}>
-      <BarChart data={data?.entities}>
+      <BarChart data={roundedEntities}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="entity_name" />
       <YAxis  tickFormatter={(value) => Math.round(value)} />
