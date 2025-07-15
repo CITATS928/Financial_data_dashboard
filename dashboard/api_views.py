@@ -124,21 +124,21 @@ class UploadFinancialLineItemsView(APIView):
             uploaded_rows_this_file = 0
 
             try:
-                decoded_file = file_obj.read().decode("utf-8").replace('\r\n', '\n').replace('\r', '\n')
+                decoded_file = file_obj.read().decode("utf-8")
                 io_string = io.StringIO(decoded_file)
 
                 # Auto-detect delimiter (tab, comma, etc.)
-                sample = io_string.read(2048)
+                sample = io_string.read(1024)
                 io_string.seek(0)
 
                 try:
-                    dialect = csv.Sniffer().sniff(sample, delimiters=",\t;")
-                    if dialect.delimiter not in [',', '\t', ';']:
-                        print(f"⚠ Unknown delimiter `{repr(dialect.delimiter)}`, defaulting to comma.")
-                        dialect.delimiter = ','
+                    dialect = csv.Sniffer().sniff(sample)
+                    if dialect.delimiter not in [',', '\t']:
+                        print(f"⚠ Unknown delimiter `{repr(dialect.delimiter)}`, defaulting to tab.")
+                        dialect.delimiter = '\t'
                 except csv.Error:
-                    print("⚠ Sniffer failed, using default comma delimiter.")
-                    dialect = csv.excel 
+                    print("⚠ Sniffer failed, using default tab delimiter.")
+                    dialect = csv.excel_tab
 
                 print(f"📂 Parsing file: {file_obj.name}")
                 print(f"🧭 Detected delimiter: {repr(dialect.delimiter)}")
@@ -151,8 +151,8 @@ class UploadFinancialLineItemsView(APIView):
                     return Response({
                         "error": f"Missing required columns in {file_obj.name}. Found: {reader.fieldnames}"
                     }, status=status.HTTP_400_BAD_REQUEST)
-
-
+                
+                
                 items = []
                 for row in reader:
                     try:
@@ -166,7 +166,7 @@ class UploadFinancialLineItemsView(APIView):
                             continue
 
                         items.append(FinancialLineItem(
-                            user=request.user,
+                            user=request.user, 
                             entity_name=row.get("entity_name"),
                             account_code=row.get("account_code"),
                             description=row.get("description", ""),
@@ -203,7 +203,7 @@ class UploadFinancialLineItemsView(APIView):
                 import traceback
                 traceback_str = traceback.format_exc()
                 print(f"🔥 Error in file {file_obj.name}: {e}")
-                print(traceback.format_exc())
+                print(traceback_str)
                 return Response(
                     {"error": f"Error processing file {file_obj.name}: {str(e)}"},
                     status=status.HTTP_400_BAD_REQUEST
@@ -407,7 +407,6 @@ class UploadDynamicCSVView(APIView):
             "total_uploaded_rows": total_uploaded_rows,
             "total_skipped_rows": total_skipped_rows,
         }, status=status.HTTP_201_CREATED)
-
 
 @csrf_exempt
 @api_view(['DELETE'])

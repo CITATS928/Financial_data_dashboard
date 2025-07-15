@@ -17,10 +17,44 @@ const EntityBarChart = ({ entityName }) => {
           ...d,
           label: view === 'yearly' ? `${d.year}` : `${d.year} Q${d.quarter}`
         }));
+         console.log("Formatted data:", formatted);  
         setData(formatted);
       })
       .catch(err => console.error('Error:', err));
   }, [view, entityName]);
+
+  const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || payload.length === 0) return null;
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  const tooltipStyle = {
+    backgroundColor: isDark ? '#1f2937' : '#ffffff',       
+    color: isDark ? '#f3f4f6' : '#1f2937',                 
+    border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, 
+    padding: '12px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+  };
+
+  const labelStyle = {
+    fontWeight: 600,
+    marginBottom: '4px',
+  };
+
+  const valueStyle = {
+    color: isDark ? '#60a5fa' : '#3b82f6', 
+  };
+  
+
+  return (
+    <div style={tooltipStyle}>
+      <p style={labelStyle}>{label}</p>
+      <p style={valueStyle}>Total Actual: ${Number(payload[0].value).toFixed(2)}</p>
+    </div>
+  );
+};
+
 
   return (
     //<div className="p-4 bg-white shadow rounded-lg max-w-4xl mx-auto">
@@ -40,11 +74,11 @@ const EntityBarChart = ({ entityName }) => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip />
+          <Tooltip content={<CustomTooltip />}/>
           <Legend />
           <Bar dataKey="total_actual" fill="#4F46E5" />
         </BarChart>
-         <h4>Current view: {view}</h4>
+         {/* <h4>Current view: {view}</h4> */}
       </ResponsiveContainer>
     </div>
   );

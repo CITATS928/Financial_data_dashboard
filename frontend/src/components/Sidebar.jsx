@@ -8,6 +8,9 @@ export default function Sidebar({ collapsed, toggleSidebar }) {
   //theme
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
+  // const [reportsOpen, setReportsOpen] = useState(false);
+
+
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -54,6 +57,15 @@ export default function Sidebar({ collapsed, toggleSidebar }) {
             {!collapsed && "Files"}
           </NavLink>
         </li>
+        
+        <li>
+          <NavLink to="/entities" className="nav-link">
+            <i className="bi bi-building me-2"></i>
+            {!collapsed && "Churches"}
+          </NavLink>
+        </li>
+
+        
       </ul>
 
       {/* Theme Toggle*/}

@@ -128,7 +128,8 @@ def LogoutPage(request):
 
     return redirect('/login/')
 
-#Aggregate sum 
+#Aggregate sum
+
 def aggregate_report(request):
     result = FinancialLineItem.objects.values('entity_name').annotate(total_actual=Sum('ytd_actual'))
     total_actual_all_entities = FinancialLineItem.objects.aggregate(total_actual_all_entities=Sum('ytd_actual'))
@@ -175,3 +176,12 @@ def entity_quarterly_actual(request, entity_name):
             .order_by('year', 'quarter')
         )
         return JsonResponse(list(data), safe=False)
+
+def get_entity_detail(request, entity_name):
+    data = FinancialLineItem.objects.filter(entity_name=entity_name).values()
+    return JsonResponse(list(data), safe=False)
+
+    
+def get_all_items(request):
+    data = FinancialLineItem.objects.all().values()
+    return JsonResponse(list(data), safe=False)

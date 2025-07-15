@@ -13,21 +13,41 @@ const COLORS = [
     const value = rawValue.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    });
+    });const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    const tooltipStyle = {
+      backgroundColor: isDark ? '#1f2937' : '#ffffff', 
+      color: isDark ? '#f9fafb' : '#1f2937',           
+      border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, 
+      padding: '12px',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    };
+
+    const labelStyle = {
+      fontWeight: '600',
+      marginBottom: '4px',
+    };
+
+    const valueStyle = {
+      color: isDark ? '#60a5fa' : '#3b82f6', 
+      marginTop: '4px',
+    };
+
     return (
-      <div className="bg-white border rounded shadow p-2">
-        <p className="font-semibold text-gray-700">{label}</p>
-        <p className="text-blue-500">Total Actual: ${value}</p>
+      <div style={tooltipStyle}>
+        <p style={labelStyle}>{label}</p>
+        <p style={valueStyle}>Total Actual: ${value}</p>
       </div>
     );
   }
   return null;
- };
+};
 const AggregateReport = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/aggregate-report/')
+    fetch('http://localhost:8000/api/aggregate_report/')
       .then(response => response.json())
       .then(json => setData(json))
       .catch(error => console.error('Error fetching data:', error));
@@ -39,7 +59,8 @@ const roundedEntities = data?.entities?.map((entry) => ({
  
 
   return (
-    <div className="aggregate-box p-6 max-w-4xl mx-auto mt-6 bg-white shadow-lg rounded-2xl">
+    <div className="aggregate-box  p-4 bg-white rounded-1g shadow max-w-4xl mx-auto">
+      <div className="mb-4">
       <h5 className="text-xl font-bold text-gray-700 mb-4">Aggregate Report</h5>
       
       
@@ -49,10 +70,10 @@ const roundedEntities = data?.entities?.map((entry) => ({
          {parseFloat(data?.total_actual_all_entities)?.toFixed(2)}
        </span>
      </div>
-
+</div>
       
       <ResponsiveContainer width="90%" height={300}>
-      <BarChart data={data?.entities}>
+      <BarChart data={roundedEntities}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="entity_name" />
       <YAxis  tickFormatter={(value) => Math.round(value)} />

@@ -134,7 +134,8 @@ export default function Profile() {
         Logout
       </button>
 
-    <div className="container mt-5" style={{ maxWidth:"600px" }}>
+    <div className="container mt-4" style={{ maxWidth:"600px",marginLeft: "40px", }}>
+ 
       <ToastContainer position="top-right" autoClose={3000} />
 
       <h2 className="mb-4">Profile Setting</h2>
