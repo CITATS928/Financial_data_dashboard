@@ -16,9 +16,9 @@ const COLORS = [
     });const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     const tooltipStyle = {
-      backgroundColor: isDark ? '#1f2937' : '#ffffff', // dark: gray-800
-      color: isDark ? '#f9fafb' : '#1f2937',            // dark: gray-100, light: gray-800
-      border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, // dark: gray-600, light: gray-300
+      backgroundColor: isDark ? '#1f2937' : '#ffffff', 
+      color: isDark ? '#f9fafb' : '#1f2937',           
+      border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, 
       padding: '12px',
       borderRadius: '8px',
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
@@ -30,7 +30,7 @@ const COLORS = [
     };
 
     const valueStyle = {
-      color: isDark ? '#60a5fa' : '#3b82f6', // dark: blue-400, light: blue-500
+      color: isDark ? '#60a5fa' : '#3b82f6', 
       marginTop: '4px',
     };
 

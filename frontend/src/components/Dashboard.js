@@ -35,19 +35,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  useEffect(() => {
-    axios.get('http://localhost:8000/api/entities/')
-      .then((res) => {
-        setEntities(res.data);
-        if (res.data.length > 0) {
-          setEntity(res.data[0]); // Set first entity as default
-        }
-      })
-      .catch((err) => {
-        console.error('Error fetching entities:', err);
-      });
-  }, []);
-
   const handleReset = () => {
     setSearchQuery("");
     setSearchColumn("all");
