@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import AggregateReport from './AggregateReport';
 import EntityBarChart from './EntityBarChart';
-
+import PrintReport from "./PrintReport";
 axios.defaults.withCredentials = true;
 
 export default function Dashboard() {
@@ -381,6 +381,8 @@ export default function Dashboard() {
             <EntityBarChart entityName={entity} view={viewMode} />
           </div>
         )}
+        <PrintReport data={filteredData} selectedEntity={selectedEntity} />
+
       </div>
     </div>
   );
