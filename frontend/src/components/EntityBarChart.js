@@ -17,6 +17,7 @@ const EntityBarChart = ({ entityName }) => {
           ...d,
           label: view === 'yearly' ? `${d.year}` : `${d.year} Q${d.quarter}`
         }));
+         console.log("Formatted data:", formatted);  // Log the data to check
         setData(formatted);
       })
       .catch(err => console.error('Error:', err));
@@ -28,9 +29,9 @@ const EntityBarChart = ({ entityName }) => {
   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   const tooltipStyle = {
-    backgroundColor: isDark ? '#1f2937' : '#ffffff',       // dark: gray-800
-    color: isDark ? '#f3f4f6' : '#1f2937',                 // dark: gray-100
-    border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, // dark: gray-600
+    backgroundColor: isDark ? '#1f2937' : '#ffffff',       
+    color: isDark ? '#f3f4f6' : '#1f2937',                 
+    border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`, 
     padding: '12px',
     borderRadius: '8px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
@@ -42,8 +43,9 @@ const EntityBarChart = ({ entityName }) => {
   };
 
   const valueStyle = {
-    color: isDark ? '#60a5fa' : '#3b82f6', // blue-400 or blue-500
+    color: isDark ? '#60a5fa' : '#3b82f6', 
   };
+  
 
   return (
     <div style={tooltipStyle}>

@@ -35,6 +35,18 @@ export default function Dashboard() {
     };
   }, []);
 
+  useEffect(() => {
+  axios.get("http://localhost:8000/api/entities/")
+    .then(res => {
+      setEntities(res.data); // No need to map — already a list of strings
+    })
+    .catch(err => {
+      console.error("Failed to fetch entity names:", err);
+    });
+}, []);
+
+
+
   const handleReset = () => {
     setSearchQuery("");
     setSearchColumn("all");
@@ -333,6 +345,7 @@ export default function Dashboard() {
 <select
   onChange={(e) => setEntity(e.target.value)}
   className="ml-4 px-2 py-1 border rounded-md"
+  
 >
   <option value="">Select an Entity</option>
   {entities.map((name, idx) => (
@@ -347,6 +360,7 @@ export default function Dashboard() {
     <EntityBarChart entityName={entity} view={viewMode} />
   </div>
 )}
+
 </div>
   
     </div>

@@ -128,7 +128,8 @@ def LogoutPage(request):
 
     return redirect('/login/')
 
-#Aggregate sum 
+#Aggregate sum
+
 def aggregate_report(request):
     result = FinancialLineItem.objects.values('entity_name').annotate(total_actual=Sum('ytd_actual'))
     total_actual_all_entities = FinancialLineItem.objects.aggregate(total_actual_all_entities=Sum('ytd_actual'))

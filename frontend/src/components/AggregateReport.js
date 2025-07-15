@@ -47,7 +47,7 @@ const AggregateReport = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/aggregate-report/')
+    fetch('http://localhost:8000/api/aggregate_report/')
       .then(response => response.json())
       .then(json => setData(json))
       .catch(error => console.error('Error fetching data:', error));
