@@ -106,6 +106,7 @@ class SessionLoginView(APIView):
 
 # ✅ Enhanced: UploadFinancialLineItemsView with per-file summary
 
+# Do not use it
 class UploadFinancialLineItemsView(APIView):
     parser_classes = [MultiPartParser]
     permission_classes = [IsAuthenticated]
@@ -347,15 +348,24 @@ class UploadDynamicCSVView(APIView):
         results = []
 
         for file_obj in files:
+            uploaded_rows = 0
+            skipped_rows = 0
             try:
-                decoded_file = file_obj.read().decode("utf-8")
+                decoded_file = file_obj.read().decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
                 io_string = io.StringIO(decoded_file)
-                reader = csv.DictReader(io_string)
-                reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
 
-                base_name = slugify(file_obj.name.replace('.csv', ''))
-                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                table_name = f"user_{request.user.id}_{base_name}_{timestamp}"
+                # Sniff delimiter
+                sample = io_string.read(2048)
+                io_string.seek(0)
+                try:
+                    dialect = csv.Sniffer().sniff(sample, delimiters=",\t;")
+                    if dialect.delimiter not in [",", "\t", ";"]:
+                        dialect.delimiter = ","
+                except csv.Error:
+                    dialect = csv.excel  # fallback to default
+
+                reader = csv.DictReader(io_string, dialect=dialect)
+                reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
 
                 fields = reader.fieldnames
                 if not fields:
@@ -363,13 +373,8 @@ class UploadDynamicCSVView(APIView):
                     continue
 
                 columns = ", ".join([f'"{field}" TEXT' for field in fields])
-                create_table_sql = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})'
-
-                uploaded_rows = 0
-                skipped_rows = 0
 
                 with connection.cursor() as cursor:
-                    cursor.execute(create_table_sql)
 
                     for row in reader:
                         values = [row.get(field, '').strip() for field in fields]
@@ -378,19 +383,15 @@ class UploadDynamicCSVView(APIView):
                             continue
 
                         placeholders = ", ".join(["?"] * len(values))
-                        insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders});'
-                        cursor.execute(insert_sql, values)
                         uploaded_rows += 1
 
                 UploadedFile.objects.create(
                     user=request.user,
                     filename=file_obj.name,
-                    table_name=table_name
                 )
 
                 results.append({
                     "filename": file_obj.name,
-                    "table": table_name,
                     "rows_uploaded": uploaded_rows,
                     "rows_skipped": skipped_rows
                 })
@@ -409,6 +410,7 @@ class UploadDynamicCSVView(APIView):
             "total_uploaded_rows": total_uploaded_rows,
             "total_skipped_rows": total_skipped_rows,
         }, status=status.HTTP_201_CREATED)
+
 
 
 @csrf_exempt
