@@ -372,9 +372,15 @@ class UploadDynamicCSVView(APIView):
                     results.append({"filename": file_obj.name, "error": "CSV file has no headers."})
                     continue
 
+                base_name = slugify(file_obj.name.replace('.csv', ''))
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                table_name = f"user_{request.user.id}_{base_name}_{timestamp}"
+
                 columns = ", ".join([f'"{field}" TEXT' for field in fields])
+                create_table_sql = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns})'
 
                 with connection.cursor() as cursor:
+                    cursor.execute(create_table_sql)
 
                     for row in reader:
                         values = [row.get(field, '').strip() for field in fields]
@@ -383,15 +389,19 @@ class UploadDynamicCSVView(APIView):
                             continue
 
                         placeholders = ", ".join(["?"] * len(values))
+                        insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders})'
+                        cursor.execute(insert_sql, values)
                         uploaded_rows += 1
 
                 UploadedFile.objects.create(
                     user=request.user,
                     filename=file_obj.name,
+                    table_name=table_name
                 )
 
                 results.append({
                     "filename": file_obj.name,
+                    "table": table_name,
                     "rows_uploaded": uploaded_rows,
                     "rows_skipped": skipped_rows
                 })
