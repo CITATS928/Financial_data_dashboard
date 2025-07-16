@@ -8,8 +8,6 @@ from .views import get_csrf_token
 from .views import aggregate_report
 from .views import get_entity_detail
 
-
-
 urlpatterns = [
     path('dashboard/upload/', UploadCSVView.as_view(), name='upload-csv'),
     path('dashboard/table/', FinancialDataView.as_view(), name='financial-data'),
@@ -26,6 +24,4 @@ urlpatterns = [
     path('api/all-items/', views.get_all_items),
     path('api/', include('dashboard.api_urls')),
 
-   
-   
 ]
