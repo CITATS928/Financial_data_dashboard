@@ -23,7 +23,7 @@ urlpatterns = [
     path('upload/', UploadCSVView.as_view(), name='upload-csv'),
     path('table/', FinancialDataView.as_view(), name='financial-data'),
     path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/signup/', signup_api_view, name='signup'),
+    path('signup/', signup_api_view, name='signup'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('dashboard/session-login/', SessionLoginView.as_view(), name='session_login'),
     path('logout/', LogoutAPIView, name='api_logout'),
@@ -34,7 +34,6 @@ urlpatterns = [
     # path("my-files/", MyUploadedItemsView.as_view(), name="my_uploaded_items"),
     path("my-uploaded-files/", MyUploadedFilesView.as_view(), name="my_uploaded_files"),
     path("upload-dynamic-csv/", UploadDynamicCSVView.as_view(), name="upload_dynamic_csv"),
-
     path('aggregate-report/', views.aggregate_report, name='aggregate-report'),
     path('entities/', views.get_entity_names, name='get_entity_names'),
     path('entity-yearly-actual/<str:entity_name>/', views.entity_yearly_actual, name='entity_yearly_actual'),

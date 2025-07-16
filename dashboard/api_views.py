@@ -275,10 +275,12 @@ def LogoutAPIView(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signup_api_view(request):
+    print("Signup API called:", request.data)
+    print("🍪 COOKIES:", request.COOKIES)
     username = request.data.get("username")
     email = request.data.get("email")
     password = request.data.get("password")
-
+    
     if not username or not password:
         return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
