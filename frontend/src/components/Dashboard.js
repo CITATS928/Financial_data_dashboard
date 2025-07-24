@@ -85,7 +85,7 @@ export default function Dashboard() {
     });
 
     try {
-      const response = await axios.post("http://localhost:8000/api/upload-financial-line-items/", formData, {
+      const response = await axios.post("http://localhost:8000/api/upload/", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             "X-CSRFToken": csrfToken,
