@@ -347,14 +347,15 @@ class UploadDynamicCSVView(APIView):
         total_skipped_rows = 0
         results = []
 
-        for file_obj in files:
+        if len(files) == 1:
+            # When only one file is uploaded, process it as a single CSV
+            file_obj = files[0]
             uploaded_rows = 0
             skipped_rows = 0
             try:
                 decoded_file = file_obj.read().decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
                 io_string = io.StringIO(decoded_file)
 
-                # Sniff delimiter
                 sample = io_string.read(2048)
                 io_string.seek(0)
                 try:
@@ -362,15 +363,14 @@ class UploadDynamicCSVView(APIView):
                     if dialect.delimiter not in [",", "\t", ";"]:
                         dialect.delimiter = ","
                 except csv.Error:
-                    dialect = csv.excel  # fallback to default
+                    dialect = csv.excel
 
                 reader = csv.DictReader(io_string, dialect=dialect)
                 reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
 
                 fields = reader.fieldnames
                 if not fields:
-                    results.append({"filename": file_obj.name, "error": "CSV file has no headers."})
-                    continue
+                    return Response({"error": "CSV file has no headers."}, status=400)
 
                 base_name = slugify(file_obj.name.replace('.csv', ''))
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -381,13 +381,11 @@ class UploadDynamicCSVView(APIView):
 
                 with connection.cursor() as cursor:
                     cursor.execute(create_table_sql)
-
                     for row in reader:
                         values = [row.get(field, '').strip() for field in fields]
                         if not any(values):
                             skipped_rows += 1
                             continue
-
                         placeholders = ", ".join(["?"] * len(values))
                         insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders})'
                         cursor.execute(insert_sql, values)
@@ -414,6 +412,7 @@ class UploadDynamicCSVView(APIView):
                 traceback.print_exc()
                 results.append({"filename": file_obj.name, "error": str(e)})
 
+        else:
         return Response({
             "message": f"Processed {len(files)} file(s).",
             "results": results,
