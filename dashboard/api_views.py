@@ -27,6 +27,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
+import pandas as pd
 
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
@@ -413,6 +414,53 @@ class UploadDynamicCSVView(APIView):
                 results.append({"filename": file_obj.name, "error": str(e)})
 
         else:
+            # When multiple files are uploaded, combine them into a single DataFrame
+
+            combined_df = pd.DataFrame()
+            error_files = []
+
+            for file_obj in files:
+                try:
+                    df = pd.read_csv(file_obj)
+                    if not df.empty:
+                        combined_df = pd.concat([combined_df, df], ignore_index=True)
+                    else:
+                        error_files.append(file_obj.name)
+                except Exception as e:
+                    error_files.append(file_obj.name + f" (error: {str(e)})")
+
+            if combined_df.empty:
+                return Response({"error": f"All uploaded files failed or were empty: {error_files}"}, status=400)
+
+            # combined DataFrame columns cleanup
+            combined_df.columns = [str(col).strip().replace('\ufeff', '') for col in combined_df.columns]
+
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            table_name = f"user_{request.user.id}_combined_{timestamp}"
+
+            with connection.cursor() as cursor:
+                columns_sql = ", ".join([f'"{col}" TEXT' for col in combined_df.columns])
+                cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+                cursor.execute(f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns_sql})')
+
+            combined_df.to_sql(table_name, connection, if_exists='append', index=False)
+
+            UploadedFile.objects.create(
+                user=request.user,
+                filename="Multiple Combined Upload",
+                table_name=table_name
+            )
+
+            results.append({
+                "filename": "Multiple Combined Upload",
+                "table": table_name,
+                "rows_uploaded": combined_df.shape[0],
+                "rows_skipped": 0
+            })
+
+            total_uploaded_rows = combined_df.shape[0]
+            total_skipped_rows = 0
+
         return Response({
             "message": f"Processed {len(files)} file(s).",
             "results": results,
