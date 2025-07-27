@@ -415,25 +415,39 @@ class UploadDynamicCSVView(APIView):
 
         else:
             # When multiple files are uploaded, combine them into a single DataFrame
-
             combined_df = pd.DataFrame()
             error_files = []
-
+            headers_set = None  # Use to track headers across files
+            
             for file_obj in files:
                 try:
                     df = pd.read_csv(file_obj)
-                    if not df.empty:
-                        combined_df = pd.concat([combined_df, df], ignore_index=True)
-                    else:
+
+                    # skip empty files
+                    if df.empty:
                         error_files.append(file_obj.name)
+                        continue
+
+                    # Clean column names
+                    df.columns = [str(col).strip().replace('\ufeff', '') for col in df.columns]
+
+                    # Check if headers match
+                    if headers_set is None:
+                        headers_set = df.columns.tolist()
+                    elif df.columns.tolist() != headers_set:
+                        return Response({
+                            "error": f"Column mismatch detected in file '{file_obj.name}'.",
+                            "expected_columns": headers_set,
+                            "found_columns": df.columns.tolist()
+                        }, status=400)
+
+                    combined_df = pd.concat([combined_df, df], ignore_index=True)
+
                 except Exception as e:
                     error_files.append(file_obj.name + f" (error: {str(e)})")
 
             if combined_df.empty:
                 return Response({"error": f"All uploaded files failed or were empty: {error_files}"}, status=400)
-
-            # combined DataFrame columns cleanup
-            combined_df.columns = [str(col).strip().replace('\ufeff', '') for col in combined_df.columns]
 
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             table_name = f"user_{request.user.id}_combined_{timestamp}"
@@ -460,6 +474,7 @@ class UploadDynamicCSVView(APIView):
 
             total_uploaded_rows = combined_df.shape[0]
             total_skipped_rows = 0
+
 
         return Response({
             "message": f"Processed {len(files)} file(s).",
