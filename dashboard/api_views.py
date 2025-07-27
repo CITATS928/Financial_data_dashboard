@@ -435,6 +435,7 @@ class UploadDynamicCSVView(APIView):
                     if headers_set is None:
                         headers_set = df.columns.tolist()
                     elif df.columns.tolist() != headers_set:
+                        print(f"Column mismatch in '{file_obj.name}':\nExpected: {headers_set}\nFound: {df.columns.tolist()}")
                         return Response({
                             "error": f"Column mismatch detected in file '{file_obj.name}'.",
                             "expected_columns": headers_set,
