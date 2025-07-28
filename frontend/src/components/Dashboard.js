@@ -114,7 +114,13 @@ export default function Dashboard() {
       }, 500);
     } catch (err) {
       console.error("Upload error:", err);
-      toast.error("Upload failed. Check console for details.");
+
+      // Check if the error response contains a specific error message
+      if (err.response && err.response.data && err.response.data.error) {
+        toast.error(`Upload failed: ${err.response.data.error}`);
+      }else {
+        toast.error("Upload failed. Check console for details.");
+      }
     }
   };
 
