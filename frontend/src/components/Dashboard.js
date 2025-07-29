@@ -116,11 +116,23 @@ export default function Dashboard() {
       console.error("Upload error:", err);
 
       // Check if the error response contains a specific error message
-      if (err.response && err.response.data && err.response.data.error) {
-        toast.error(`Upload failed: ${err.response.data.error}`);
-      }else {
+      if (err.response && err.response.data) {
+        const { error, expected_columns, found_columns } = err.response.data;
+      
+        if (error) {
+          toast.error(`Upload failed: ${error}`);
+      
+          if (expected_columns && found_columns) {
+            toast.error(`Expected: ${expected_columns.join(", ")}`);
+            toast.error(`Found: ${found_columns.join(", ")}`);
+          }
+        } else {
+          toast.error("Upload failed. Check console for details.");
+        }
+      } else {
         toast.error("Upload failed. Check console for details.");
       }
+      
     }
   };
 
