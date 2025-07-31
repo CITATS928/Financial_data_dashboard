@@ -108,7 +108,8 @@ class SessionLoginView(APIView):
 # # ✅ Enhanced: UploadFinancialLineItemsView with per-file summary
 
 # # Do not use it
-# class UploadFinancialLineItemsView(APIView):
+class UploadFinancialLineItemsView(APIView):
+    pass
 #     parser_classes = [MultiPartParser]
 #     permission_classes = [IsAuthenticated]
 
