@@ -27,6 +27,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
+import pandas as pd
 
 class FinancialLineItemListView(ListAPIView):
     queryset = FinancialLineItem.objects.all()
@@ -347,14 +348,15 @@ class UploadDynamicCSVView(APIView):
         total_skipped_rows = 0
         results = []
 
-        for file_obj in files:
+        if len(files) == 1:
+            # When only one file is uploaded, process it as a single CSV
+            file_obj = files[0]
             uploaded_rows = 0
             skipped_rows = 0
             try:
                 decoded_file = file_obj.read().decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
                 io_string = io.StringIO(decoded_file)
 
-                # Sniff delimiter
                 sample = io_string.read(2048)
                 io_string.seek(0)
                 try:
@@ -362,15 +364,14 @@ class UploadDynamicCSVView(APIView):
                     if dialect.delimiter not in [",", "\t", ";"]:
                         dialect.delimiter = ","
                 except csv.Error:
-                    dialect = csv.excel  # fallback to default
+                    dialect = csv.excel
 
                 reader = csv.DictReader(io_string, dialect=dialect)
                 reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
 
                 fields = reader.fieldnames
                 if not fields:
-                    results.append({"filename": file_obj.name, "error": "CSV file has no headers."})
-                    continue
+                    return Response({"error": "CSV file has no headers."}, status=400)
 
                 base_name = slugify(file_obj.name.replace('.csv', ''))
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -381,13 +382,11 @@ class UploadDynamicCSVView(APIView):
 
                 with connection.cursor() as cursor:
                     cursor.execute(create_table_sql)
-
                     for row in reader:
                         values = [row.get(field, '').strip() for field in fields]
                         if not any(values):
                             skipped_rows += 1
                             continue
-
                         placeholders = ", ".join(["?"] * len(values))
                         insert_sql = f'INSERT INTO "{table_name}" ({", ".join(fields)}) VALUES ({placeholders})'
                         cursor.execute(insert_sql, values)
@@ -413,6 +412,70 @@ class UploadDynamicCSVView(APIView):
                 import traceback
                 traceback.print_exc()
                 results.append({"filename": file_obj.name, "error": str(e)})
+
+        else:
+            # When multiple files are uploaded, combine them into a single DataFrame
+            combined_df = pd.DataFrame()
+            error_files = []
+            headers_set = None  # Use to track headers across files
+            
+            for file_obj in files:
+                try:
+                    df = pd.read_csv(file_obj)
+
+                    # skip empty files
+                    if df.empty:
+                        error_files.append(file_obj.name)
+                        continue
+
+                    # Clean column names
+                    df.columns = [str(col).strip().replace('\ufeff', '') for col in df.columns]
+
+                    # Check if headers match
+                    if headers_set is None:
+                        headers_set = df.columns.tolist()
+                    elif df.columns.tolist() != headers_set:
+                        print(f"Column mismatch in '{file_obj.name}':\nExpected: {headers_set}\nFound: {df.columns.tolist()}")
+                        return Response({
+                            "error": f"Column mismatch detected in file '{file_obj.name}'.",
+                            "expected_columns": headers_set,
+                            "found_columns": df.columns.tolist()
+                        }, status=400)
+
+                    combined_df = pd.concat([combined_df, df], ignore_index=True)
+
+                except Exception as e:
+                    error_files.append(file_obj.name + f" (error: {str(e)})")
+
+            if combined_df.empty:
+                return Response({"error": f"All uploaded files failed or were empty: {error_files}"}, status=400)
+
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            table_name = f"user_{request.user.id}_combined_{timestamp}"
+
+            with connection.cursor() as cursor:
+                columns_sql = ", ".join([f'"{col}" TEXT' for col in combined_df.columns])
+                cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+                cursor.execute(f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns_sql})')
+
+            combined_df.to_sql(table_name, connection, if_exists='append', index=False)
+
+            UploadedFile.objects.create(
+                user=request.user,
+                filename="Multiple Combined Upload",
+                table_name=table_name
+            )
+
+            results.append({
+                "filename": "Multiple Combined Upload",
+                "table": table_name,
+                "rows_uploaded": combined_df.shape[0],
+                "rows_skipped": 0
+            })
+
+            total_uploaded_rows = combined_df.shape[0]
+            total_skipped_rows = 0
+
 
         return Response({
             "message": f"Processed {len(files)} file(s).",

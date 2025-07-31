@@ -114,7 +114,25 @@ export default function Dashboard() {
       }, 500);
     } catch (err) {
       console.error("Upload error:", err);
-      toast.error("Upload failed. Check console for details.");
+
+      // Check if the error response contains a specific error message
+      if (err.response && err.response.data) {
+        const { error, expected_columns, found_columns } = err.response.data;
+      
+        if (error) {
+          toast.error(`Upload failed: ${error}`);
+      
+          if (expected_columns && found_columns) {
+            toast.error(`Expected: ${expected_columns.join(", ")}`);
+            toast.error(`Found: ${found_columns.join(", ")}`);
+          }
+        } else {
+          toast.error("Upload failed. Check console for details.");
+        }
+      } else {
+        toast.error("Upload failed. Check console for details.");
+      }
+      
     }
   };
 
