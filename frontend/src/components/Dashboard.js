@@ -8,8 +8,8 @@ import ChartsView from "./ChartsView";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import AggregateReport from './AggregateReport';
-import EntityBarChart from './EntityBarChart';
+import AggregateReport from "./AggregateReport";
+import EntityBarChart from "./EntityBarChart";
 import PrintReport from "./PrintReport";
 axios.defaults.withCredentials = true;
 
@@ -23,9 +23,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [showTotal, setShowTotal] = useState(false);
   const [showChart, setShowChart] = useState(false);
-  const [entity, setEntity] = useState('');
+  const [entity, setEntity] = useState("");
   const [entities, setEntities] = useState([]);
-  const [viewMode] = useState('yearly');
+  const [viewMode] = useState("yearly");
   const [selectedEntity, setSelectedEntity] = useState("All");
 
   useEffect(() => {
@@ -36,7 +36,8 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/entities/')
+    axios
+      .get("http://localhost:8000/api/entities/")
       .then((res) => {
         setEntities(res.data);
         if (res.data.length > 0) {
@@ -44,7 +45,7 @@ export default function Dashboard() {
         }
       })
       .catch((err) => {
-        console.error('Error fetching entities:', err);
+        console.error("Error fetching entities:", err);
       });
   }, []);
 
@@ -85,7 +86,10 @@ export default function Dashboard() {
     });
 
     try {
-      const response = await axios.post("http://localhost:8000/api/upload/", formData, {
+      const response = await axios.post(
+        "http://localhost:8000/api/upload/",
+        formData,
+        {
           headers: {
             "Content-Type": "multipart/form-data",
             "X-CSRFToken": csrfToken,
@@ -118,10 +122,10 @@ export default function Dashboard() {
       // Check if the error response contains a specific error message
       if (err.response && err.response.data) {
         const { error, expected_columns, found_columns } = err.response.data;
-      
+
         if (error) {
           toast.error(`Upload failed: ${error}`);
-      
+
           if (expected_columns && found_columns) {
             toast.error(`Expected: ${expected_columns.join(", ")}`);
             toast.error(`Found: ${found_columns.join(", ")}`);
@@ -132,13 +136,14 @@ export default function Dashboard() {
       } else {
         toast.error("Upload failed. Check console for details.");
       }
-      
     }
   };
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/dashboard/financial-line-items/");
+      const res = await axios.get(
+        "http://localhost:8000/api/dashboard/financial-line-items/"
+      );
       const enhancedData = res.data.map((item) => {
         const actual = parseFloat(item.ytd_actual) || 0;
         const budget = parseFloat(item.annual_budget) || 0;
@@ -203,7 +208,10 @@ export default function Dashboard() {
       ? !Object.values(row).some(
           (val) => val && val.toString().toLowerCase().includes(exclude)
         )
-      : !(row[searchColumn] && row[searchColumn].toString().toLowerCase().includes(exclude));
+      : !(
+          row[searchColumn] &&
+          row[searchColumn].toString().toLowerCase().includes(exclude)
+        );
 
     const matchesEntity =
       selectedEntity === "All" || row.entity_name === selectedEntity;
@@ -345,78 +353,68 @@ export default function Dashboard() {
 
       <ChartsView data={filteredData} />
 
-
-
       {/* Aggregate Button */}
-    <div className="mb-10" style={{ paddingTop: '35px' }}>
+      <div className="mb-10" style={{ paddingTop: "35px" }}>
+        <button
+          onClick={() => setShowTotal((prev) => !prev)}
+          style={{
+            padding: "8px 16px",
+            fontSize: "15px",
+            borderRadius: "12px",
+            backgroundColor: showTotal ? "#4CAF50" : "#4c84ff",
+            color: showTotal ? "white" : "white",
+            border: "1px solid #ccc",
+            cursor: "pointer",
+            width: "fit-content",
+            minWidth: "auto",
+            display: "inline-block",
+            marginBottom: "20px",
+          }}
+        >
+          {showTotal ? "Hide Aggregate Chart" : "Show Aggregate Chart"}
+        </button>
 
-      <button onClick={() => setShowTotal(prev => !prev)}
-        style={{
-                  padding: '8px 16px',
-                  fontSize: '15px',
-                  borderRadius: '12px',
-                  backgroundColor: showTotal ? '#4CAF50' : '#4c84ff',
-                  color: showTotal ? 'white' : 'white',
-                  border: '1px solid #ccc',
-                  cursor: 'pointer',
-                  width: 'fit-content',     
-                  minWidth: 'auto',         
-                  display: 'inline-block', 
-                  marginBottom: '20px',
-                   
-    
-                }} 
->
-        {showTotal ? 'Hide Aggregate Chart' : 'Show Aggregate Chart'}
-      </button>
+        {showTotal && <AggregateReport data={filteredData} />}
+      </div>
 
-      {showTotal && <AggregateReport data={filteredData} />}
+      <div className="mb-10" style={{ paddingTop: "35px" }}>
+        <button
+          onClick={() => setShowChart(!showChart)}
+          style={{
+            padding: "8px 16px",
+            fontSize: "15px",
+            borderRadius: "12px",
+            backgroundColor: showChart ? "#4CAF50" : "#4c84ff",
+            color: showChart ? "white" : "white",
+            border: "1px solid #ccc",
+            cursor: "pointer",
+            width: "fit-content",
+            minWidth: "auto",
+            display: "inline-block",
+          }}
+        >
+          {showChart ? "Hide Chart" : "Yearly/Quarterly Chart"}
+        </button>
+        <select
+          onChange={(e) => setEntity(e.target.value)}
+          className="ml-4 px-2 py-1 border rounded-md"
+        >
+          <option value="">Select an Entity</option>
+          {entities.map((name, idx) => (
+            <option key={idx} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+        {showChart && (
+          <div className="mt-4">
+            <div className="mb-4 flex items-center gap-4"></div>
+
+            <EntityBarChart entityName={entity} view={viewMode} />
+          </div>
+        )}
+        <PrintReport data={filteredData} selectedEntity={selectedEntity} />
+      </div>
     </div>
-
-
-<div className="mb-10" style={{ paddingTop: '35px' }}>
-<button onClick={() => setShowChart(!showChart)}
-         style={{
-                  padding: '8px 16px',
-                  fontSize: '15px',
-                  borderRadius: '12px',
-                  backgroundColor: showChart ? '#4CAF50' : '#4c84ff',
-                  color: showChart ? 'white' : 'white',
-                  border: '1px solid #ccc',
-                  cursor: 'pointer',
-                  width: 'fit-content',     
-                  minWidth: 'auto',         
-                  display: 'inline-block',
-    
-                }} 
->
-      
-        {showChart ? 'Hide Chart' : 'Yearly/Quarterly Chart'}
-      </button>
-<select
-  onChange={(e) => setEntity(e.target.value)}
-  className="ml-4 px-2 py-1 border rounded-md"
-  
->
-  <option value="">Select an Entity</option>
-  {entities.map((name, idx) => (
-    <option key={idx} value={name}>{name}</option>
-  ))}
-</select>
-      {showChart && (
-  <div className="mt-4">
-    <div className="mb-4 flex items-center gap-4">
-    </div>
-
-    <EntityBarChart entityName={entity} view={viewMode} />
-  </div>
-)}
- <PrintReport data={filteredData} selectedEntity={selectedEntity} />
-
-</div>
-  
-    </div>
-
-    
   );
 }
