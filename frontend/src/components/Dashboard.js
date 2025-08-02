@@ -26,6 +26,9 @@ export default function Dashboard() {
   const [entity, setEntity] = useState("");
   const [entities, setEntities] = useState([]);
   const [viewMode] = useState("yearly");
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [uploadErrorDetails, setUploadErrorDetails] = useState(null);
+
   const [selectedEntity, setSelectedEntity] = useState("All");
 
   useEffect(() => {
