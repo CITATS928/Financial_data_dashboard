@@ -416,6 +416,32 @@ export default function Dashboard() {
         )}
         <PrintReport data={filteredData} selectedEntity={selectedEntity} />
       </div>
+
+      {errorModalVisible && uploadErrorDetails && (
+  <div className="modal show fade" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div className="modal-dialog">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title text-danger">Upload Error</h5>
+          <button type="button" className="btn-close" onClick={() => setErrorModalVisible(false)} />
+        </div>
+        <div className="modal-body">
+          <p><strong>Error:</strong> {uploadErrorDetails.error}</p>
+          {uploadErrorDetails.expected.length > 0 && (
+            <p><strong>Expected Columns:</strong> {uploadErrorDetails.expected.join(", ")}</p>
+          )}
+          {uploadErrorDetails.found.length > 0 && (
+            <p><strong>Found Columns:</strong> {uploadErrorDetails.found.join(", ")}</p>
+          )}
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={() => setErrorModalVisible(false)}>Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
