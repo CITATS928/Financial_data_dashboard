@@ -29,6 +29,8 @@ export default function Dashboard() {
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [uploadErrorDetails, setUploadErrorDetails] = useState(null);
   const [selectedEntity, setSelectedEntity] = useState("All");
+  const [isRetrying, setIsRetrying] = useState(false);
+
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
