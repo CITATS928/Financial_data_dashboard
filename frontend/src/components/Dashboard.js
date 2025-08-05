@@ -32,6 +32,16 @@ export default function Dashboard() {
   const [isRetrying, setIsRetrying] = useState(false);
 
 
+  const retryWithHeaderChoice = async (choice) => {
+    if (!files || files.length === 0) {
+      toast.error("No files to re-upload.");
+      return;
+    }
+    const csrfToken = await getCsrfToken();
+    if (!csrfToken) return;
+
+    
+
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
     return () => {
