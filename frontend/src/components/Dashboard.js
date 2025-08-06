@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import AggregateReport from "./AggregateReport";
 import EntityBarChart from "./EntityBarChart";
 import PrintReport from "./PrintReport";
+import DashboardDocPanel from "./DashboardDocPanel"; 
 axios.defaults.withCredentials = true;
 
 export default function Dashboard() {
@@ -27,6 +28,8 @@ export default function Dashboard() {
   const [entities, setEntities] = useState([]);
   const [viewMode] = useState("yearly");
   const [selectedEntity, setSelectedEntity] = useState("All");
+  const [showDoc, setShowDoc] = useState(false);
+
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
@@ -240,6 +243,34 @@ export default function Dashboard() {
       >
         Logout
       </button>
+
+      {/* Help Button */}
+      <button
+        onClick={() => setShowDoc(true)}
+        style={{
+          position: "absolute",
+          top: "13px",
+          right: "95px",
+          width: "auto",
+          height: "auto",
+          background: "none",
+          border: "none",
+          color: "#444",
+          cursor: "pointer",
+          zIndex: 9999,
+        }}
+        title="Click for help"
+        aria-label="Open help documentation"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "#000";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "#444";
+        }}
+      >
+        <i className="bi bi-question-circle" style={{ fontSize: "18px" }}></i>
+      </button>
+      {showDoc && <DashboardDocPanel onClose={() => setShowDoc(false)} />}
 
       <div className="mb-4">
         <h2 className="text-primary">📊 Diocese of DE Dashboard</h2>
