@@ -59,7 +59,21 @@ export default function Dashboard() {
         }
       );
 
-    
+      setErrorModalVisible(false);
+      setUploadErrorDetails(null);
+      toast.success("Upload successful with header choice: " + choice);
+
+      if (response.data?.results?.length > 0) {
+        response.data.results.forEach((result) => {
+          if (result.error) {
+            toast.error(`${result.filename}: ${result.error}`);
+          } else {
+            toast.success(
+              `${result.filename} uploaded to ${result.table} (${result.rows_uploaded} rows)`
+            );
+          }
+        });
+      }
 
     );
 
