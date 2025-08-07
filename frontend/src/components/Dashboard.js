@@ -40,7 +40,28 @@ export default function Dashboard() {
     const csrfToken = await getCsrfToken();
     if (!csrfToken) return;
 
+    try {
+      setIsRetrying(true);
+
+      const formData = new FormData();
+      files.forEach((file) => formData.append("files", file));
+      formData.append("header_choice", choice);
+
+      const response = await axios.post(
+        "http://localhost:8000/api/upload/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "X-CSRFToken": csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
+
     
+
+    );
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
