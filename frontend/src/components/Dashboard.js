@@ -75,7 +75,16 @@ export default function Dashboard() {
         });
       }
 
-    );
+      
+      await fetchData();
+      setTimeout(() => searchInputRef.current?.focus(), 500);
+    } catch (err) {
+      console.error("Retry upload error:", err);
+      toast.error("Retry upload failed.");
+    } finally {
+      setIsRetrying(false);
+    }
+  };
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
