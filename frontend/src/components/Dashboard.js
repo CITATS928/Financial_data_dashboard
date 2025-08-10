@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [isRetrying, setIsRetrying] = useState(false);
 
 
+  // Function to retry upload with header choice
   const retryWithHeaderChoice = async (choice) => {
     if (!files || files.length === 0) {
       toast.error("No files to re-upload.");
@@ -43,10 +44,12 @@ export default function Dashboard() {
     try {
       setIsRetrying(true);
 
+      // Prepare form data with files and header choice
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));
       formData.append("header_choice", choice);
 
+      // Send the files and header choice to the backend
       const response = await axios.post(
         "http://localhost:8000/api/upload/",
         formData,
@@ -59,10 +62,12 @@ export default function Dashboard() {
         }
       );
 
+      // Close the error modal
       setErrorModalVisible(false);
       setUploadErrorDetails(null);
       toast.success("Upload successful with header choice: " + choice);
 
+      // Process response results
       if (response.data?.results?.length > 0) {
         response.data.results.forEach((result) => {
           if (result.error) {
@@ -75,7 +80,7 @@ export default function Dashboard() {
         });
       }
 
-      
+      // Refresh data after successful upload
       await fetchData();
       setTimeout(() => searchInputRef.current?.focus(), 500);
     } catch (err) {
