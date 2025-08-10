@@ -189,6 +189,14 @@ export default function Dashboard() {
 
         if(err.response.status === 409 || (expected_columns && found_columns)) {
           // Handle conflict error
+          const details = {
+            error: error || "Headers mismatch",
+            expected: expected_columns || [],
+            found: found_columns || [],
+          };
+          setUploadErrorDetails(details);
+          setErrorModalVisible(true);
+          return;
         }
 
         const details = {
