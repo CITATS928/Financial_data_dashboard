@@ -184,8 +184,13 @@ export default function Dashboard() {
 
       // Check if the error response contains a specific error message
       if (err.response && err.response.data) {
-        const { error, expected_columns, found_columns } = err.response.data;
+        const { error, expected_columns, found_columns, status_code } = err.response.data;
       
+
+        if(err.response.status === 409) {
+          // Handle conflict error
+        }
+
         const details = {
           error: error || "Unknown error",
           expected: expected_columns || [],
