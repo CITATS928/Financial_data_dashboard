@@ -187,7 +187,7 @@ export default function Dashboard() {
         const { error, expected_columns, found_columns, status_code } = err.response.data;
       
 
-        if(err.response.status === 409) {
+        if(err.response.status === 409 || (expected_columns && found_columns)) {
           // Handle conflict error
         }
 
