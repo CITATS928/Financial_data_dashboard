@@ -199,14 +199,7 @@ export default function Dashboard() {
           return;
         }
 
-        const details = {
-          error: error || "Unknown error",
-          expected: expected_columns || [],
-          found: found_columns || [],
-        };
-      
-        setUploadErrorDetails(details);
-        setErrorModalVisible(true);
+
       } else {
         toast.error("Upload failed. Check console for details.");
       }
