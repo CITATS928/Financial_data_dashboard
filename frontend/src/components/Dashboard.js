@@ -199,13 +199,23 @@ export default function Dashboard() {
           return;
         }
 
-
+        // Handle other errors
+        if(error){
+          toast.error(`Upload failed: ${error}`);
+          if (expected_columns && found_columns) {
+            toast.error(`Expected: ${expected_columns.join(", ")}`);
+            toast.error(`Found: ${found_columns.join(", ")}`);
+          }
+        } else {
+          toast.error("Upload failed. Check console for details.");
+        }
       } else {
         toast.error("Upload failed. Check console for details.");
       }
-      
     }
-  };
+
+
+  
 
   const fetchData = async () => {
     try {
@@ -511,4 +521,4 @@ export default function Dashboard() {
 
     </div>
   );
-}
+
