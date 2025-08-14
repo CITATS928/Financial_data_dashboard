@@ -26,7 +26,70 @@ export default function Dashboard() {
   const [entity, setEntity] = useState("");
   const [entities, setEntities] = useState([]);
   const [viewMode] = useState("yearly");
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [uploadErrorDetails, setUploadErrorDetails] = useState(null);
   const [selectedEntity, setSelectedEntity] = useState("All");
+  const [isRetrying, setIsRetrying] = useState(false);
+
+
+  // Function to retry upload with header choice
+  const retryWithHeaderChoice = async (choice) => {
+    if (!files || files.length === 0) {
+      toast.error("No files to re-upload.");
+      return;
+    }
+    const csrfToken = await getCsrfToken();
+    if (!csrfToken) return;
+
+    try {
+      setIsRetrying(true);
+
+      // Prepare form data with files and header choice
+      const formData = new FormData();
+      files.forEach((file) => formData.append("files", file));
+      formData.append("header_choice", choice);
+
+      // Send the files and header choice to the backend
+      const response = await axios.post(
+        "http://localhost:8000/api/upload/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "X-CSRFToken": csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
+
+      // Close the error modal
+      setErrorModalVisible(false);
+      setUploadErrorDetails(null);
+      toast.success("Upload successful with header choice: " + choice);
+
+      // Process response results
+      if (response.data?.results?.length > 0) {
+        response.data.results.forEach((result) => {
+          if (result.error) {
+            toast.error(`${result.filename}: ${result.error}`);
+          } else {
+            toast.success(
+              `${result.filename} uploaded to ${result.table} (${result.rows_uploaded} rows)`
+            );
+          }
+        });
+      }
+
+      // Refresh data after successful upload
+      await fetchData();
+      setTimeout(() => searchInputRef.current?.focus(), 500);
+    } catch (err) {
+      console.error("Retry upload error:", err);
+      toast.error("Retry upload failed.");
+    } finally {
+      setIsRetrying(false);
+    }
+  };
 
   useEffect(() => {
     document.body.setAttribute("style", "background-color: #ffffff !important");
@@ -121,11 +184,24 @@ export default function Dashboard() {
 
       // Check if the error response contains a specific error message
       if (err.response && err.response.data) {
-        const { error, expected_columns, found_columns } = err.response.data;
+        const { error, expected_columns, found_columns, status_code } = err.response.data;
+      
 
-        if (error) {
+        if(err.response.status === 409 || (expected_columns && found_columns)) {
+          // Handle conflict error
+          const details = {
+            error: error || "Headers mismatch",
+            expected: expected_columns || [],
+            found: found_columns || [],
+          };
+          setUploadErrorDetails(details);
+          setErrorModalVisible(true);
+          return;
+        }
+
+        // Handle other errors
+        if(error){
           toast.error(`Upload failed: ${error}`);
-
           if (expected_columns && found_columns) {
             toast.error(`Expected: ${expected_columns.join(", ")}`);
             toast.error(`Found: ${found_columns.join(", ")}`);
@@ -137,7 +213,9 @@ export default function Dashboard() {
         toast.error("Upload failed. Check console for details.");
       }
     }
-  };
+
+
+  
 
   const fetchData = async () => {
     try {
@@ -415,6 +493,32 @@ export default function Dashboard() {
         )}
         <PrintReport data={filteredData} selectedEntity={selectedEntity} />
       </div>
+
+      {errorModalVisible && uploadErrorDetails && (
+  <div className="modal show fade" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div className="modal-dialog">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title text-danger">Upload Error</h5>
+          <button type="button" className="btn-close" onClick={() => setErrorModalVisible(false)} />
+        </div>
+        <div className="modal-body">
+          <p><strong>Error:</strong> {uploadErrorDetails.error}</p>
+          {uploadErrorDetails.expected.length > 0 && (
+            <p><strong>Expected Columns:</strong> {uploadErrorDetails.expected.join(", ")}</p>
+          )}
+          {uploadErrorDetails.found.length > 0 && (
+            <p><strong>Found Columns:</strong> {uploadErrorDetails.found.join(", ")}</p>
+          )}
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={() => setErrorModalVisible(false)}>Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
-}
+
