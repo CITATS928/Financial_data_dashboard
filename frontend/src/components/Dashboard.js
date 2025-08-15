@@ -526,16 +526,15 @@ export default function Dashboard() {
                   </p>
                 )}
               </div>
-<div className="modal-footer">
-  <button
-    className="btn btn-outline-secondary"
-    onClick={() => setErrorModalVisible(false)}
-    disabled={isRetrying}
-  >
-    Cancel
-  </button>
-
-</div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setErrorModalVisible(false)}
+                  disabled={isRetrying}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
