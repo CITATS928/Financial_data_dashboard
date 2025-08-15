@@ -213,7 +213,7 @@ export default function Dashboard() {
         toast.error("Upload failed. Check console for details.");
       }
     }
-
+  };
 
   
 
@@ -522,3 +522,4 @@ export default function Dashboard() {
     </div>
   );
 
+}
