@@ -534,6 +534,13 @@ export default function Dashboard() {
                 >
                   Cancel
                 </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => retryWithHeaderChoice("expected")}
+                  disabled={isRetrying}
+                >
+                  {isRetrying ? "Re-uploading..." : "Use Expected Header"}
+                </button>
               </div>
             </div>
           </div>
