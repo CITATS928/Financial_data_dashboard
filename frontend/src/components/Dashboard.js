@@ -541,6 +541,13 @@ export default function Dashboard() {
                 >
                   {isRetrying ? "Re-uploading..." : "Use Expected Header"}
                 </button>
+                <button
+                  className="btn btn-success"
+                  onClick={() => retryWithHeaderChoice("found")}
+                  disabled={isRetrying}
+                >
+                  {isRetrying ? "Re-uploading..." : "Use Found Header"}
+                </button>
               </div>
             </div>
           </div>
