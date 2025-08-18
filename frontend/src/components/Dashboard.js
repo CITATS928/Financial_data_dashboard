@@ -513,18 +513,36 @@ export default function Dashboard() {
                 <p>
                   <strong>Error:</strong> {uploadErrorDetails.error}
                 </p>
+
                 {uploadErrorDetails.expected.length > 0 && (
-                  <p>
-                    <strong>Expected Columns:</strong>{" "}
-                    {uploadErrorDetails.expected.join(", ")}
-                  </p>
+                  <>
+                    <p className="mb-1">
+                      <strong>Expected Columns</strong>
+                    </p>
+                    <pre
+                      className="bg-light p-2 rounded"
+                      style={{ whiteSpace: "pre-wrap" }}
+                    >
+                      {uploadErrorDetails.expected.join(", ")}
+                    </pre>
+                  </>
                 )}
+
                 {uploadErrorDetails.found.length > 0 && (
-                  <p>
-                    <strong>Found Columns:</strong>{" "}
-                    {uploadErrorDetails.found.join(", ")}
-                  </p>
+                  <>
+                    <p className="mb-1 mt-3">
+                      <strong>Found Columns</strong>
+                    </p>
+                    <pre
+                      className="bg-light p-2 rounded"
+                      style={{ whiteSpace: "pre-wrap" }}
+                    >
+                      {uploadErrorDetails.found.join(", ")}
+                    </pre>
+                  </>
                 )}
+
+                <p className="mt-3">Choose which header to use for merging:</p>
               </div>
               <div className="modal-footer">
                 <button
