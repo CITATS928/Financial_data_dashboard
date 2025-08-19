@@ -414,6 +414,22 @@ class UploadDynamicCSVView(APIView):
                 traceback.print_exc()
                 results.append({"filename": file_obj.name, "error": str(e)})
 
+
+            return Response({
+                "message": f"Processed {len(files)} file(s).",
+                "results": results,
+                "total_uploaded_rows": total_uploaded_rows,
+                "total_skipped_rows": total_skipped_rows,
+            }, status=status.HTTP_201_CREATED)
+        
+
+        # Multiple files upload
+        # If headerline is different
+        # Choose one of the headerline
+
+        
+
+
         else:
             # When multiple files are uploaded, combine them into a single DataFrame
             combined_df = pd.DataFrame()
