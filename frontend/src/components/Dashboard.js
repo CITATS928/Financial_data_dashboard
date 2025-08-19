@@ -30,6 +30,8 @@ export default function Dashboard() {
   const [uploadErrorDetails, setUploadErrorDetails] = useState(null);
   const [selectedEntity, setSelectedEntity] = useState("All");
   const [isRetrying, setIsRetrying] = useState(false);
+  const [financialData, setFinancialData] = useState([]);
+
 
 
   // Function to retry upload with header choice
@@ -117,6 +119,8 @@ export default function Dashboard() {
     setExcludeQuery("");
     setSearchColumn("all");
     setSelectedEntity("All");
+    setData([]);
+    setFinancialData([]);
   };
 
   const getCsrfToken = async () => {
@@ -212,9 +216,8 @@ export default function Dashboard() {
       } else {
         toast.error("Upload failed. Check console for details.");
       }
-    }
-
-
+      }
+    };
   
 
   const fetchData = async () => {
@@ -426,6 +429,8 @@ export default function Dashboard() {
           selectedEntity={selectedEntity}
           setSelectedEntity={setSelectedEntity}
           handleReset={handleReset}
+          setData={setData}
+          setFinancialData={setFinancialData}
         />
       </div>
 
@@ -521,4 +526,4 @@ export default function Dashboard() {
 
     </div>
   );
-
+}
