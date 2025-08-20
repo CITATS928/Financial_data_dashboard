@@ -427,8 +427,15 @@ class UploadDynamicCSVView(APIView):
         # If headerline is different
         # Choose one of the headerline
 
-        
+        # save the file first
+        file_blobs=[]
+        for f in files:
+            content = f.read()
+            file_blobs.append((f.name, io.BytesIO(content)))
 
+        def read_df_from_blob(blob):
+            blob.seek(0)
+            return pd.read_csv(blob)
 
         else:
             # When multiple files are uploaded, combine them into a single DataFrame
