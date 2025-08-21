@@ -8,17 +8,17 @@ export default function TableView({
   selectedEntity,
   setSelectedEntity,
   handleReset,
-  setData,
-  setFinancialData,
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
-  // ✅ Clears parent financial data state
-  const clearAllData = () => {
-    setFinancialData([]);
-    setSelectedEntity("");
-  };
+  if (!Array.isArray(data) || data.length === 0) { 
+    return ( 
+     <div className="alert alert-warning text-center">
+        No table data available
+     </div> 
+    ); 
+  }
 
   const uniqueEntities = Array.from(
     new Set(data.map((item) => item.entity_name))
@@ -131,21 +131,10 @@ export default function TableView({
 
           <button
             className="btn btn-sm btn-danger"
-            style={{ width: "120px" }}
+            style={{ width: "100px" }}
             onClick={handleReset}
           >
             Reset Filters
-          </button>
-
-          <button
-            onClick={() => {
-              setData([]);
-              setFinancialData([]);
-            }}
-            className="btn btn-sm btn-danger"
-            style={{ width: "120px" }}
-          >
-            Clear Data
           </button>
 
           <div className="form-check d-flex align-items-center m-0 ms-auto">
@@ -165,12 +154,6 @@ export default function TableView({
           </div>
         </div>
 
-        {/* ✅ Show message if no data */}
-        {sortedData.length === 0 ? (
-          <div className="alert alert-warning text-center mt-3">
-            No table data available
-          </div>
-        ) : (
           <table className="table table-hover table-bordered align-middle mb-0">
             <thead className="text-center">
               <tr>
@@ -298,7 +281,6 @@ export default function TableView({
               </tr>
             </tbody>
           </table>
-        )}
       </div>
     </div>
   );
