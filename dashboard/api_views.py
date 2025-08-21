@@ -435,7 +435,9 @@ class UploadDynamicCSVView(APIView):
 
         def read_df_from_blob(blob):
             blob.seek(0)
-            return pd.read_csv(blob)
+            df = pd.read_csv(blob)
+            df.columns = [str(c).strip().replace('\ufeff', '') for c in df.columns]
+            return df
 
         else:
             # When multiple files are uploaded, combine them into a single DataFrame
