@@ -439,6 +439,24 @@ class UploadDynamicCSVView(APIView):
             df.columns = [str(c).strip().replace('\ufeff', '') for c in df.columns]
             return df
 
+        header_list = []
+        first_header = None
+        found_header = None
+
+    
+        for fname, blob in file_blobs:
+            try:
+                df = read_df_from_blob(blob)
+                cols = df.columns.tolist()
+                if not cols:
+                    return Response({"error": f"File '{fname}' has no headers."}, status=400)
+                
+                header_list.append((fname, cols))
+                if first_header is None:
+                    first_header = cols
+                if found_header is None:
+                    found_header = cols
+
         else:
             # When multiple files are uploaded, combine them into a single DataFrame
             combined_df = pd.DataFrame()
