@@ -48,26 +48,41 @@ python manage.py migrate
 python manage.py runserver
 
 Frontend
+
   cd frontend
   npm install
   npm start
 
 Screenshots
+
 Signup
+
 ![image alt](https://github.com/CITATS928/Financial_data_dashboard/blob/0dd167eafda400d37b55c630a40fdd09da4a2d0a/Signup%20Page.png)
+
 Login
+
 ![image_alt](https://github.com/CITATS928/Financial_data_dashboard/blob/0dd167eafda400d37b55c630a40fdd09da4a2d0a/Login%20Page.png)
+
 Dashboard
+
 ![image_alt](https://github.com/CITATS928/Financial_data_dashboard/blob/0dd167eafda400d37b55c630a40fdd09da4a2d0a/Dashboard.png)
+
 Charts
 
 Bar Chart
+
 ![image_alt](https://github.com/CITATS928/Financial_data_dashboard/blob/0dd167eafda400d37b55c630a40fdd09da4a2d0a/Bar%20Chart.png)
+
 Pie Chart
+
 ![image_alt](https://github.com/CITATS928/Financial_data_dashboard/blob/0dd167eafda400d37b55c630a40fdd09da4a2d0a/Pie%20Chart.png)
+
 Donut Chart
+
 ![image_alt](https://github.com/CITATS928/Financial_data_dashboard/blob/0dd167eafda400d37b55c630a40fdd09da4a2d0a/Donut%20Chart.png)
+
 Utilization Chart
+
 ![image_alt](https://github.com/CITATS928/Financial_data_dashboard/blob/0dd167eafda400d37b55c630a40fdd09da4a2d0a/Utilization%20Chart.png)
 
 API Reference
