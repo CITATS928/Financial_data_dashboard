@@ -454,8 +454,10 @@ class UploadDynamicCSVView(APIView):
                 header_list.append((fname, cols))
                 if first_header is None:
                     first_header = cols
-                if found_header is None:
-                    found_header = cols
+                elif cols != first_header and found_mismatch is None:
+                    found_mismatch = (fname, cols)
+            except Exception as e:
+                return Response({"error": f"Error reading file '{fname}': {str(e)}"}, status=400)
 
         else:
             # When multiple files are uploaded, combine them into a single DataFrame
