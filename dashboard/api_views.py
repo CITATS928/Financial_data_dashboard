@@ -439,6 +439,11 @@ class UploadDynamicCSVView(APIView):
             df.columns = [str(c).strip().replace('\ufeff', '') for c in df.columns]
             return df
 
+
+
+        # Multiple files upload
+        # first round
+        # find headers
         header_list = []
         first_headers = None
         found_header = None
