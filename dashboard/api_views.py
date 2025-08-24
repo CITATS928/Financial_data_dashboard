@@ -440,7 +440,7 @@ class UploadDynamicCSVView(APIView):
             return df
 
         header_list = []
-        first_header = None
+        first_headers = None
         found_header = None
 
     
@@ -452,12 +452,29 @@ class UploadDynamicCSVView(APIView):
                     return Response({"error": f"File '{fname}' has no headers."}, status=400)
                 
                 header_list.append((fname, cols))
-                if first_header is None:
-                    first_header = cols
-                elif cols != first_header and found_mismatch is None:
+                if first_headers is None:
+                    first_headers = cols
+                elif cols != first_headers and found_mismatch is None:
                     found_mismatch = (fname, cols)
             except Exception as e:
                 return Response({"error": f"Error reading file '{fname}': {str(e)}"}, status=400)
+
+
+        # if is different,
+        header_choice = request.POST.get("header_choice")
+        if found_mismatch is not None and not header_choice:
+            return Response({
+                "error": "Column mismatch detected.",
+                "expected_columns": first_headers,
+                "found_columns": found_mismatch[1],
+                "status_code": 409
+            }, status=409)
+
+
+
+
+
+
 
         else:
             # When multiple files are uploaded, combine them into a single DataFrame
