@@ -475,16 +475,18 @@ class UploadDynamicCSVView(APIView):
                 "status_code": 409
             }, status=409)
 
-
-
-
-
-
-
+        # User make choice
+        if found_mismatch is not None:
+            if header_choice not in ("expected", "found"):
+                return Response({"error": "Invalid header_choice."}, status=400)
+            canonical = first_headers if header_choice == "expected" else found_mismatch[1]
         else:
-            # When multiple files are uploaded, combine them into a single DataFrame
-            combined_df = pd.DataFrame()
-            error_files = []
+            canonical = first_headers
+
+        # else:
+        #     # When multiple files are uploaded, combine them into a single DataFrame
+        #     combined_df = pd.DataFrame()
+        #     error_files = []
             headers_set = None  # Use to track headers across files
             
             for file_obj in files:
