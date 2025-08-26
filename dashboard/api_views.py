@@ -484,7 +484,25 @@ class UploadDynamicCSVView(APIView):
             canonical = first_headers
 
 
+        # combine all DataFrames into one
+        combined_df = pd.DataFrame()
 
+        for fname, blob in file_blobs:
+            df = read_df_from_blob(blob)
+            cols = df.columns.tolist()
+
+            # col need to match canonical
+            if len(cols) != len(canonical):
+                return Response({
+                    "error": f"Cannot auto-align {fname}: different number of columns.",
+                    "canonical_columns": canonical,
+                    "file_columns": cols
+                }, status=400)
+            
+            df.columns = canonical[:]
+            combined_df = pd.concat([combined_df, df], ignore_index=True)
+
+        
 
         # else:
         #     # When multiple files are uploaded, combine them into a single DataFrame
