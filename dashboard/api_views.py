@@ -502,7 +502,18 @@ class UploadDynamicCSVView(APIView):
             df.columns = canonical[:]
             combined_df = pd.concat([combined_df, df], ignore_index=True)
 
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        table_name = f"user_{request.user.id}_combined_{timestamp}"
+
+        with connection.cursor() as cursor:
+            columns_sql = ", ".join([f'"{col}" TEXT' for col in combined_df.columns])
+            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+            cursor.execute(f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns_sql})')
+
         
+        
+        combined_df.to_sql(table_name, connection, if_exists='append', index=False)
+
 
         # else:
         #     # When multiple files are uploaded, combine them into a single DataFrame
