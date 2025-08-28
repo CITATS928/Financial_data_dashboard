@@ -514,6 +514,26 @@ class UploadDynamicCSVView(APIView):
         
         combined_df.to_sql(table_name, connection, if_exists='append', index=False)
 
+        UploadedFile.objects.create(
+            user=request.user,
+            filename="Multiple Combined Upload",
+            table_name=table_name
+        )
+
+        results.append({
+            "filename": "Multiple Combined Upload",
+            "table": table_name,
+            "rows_uploaded": combined_df.shape[0],
+            "rows_skipped": 0
+        })
+
+        return Response({
+            "message": f"Processed {len(files)} file(s).",
+            "results": results,
+            "total_uploaded_rows": int(combined_df.shape[0]),
+            "total_skipped_rows": 0,
+        }, status=status.HTTP_201_CREATED)
+
 
         # else:
         #     # When multiple files are uploaded, combine them into a single DataFrame
