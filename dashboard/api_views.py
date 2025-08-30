@@ -447,6 +447,7 @@ class UploadDynamicCSVView(APIView):
         header_list = []
         first_headers = None
         found_header = None
+        found_mismatch = None
 
     
         for fname, blob in file_blobs:
@@ -485,7 +486,7 @@ class UploadDynamicCSVView(APIView):
 
 
         # combine all DataFrames into one
-        combined_df = pd.DataFrame()
+        combined_df = pd.DataFrame(columns=canonical)
 
         for fname, blob in file_blobs:
             df = read_df_from_blob(blob)
@@ -501,6 +502,22 @@ class UploadDynamicCSVView(APIView):
             
             df.columns = canonical[:]
             combined_df = pd.concat([combined_df, df], ignore_index=True)
+
+
+        # create a filename
+        all_names = [fname for name, _ in file_blobs]
+        if len(all_names) <=3:
+            combined_label = " + ".join(all_names)
+        else:
+            combined_label = " + ".join(all_names[:3]) + f" + {len(all_names) - 3} more"
+
+        combined_label = f"Combined ({combined_label})"
+
+        if len(combined_label) > 200:
+            combined_label = combined_label[:197] + "..."
+
+
+
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         table_name = f"user_{request.user.id}_combined_{timestamp}"
