@@ -533,12 +533,12 @@ class UploadDynamicCSVView(APIView):
 
         UploadedFile.objects.create(
             user=request.user,
-            filename="Multiple Combined Upload",
+            filename=combined_label,
             table_name=table_name
         )
 
         results.append({
-            "filename": "Multiple Combined Upload",
+            "filename": combined_label,
             "table": table_name,
             "rows_uploaded": combined_df.shape[0],
             "rows_skipped": 0
