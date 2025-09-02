@@ -8,7 +8,6 @@ from rest_framework.parsers import JSONParser
 from django.db import connection
 from django.utils.text import slugify
 import datetime
-# from .models import FinancialData
 from .models import FinancialLineItem
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.csrf import csrf_exempt
@@ -49,9 +48,6 @@ class UploadCSVView(APIView):
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string, delimiter=',')  # <- force comma as delimiter
 
-            # decoded_file = file_obj.read().decode("utf-8")
-            # io_string = io.StringIO(decoded_file)
-            # reader = csv.DictReader(io_string)
 
             for row in reader:
                 FinancialData.objects.create(
@@ -103,124 +99,11 @@ class SessionLoginView(APIView):
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-# # ✅ NEW: Upload FinancialLineItem CSV
 
-# # ✅ Enhanced: UploadFinancialLineItemsView with per-file summary
 
 # # Do not use it
 class UploadFinancialLineItemsView(APIView):
     pass
-#     parser_classes = [MultiPartParser]
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request):
-#         files = request.FILES.getlist("files")
-#         if not files:
-#             return Response({"error": "No files uploaded."}, status=status.HTTP_400_BAD_REQUEST)
-        
-#         total_rows = 0
-#         total_skipped = 0
-#         results = []
-
-#         for file_obj in files:
-#             skipped_rows_this_file = 0
-#             uploaded_rows_this_file = 0
-
-#             try:
-#                 decoded_file = file_obj.read().decode("utf-8").replace('\r\n', '\n').replace('\r', '\n')
-#                 io_string = io.StringIO(decoded_file)
-
-#                 # Auto-detect delimiter (tab, comma, etc.)
-#                 sample = io_string.read(2048)
-#                 io_string.seek(0)
-
-#                 try:
-#                     dialect = csv.Sniffer().sniff(sample, delimiters=",\t;")
-#                     if dialect.delimiter not in [',', '\t', ';']:
-#                         print(f"⚠ Unknown delimiter `{repr(dialect.delimiter)}`, defaulting to comma.")
-#                         dialect.delimiter = ','
-#                 except csv.Error:
-#                     print("⚠ Sniffer failed, using default comma delimiter.")
-#                     dialect = csv.excel 
-
-#                 print(f"📂 Parsing file: {file_obj.name}")
-#                 print(f"🧭 Detected delimiter: {repr(dialect.delimiter)}")
-
-#                 reader = csv.DictReader(io_string, dialect=dialect)
-#                 reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
-
-#                 required_fields = {"entity_name", "account_code", "ytd_actual", "annual_budget"}
-#                 if not set(reader.fieldnames or []).issuperset(required_fields):
-#                     return Response({
-#                         "error": f"Missing required columns in {file_obj.name}. Found: {reader.fieldnames}"
-#                     }, status=status.HTTP_400_BAD_REQUEST)
-
-
-#                 items = []
-#                 for row in reader:
-#                     try:
-#                         print("Parsed row:", row)  # ✅ moved safely inside the loop
-
-#                         row = {k.strip(): (v.strip() if v else "") for k, v in row.items()}
-
-#                         if not row.get("entity_name") or not row.get("account_code"):
-#                             print(f"⚠ Skipping row due to missing required fields: {row}")
-#                             skipped_rows_this_file += 1
-#                             continue
-
-#                         items.append(FinancialLineItem(
-#                             user=request.user,
-#                             entity_name=row.get("entity_name"),
-#                             account_code=row.get("account_code"),
-#                             description=row.get("description", ""),
-#                             ytd_actual=float(row.get("ytd_actual") or 0),
-#                             annual_budget=float(row.get("annual_budget") or 0),
-#                             category=row.get("category", ""),
-#                             item_type=row.get("item_type", "statement"),
-#                             expense_nature=row.get("expense_nature") or "n/a",
-#                         ))
-
-#                     except Exception as row_error:
-#                         print(f"❌ Skipping row due to error: {row_error}, row: {row}")
-#                         skipped_rows_this_file += 1
-#                         continue
-
-
-#                 FinancialLineItem.objects.bulk_create(items)
-#                 uploaded_rows_this_file = len(items)
-#                 total_rows += uploaded_rows_this_file
-#                 total_skipped += skipped_rows_this_file
-
-#                 UploadedFile.objects.create(
-#                     user=request.user,
-#                     filename=file_obj.name,
-#                 )
-
-#                 results.append({
-#                     "filename": file_obj.name,
-#                     "rows_uploaded": uploaded_rows_this_file,
-#                     "rows_skipped": skipped_rows_this_file,
-#                 })
-
-#             except Exception as e:
-#                 import traceback
-#                 traceback_str = traceback.format_exc()
-#                 print(f"🔥 Error in file {file_obj.name}: {e}")
-#                 print(traceback.format_exc())
-#                 return Response(
-#                     {"error": f"Error processing file {file_obj.name}: {str(e)}"},
-#                     status=status.HTTP_400_BAD_REQUEST
-#                 )
-
-#         return Response(
-#             {
-#                 "message": f"Successfully processed {len(files)} file(s).",
-#                 "results": results,
-#                 "total_uploaded_rows": total_rows,
-#                 "total_skipped_rows": total_skipped,
-#             },
-#             status=status.HTTP_201_CREATED
-#         )
 
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
