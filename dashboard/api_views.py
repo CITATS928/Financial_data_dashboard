@@ -329,7 +329,6 @@ class UploadDynamicCSVView(APIView):
         # find headers
         header_list = []
         first_headers = None
-        found_header = None
         found_mismatch = None
 
     
@@ -394,12 +393,13 @@ class UploadDynamicCSVView(APIView):
         else:
             combined_label = " + ".join(all_names[:3]) + f" + {len(all_names) - 3} more"
 
+        # add a prefix
         combined_label = f"Combined ({combined_label})"
 
+
+        # in case file name is too long, truncate it
         if len(combined_label) > 200:
             combined_label = combined_label[:197] + "..."
-
-
 
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
