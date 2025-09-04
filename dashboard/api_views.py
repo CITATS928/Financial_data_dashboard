@@ -105,6 +105,7 @@ class SessionLoginView(APIView):
 class UploadFinancialLineItemsView(APIView):
     pass
 
+
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
     permission_classes = [IsAuthenticated]

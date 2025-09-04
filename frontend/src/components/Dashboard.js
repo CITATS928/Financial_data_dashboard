@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [selectedEntity, setSelectedEntity] = useState("All");
   const [isRetrying, setIsRetrying] = useState(false);
 
+
   // Function to retry upload with header choice
   const retryWithHeaderChoice = async (choice) => {
     if (!files || files.length === 0) {
@@ -216,6 +217,7 @@ export default function Dashboard() {
       }
     }
   };
+
 
   const fetchData = async () => {
     try {
@@ -574,3 +576,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
