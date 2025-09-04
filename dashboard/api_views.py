@@ -8,7 +8,6 @@ from rest_framework.parsers import JSONParser
 from django.db import connection
 from django.utils.text import slugify
 import datetime
-# from .models import FinancialData
 from .models import FinancialLineItem
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.views.decorators.csrf import csrf_exempt
@@ -49,9 +48,6 @@ class UploadCSVView(APIView):
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string, delimiter=',')  # <- force comma as delimiter
 
-            # decoded_file = file_obj.read().decode("utf-8")
-            # io_string = io.StringIO(decoded_file)
-            # reader = csv.DictReader(io_string)
 
             for row in reader:
                 FinancialData.objects.create(
@@ -103,14 +99,12 @@ class SessionLoginView(APIView):
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-# # ✅ NEW: Upload FinancialLineItem CSV
 
-# # ✅ Enhanced: UploadFinancialLineItemsView with per-file summary
 
 # # Do not use it
 class UploadFinancialLineItemsView(APIView):
     pass
-#     
+
 
 # ✅ MODIFIED: Use serializer to return computed fields like gross_profit
 class FinancialLineItemsListView(APIView):
@@ -304,76 +298,144 @@ class UploadDynamicCSVView(APIView):
                 traceback.print_exc()
                 results.append({"filename": file_obj.name, "error": str(e)})
 
+
+            return Response({
+                "message": f"Processed {len(files)} file(s).",
+                "results": results,
+                "total_uploaded_rows": total_uploaded_rows,
+                "total_skipped_rows": total_skipped_rows,
+            }, status=status.HTTP_201_CREATED)
+        
+
+        # Multiple files upload
+        # If headerline is different
+        # Choose one of the headerline
+
+        # save the file first
+        file_blobs=[]
+        for f in files:
+            content = f.read()
+            file_blobs.append((f.name, io.BytesIO(content)))
+
+        def read_df_from_blob(blob):
+            blob.seek(0)
+            df = pd.read_csv(blob)
+            df.columns = [str(c).strip().replace('\ufeff', '') for c in df.columns]
+            return df
+
+
+
+        # Multiple files upload
+        # first round
+        # find headers
+        header_list = []
+        first_headers = None
+        found_mismatch = None
+
+    
+        for fname, blob in file_blobs:
+            try:
+                df = read_df_from_blob(blob)
+                cols = df.columns.tolist()
+                if not cols:
+                    return Response({"error": f"File '{fname}' has no headers."}, status=400)
+                
+                header_list.append((fname, cols))
+                if first_headers is None:
+                    first_headers = cols
+                elif cols != first_headers and found_mismatch is None:
+                    found_mismatch = (fname, cols)
+            except Exception as e:
+                return Response({"error": f"Error reading file '{fname}': {str(e)}"}, status=400)
+
+
+        # if is different,
+        header_choice = request.POST.get("header_choice")
+        if found_mismatch is not None and not header_choice:
+            return Response({
+                "error": "Column mismatch detected.",
+                "expected_columns": first_headers,
+                "found_columns": found_mismatch[1],
+                "status_code": 409
+            }, status=409)
+
+        # User make choice
+        if found_mismatch is not None:
+            if header_choice not in ("expected", "found"):
+                return Response({"error": "Invalid header_choice."}, status=400)
+            canonical = first_headers if header_choice == "expected" else found_mismatch[1]
         else:
-            # When multiple files are uploaded, combine them into a single DataFrame
-            combined_df = pd.DataFrame()
-            error_files = []
-            headers_set = None  # Use to track headers across files
+            canonical = first_headers
+
+
+        # combine all DataFrames into one
+        combined_df = pd.DataFrame(columns=canonical)
+
+        for fname, blob in file_blobs:
+            df = read_df_from_blob(blob)
+            cols = df.columns.tolist()
+
+            # col need to match canonical
+            if len(cols) != len(canonical):
+                return Response({
+                    "error": f"Cannot auto-align {fname}: different number of columns.",
+                    "canonical_columns": canonical,
+                    "file_columns": cols
+                }, status=400)
             
-            for file_obj in files:
-                try:
-                    df = pd.read_csv(file_obj)
+            df.columns = canonical[:]
+            combined_df = pd.concat([combined_df, df], ignore_index=True)
 
-                    # skip empty files
-                    if df.empty:
-                        error_files.append(file_obj.name)
-                        continue
 
-                    # Clean column names
-                    df.columns = [str(col).strip().replace('\ufeff', '') for col in df.columns]
+        # create a filename
+        all_names = [fname for name, _ in file_blobs]
+        if len(all_names) <=3:
+            combined_label = " + ".join(all_names)
+        else:
+            combined_label = " + ".join(all_names[:3]) + f" + {len(all_names) - 3} more"
 
-                    # Check if headers match
-                    if headers_set is None:
-                        headers_set = df.columns.tolist()
-                    elif df.columns.tolist() != headers_set:
-                        print(f"Column mismatch in '{file_obj.name}':\nExpected: {headers_set}\nFound: {df.columns.tolist()}")
-                        return Response({
-                            "error": f"Column mismatch detected in file '{file_obj.name}'.",
-                            "expected_columns": headers_set,
-                            "found_columns": df.columns.tolist()
-                        }, status=400)
+        # add a prefix
+        combined_label = f"Combined ({combined_label})"
 
-                    combined_df = pd.concat([combined_df, df], ignore_index=True)
 
-                except Exception as e:
-                    error_files.append(file_obj.name + f" (error: {str(e)})")
+        # in case file name is too long, truncate it
+        if len(combined_label) > 200:
+            combined_label = combined_label[:197] + "..."
 
-            if combined_df.empty:
-                return Response({"error": f"All uploaded files failed or were empty: {error_files}"}, status=400)
 
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            table_name = f"user_{request.user.id}_combined_{timestamp}"
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        table_name = f"user_{request.user.id}_combined_{timestamp}"
 
-            with connection.cursor() as cursor:
-                columns_sql = ", ".join([f'"{col}" TEXT' for col in combined_df.columns])
-                cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
-                cursor.execute(f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns_sql})')
+        with connection.cursor() as cursor:
+            columns_sql = ", ".join([f'"{col}" TEXT' for col in combined_df.columns])
+            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+            cursor.execute(f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY AUTOINCREMENT, {columns_sql})')
 
-            combined_df.to_sql(table_name, connection, if_exists='append', index=False)
+        
+        
+        combined_df.to_sql(table_name, connection, if_exists='append', index=False)
 
-            UploadedFile.objects.create(
-                user=request.user,
-                filename="Multiple Combined Upload",
-                table_name=table_name
-            )
+        UploadedFile.objects.create(
+            user=request.user,
+            filename=combined_label,
+            table_name=table_name
+        )
 
-            results.append({
-                "filename": "Multiple Combined Upload",
-                "table": table_name,
-                "rows_uploaded": combined_df.shape[0],
-                "rows_skipped": 0
-            })
-
-            total_uploaded_rows = combined_df.shape[0]
-            total_skipped_rows = 0
-
+        results.append({
+            "filename": combined_label,
+            "table": table_name,
+            "rows_uploaded": combined_df.shape[0],
+            "rows_skipped": 0
+        })
 
         return Response({
             "message": f"Processed {len(files)} file(s).",
             "results": results,
-            "total_uploaded_rows": total_uploaded_rows,
-            "total_skipped_rows": total_skipped_rows,
+            "total_uploaded_rows": int(combined_df.shape[0]),
+            "total_skipped_rows": 0,
         }, status=status.HTTP_201_CREATED)
+
+
 
 
 

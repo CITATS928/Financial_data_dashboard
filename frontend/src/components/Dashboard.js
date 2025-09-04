@@ -30,7 +30,7 @@ export default function Dashboard() {
   const [uploadErrorDetails, setUploadErrorDetails] = useState(null);
   const [selectedEntity, setSelectedEntity] = useState("All");
   const [isRetrying, setIsRetrying] = useState(false);
-  
+
 
   // Function to retry upload with header choice
   const retryWithHeaderChoice = async (choice) => {
@@ -184,10 +184,13 @@ export default function Dashboard() {
 
       // Check if the error response contains a specific error message
       if (err.response && err.response.data) {
-        const { error, expected_columns, found_columns, status_code } = err.response.data;
-      
+        const { error, expected_columns, found_columns, status_code } =
+          err.response.data;
 
-        if(err.response.status === 409 || (expected_columns && found_columns)) {
+        if (
+          err.response.status === 409 ||
+          (expected_columns && found_columns)
+        ) {
           // Handle conflict error
           const details = {
             error: error || "Headers mismatch",
@@ -200,7 +203,7 @@ export default function Dashboard() {
         }
 
         // Handle other errors
-        if(error){
+        if (error) {
           toast.error(`Upload failed: ${error}`);
           if (expected_columns && found_columns) {
             toast.error(`Expected: ${expected_columns.join(", ")}`);
@@ -212,9 +215,9 @@ export default function Dashboard() {
       } else {
         toast.error("Upload failed. Check console for details.");
       }
-      }
-    };
-  
+    }
+  };
+
 
   const fetchData = async () => {
     try {
@@ -494,30 +497,83 @@ export default function Dashboard() {
       </div>
 
       {errorModalVisible && uploadErrorDetails && (
-  <div className="modal show fade" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-    <div className="modal-dialog">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title text-danger">Upload Error</h5>
-          <button type="button" className="btn-close" onClick={() => setErrorModalVisible(false)} />
-        </div>
-        <div className="modal-body">
-          <p><strong>Error:</strong> {uploadErrorDetails.error}</p>
-          {uploadErrorDetails.expected.length > 0 && (
-            <p><strong>Expected Columns:</strong> {uploadErrorDetails.expected.join(", ")}</p>
-          )}
-          {uploadErrorDetails.found.length > 0 && (
-            <p><strong>Found Columns:</strong> {uploadErrorDetails.found.join(", ")}</p>
-          )}
-        </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={() => setErrorModalVisible(false)}>Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+        <div
+          className="modal show fade"
+          style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-danger">Upload Error</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setErrorModalVisible(false)}
+                />
+              </div>
+              <div className="modal-body">
+                <p>
+                  <strong>Error:</strong> {uploadErrorDetails.error}
+                </p>
 
+                {uploadErrorDetails.expected.length > 0 && (
+                  <>
+                    <p className="mb-1">
+                      <strong>Expected Columns</strong>
+                    </p>
+                    <pre
+                      className="bg-light p-2 rounded"
+                      style={{ whiteSpace: "pre-wrap" }}
+                    >
+                      {uploadErrorDetails.expected.join(", ")}
+                    </pre>
+                  </>
+                )}
+
+                {uploadErrorDetails.found.length > 0 && (
+                  <>
+                    <p className="mb-1 mt-3">
+                      <strong>Found Columns</strong>
+                    </p>
+                    <pre
+                      className="bg-light p-2 rounded"
+                      style={{ whiteSpace: "pre-wrap" }}
+                    >
+                      {uploadErrorDetails.found.join(", ")}
+                    </pre>
+                  </>
+                )}
+
+                <p className="mt-3">Choose which header to use for merging:</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setErrorModalVisible(false)}
+                  disabled={isRetrying}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => retryWithHeaderChoice("expected")}
+                  disabled={isRetrying}
+                >
+                  {isRetrying ? "Re-uploading..." : "Use Expected Header"}
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={() => retryWithHeaderChoice("found")}
+                  disabled={isRetrying}
+                >
+                  {isRetrying ? "Re-uploading..." : "Use Found Header"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
